@@ -9,7 +9,7 @@ import {
   Image,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { FileTexto, Dollar, CancelarX, Upload, CheckCircle } from '../../../Icons';
+import { FileTexto, Dollar, CancelarX, Upload, CheckCircle, Trash } from '../../../Icons';
 import { styles } from "./ComporbanteModal.Style"; // Asegúrate de que la ruta es correcta
 export function ComprobanteModal({
   modalVisible,

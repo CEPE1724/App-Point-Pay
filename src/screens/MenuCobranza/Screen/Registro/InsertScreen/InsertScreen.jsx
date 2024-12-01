@@ -652,7 +652,7 @@ export function InsertScreen({ route, navigation }) {
           />
 
           <TouchableOpacity style={styles.button} onPress={handleSave}>
-            <Text style={styles.buttonText}>Guardaras</Text>
+            <Text style={styles.buttonText}>Guardar</Text>
           </TouchableOpacity>
           <LoadingIndicator visible={loading} />
           <ConfirmationModal

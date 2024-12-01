@@ -19,7 +19,9 @@
         "NSLocationAlwaysUsageDescription": "La ubicación siempre es necesaria para enviar actualizaciones en tiempo real.",
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
-        }
+        },
+        "NSCameraUsageDescription": "La aplicación necesita acceder a la cámara para tomar fotos.",
+        "NSPhotoLibraryUsageDescription": "La aplicación necesita acceder a tu galería de fotos."
       }
     },
     "android": {
@@ -31,7 +33,9 @@
         "INTERNET",
         "WRITE_EXTERNAL_STORAGE",
         "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION"
+        "ACCESS_COARSE_LOCATION",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE"
       ],
       "package": "com.cepe1724.AppPointPay"
     },

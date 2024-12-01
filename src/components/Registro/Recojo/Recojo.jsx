@@ -14,7 +14,7 @@ import {
 import axios from "axios";
 import { APIURL } from "../../../config/apiconfig";
 import { styles } from "./Recojo.Style";
-import { User, DriversLicenseO, FileText } from '../../../Icons';
+import { Trash, Upload } from '../../../Icons';
 import Icon from "react-native-vector-icons/FontAwesome";
 import * as ImagePicker from "expo-image-picker";
 
@@ -197,7 +197,7 @@ export function Recojo({ route, setModalVisibleRecojo, setSubmittedDataRecojo, s
             onPress={() => handleImagePicker(item.idDetCompra)}
             style={styles.uploadButton}
           >
-            <Icon name="upload" size={24} color="#007bff" />
+            <Upload size={24} color="#007bff" />
             <Text style={styles.uploadButtonText}> Cargar Imagen</Text>
           </TouchableOpacity>
           <Text style={{ marginVertical: 10 }}>
@@ -227,7 +227,7 @@ export function Recojo({ route, setModalVisibleRecojo, setSubmittedDataRecojo, s
                     onPress={() => removeImage(item.idDetCompra, image)}
                     style={{ position: "absolute", top: 5, right: 5 }}
                   >
-                    <Icon name="trash" size={20} color="red" />
+                    <Trash size={20} color="red" />
                   </TouchableOpacity>
                 </View>
               ))}

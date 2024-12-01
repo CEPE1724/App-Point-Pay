@@ -43,17 +43,20 @@ export function DashBoard(props) {
           }
         );
 
+        // Asignación segura de valores, controlando null, cero y valores negativos
         const { totalProjected, totalCollected, count } = response.data;
-        const formattedTotalCollected =
-          totalCollected !== null ? totalCollected : 0;
-        const totalCount = count !== undefined ? count : 0;
+
+        const formattedTotalCollected = totalCollected && totalCollected > 0 ? totalCollected : 0;
+        const totalCount = count && count > 0 ? count : 0;
+
+        const formattedTotalProjected = totalProjected && totalProjected > 0 ? totalProjected : 0;
 
         const percentage =
-          totalProjected > 0 ? (totalCollected / totalProjected) * 100 : 0;
+          formattedTotalProjected > 0 ? (formattedTotalCollected / formattedTotalProjected) * 100 : 0;
 
         setTotalAmount(formattedTotalCollected);
         setNumberOfClients(totalCount);
-        setTotalProjected(totalProjected);
+        setTotalProjected(formattedTotalProjected);
         setPercentageCollected(percentage.toFixed(2));
       }
     } catch (error) {
@@ -159,33 +162,7 @@ export function DashBoard(props) {
             </View>
 
             <View style={styles.circleContainer}>
-              <View style={[styles.circle, { borderColor: getBarColor(totalAmount, totalProjected) }]}>
-                <Text style={styles.circleText}>
-                  {`${getBarWidth(totalAmount, totalProjected).toFixed(2)}%`}
-                </Text>
-              </View>
-            </View>
-          </View>
-          <View style={styles.containerCirclePorc}>
-            <View style={styles.barContainer}>
-              <View
-                style={[
-                  styles.bar,
-                  {
-                    width: `${getBarWidth(totalAmount, totalProjected)}%`, // Calcula el porcentaje de la barra
-                    backgroundColor: getBarColor(totalAmount, totalProjected), // Establece el color según el porcentaje
-                  },
-                ]}
-              >
-             
-                <Text style={styles.barText}>
-                  {`${getBarWidth(totalAmount, totalProjected).toFixed(2)}%`}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.circleContainer}>
-              <View style={[styles.circle, { borderColor: getBarColor(totalAmount, totalProjected) }]}>
-                
+              <View style={[styles.circle, { borderColor: getBarColor(totalAmount, totalProjected) }]} >
                 <Text style={styles.circleText}>
                   {`${getBarWidth(totalAmount, totalProjected).toFixed(2)}%`}
                 </Text>
@@ -209,11 +186,7 @@ export function DashBoard(props) {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[
-                styles.card,
-                styles.clickableCard,
-                styles.completadosCard,
-              ]}
+              style={[styles.card, styles.clickableCard, styles.completadosCard]}
               activeOpacity={0.7}
             >
               <View style={styles.iconContainer}>
@@ -261,6 +234,5 @@ export function DashBoard(props) {
         )}
       </TouchableOpacity>
     </View>
-
   );
 }

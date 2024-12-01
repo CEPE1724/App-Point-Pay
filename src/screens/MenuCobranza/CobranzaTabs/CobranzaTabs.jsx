@@ -3,6 +3,7 @@ import { View, StyleSheet, Text, Keyboard } from "react-native";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { CobranzaStack } from '../CobranzaStack';
 import { RegistroStack } from '../RegistroStack';
+import { ExitCobranzaStack } from '../ExitCobranzaStack';
 import { screen } from "../../../utils";
 import { CircleInfoIcon, Home, Book, Terrain, CalendarToday, AccountCircle} from "../../../Icons"; // Verifica que este icono esté importado correctamente
 
@@ -67,7 +68,7 @@ export function CobranzaTabs() {
             />
             <Tab.Screen
                 name={screen.home.tab}
-                component={CobranzaStack}
+                component={ExitCobranzaStack}
                 options={{
                     tabBarStyle: { display: "none" },
                     title: "Cuenta",

@@ -6,6 +6,8 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
+
+import Octicons from '@expo/vector-icons/Octicons';
 export const CircleInfoIcon = (props) => {
   return <FontAwesome5 name="info-circle" size={props.size} color={props.color} />;
 };
@@ -125,3 +127,8 @@ export const CancelarX = (props) => {
 export const Trash = (props) => {
   return <FontAwesome name="trash" size={props.size} color={props.color} />;
 }
+
+export const XCircle = (props) => {
+  return <Octicons name="x-circle" size={24} color="black" />
+}
+

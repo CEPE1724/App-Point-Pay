@@ -90,11 +90,12 @@ export const CalendarToday = (props) => {
 }
 
 export const DriversLicenseO = (props) => {
-  return <MaterialIcons name="drivers-license-o" size={props.size} color={props.color} />;
+  return <FontAwesome name="drivers-license-o" size={props.size} color={props.color} />;
 }
 
+
 export const FileText = (props) => {
-  return <MaterialIcons name="file-text-o" size={props.size} color={props.color} />;
+  return <FontAwesome name="file-text-o" size={props.size} color={props.color} />;
 }
 
 export const ShoppingCart = (props) => {
@@ -109,3 +110,18 @@ export const History = (props) => {
   return <MaterialIcons name="history" size={props.size} color={props.color} />;
 }
 
+export const FileTexto = (props) => {
+  return <FontAwesome name="file-text" size={props.size} color={props.color} />;
+}
+
+export const Dollar = (props) => {
+  return <FontAwesome name="dollar" size={props.size} color={props.color} />;
+}
+
+export const CancelarX = (props) => {
+  return <FontAwesome name="times" size={props.size} color={props.color} />;
+}
+
+export const Trash = (props) => {
+  return <FontAwesome name="trash" size={props.size} color={props.color} />;
+}

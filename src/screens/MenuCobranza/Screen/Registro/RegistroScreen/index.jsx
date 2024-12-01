@@ -1,0 +1,1 @@
+export * from './RegistroScreen'; // Path: src/screens/MenuCobranza/Screen/Registro/RegistroScreen/index.jsx

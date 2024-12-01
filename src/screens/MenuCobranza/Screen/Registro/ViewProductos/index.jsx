@@ -1,0 +1,1 @@
+export * from './ViewProductos'; // File: App-Point-Pay/src/screens/MenuCobranza/Screen/Registro/ViewProductos/index.jsx

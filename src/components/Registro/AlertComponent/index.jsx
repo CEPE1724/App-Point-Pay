@@ -1,0 +1,1 @@
+export * from './AlertComponent'; // Exporta el componente AlertComponent

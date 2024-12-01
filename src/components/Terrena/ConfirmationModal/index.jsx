@@ -1,0 +1,1 @@
+export * from './ConfirmationModal'; // Exporta el componente ConfirmationModal

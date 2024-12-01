@@ -1,0 +1,1 @@
+export * from './Recojo'; // Exporta el componente Recojo

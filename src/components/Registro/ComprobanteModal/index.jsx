@@ -1,0 +1,1 @@
+export * from './ComprobanteModal'; // Exporta el componente ComprobanteModal

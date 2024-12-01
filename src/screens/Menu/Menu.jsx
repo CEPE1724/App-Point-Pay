@@ -3,7 +3,8 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // Importamos useNavigation
 import { Storage, Location, Exit } from '../../Icons';
-import LogoCobranza from '../../../assets/icon.png';
+import LogoCobranza from '../../../assets/PontyDollar.png';
+import logo from '../../../assets/Point.png';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export function Menu({ navigation }) {
@@ -14,7 +15,7 @@ const salir = () => {
   return (
     <View style={styles.container}>
       <Image
-        source={LogoCobranza}
+        source={logo}
         style={[styles.image, { width: 150, height: 60, marginBottom: 20 }]}
         resizeMode="contain"
       />

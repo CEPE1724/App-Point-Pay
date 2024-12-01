@@ -15,8 +15,8 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import logo from "../../../assets/icon.png";
-import point from "../../../assets/icon.png";
+import point from "../../../assets/Point.png";
+import  logo from "../../../assets/PontyDollar.png";
 import { APIURL } from "../../config/apiconfig";
 import { styles } from "./LoginScreen.Style";
 

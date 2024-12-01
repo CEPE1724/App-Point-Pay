@@ -5,7 +5,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage'; // Para As
 import Modal from 'react-native-modal'; // Librería para el modal
 import {XCircle} from '../../../../Icons'; // Importa los iconos necesarios
 import { styles } from "./ExitCobranza.Style"; // Verifica la ruta
-export function ExitCobranza() {
+import { screen } from '../../../../utils/screenName'; // Importa la configuración de las pantallas
+import { refresh } from '@react-native-community/netinfo';
+export function ExitCobranza({ navigation }) {
   // Estado para almacenar la información del usuario
   const [userInfo, setUserInfo] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false); // Estado para mostrar el modal
@@ -36,14 +38,32 @@ export function ExitCobranza() {
 
   // Función para confirmar el cierre de sesión
   const confirmLogout = () => {
-    setIsLoggingOut(true); // Indicar que el cierre de sesión está en proceso
-    setIsModalVisible(false); // Ocultar el modal después de confirmar
-    // Aquí puedes agregar la lógica para cerrar sesión (limpiar almacenamiento, etc.)
-    AsyncStorage.clear().then(() => {
-      console.log("Todo el almacenamiento local ha sido eliminado");
-      // Puedes redirigir a la pantalla de login o alguna otra.
-      //navigation.replace('Login');
+    setIsLoggingOut(true); // Indicate that the logout process is ongoing
+    setIsModalVisible(false); // Hide the modal after confirming
+    removeSpecificItems();
+    navigation.reset({
+      index: 0, // Start from the first screen in the stack
+      routes: [{ name: 'Login' }], // Navigate directly to 'Cobranza'
     });
+  
+  };
+  
+  const removeSpecificItems = async () => {
+    try {
+      // List of keys to remove
+      const keysToRemove = ["userId", "userInfo", "userName", "userToken"];
+      
+      // Loop through the keys and remove each item
+      for (let key of keysToRemove) {
+        await AsyncStorage.removeItem(key);
+      }
+      
+      // Optionally, log the remaining keys to confirm removal
+      const remainingKeys = await AsyncStorage.getAllKeys();
+  
+    } catch (error) {
+      console.error('Error removing items from AsyncStorage:', error);
+    }
   };
 
   // Función para cancelar el cierre de sesión
@@ -53,12 +73,17 @@ export function ExitCobranza() {
 
   // Función para salir de la aplicación
   const handleExit = () => {
+   
+    navigation.reset({
+      index: 0, // Start from the first screen in the stack
+      routes: [{ name: 'MenuTabs' }], // Navigate directly to 'Cobranza'
+    });
     // Esto cerrará la aplicación
-    if (Platform.OS === 'ios') {
-      BackHandler.exitApp();
-    } else {
-      BackHandler.exitApp();
-    }
+    //if (Platform.OS === 'ios') {
+    //  BackHandler.exitApp();
+   // } else {
+   //   BackHandler.exitApp();
+   // }
   };
 
   // Verifica si los datos de usuario están disponibles antes de renderizar
@@ -105,7 +130,7 @@ export function ExitCobranza() {
         <Button
           mode="outlined"
          
-          onPress={handleLogout}
+          onPress={handleLogout  }
           style={styles.exitButton}
           icon="exit-to-app"
         >

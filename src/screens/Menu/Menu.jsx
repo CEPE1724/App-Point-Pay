@@ -9,9 +9,33 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export function Menu({ navigation }) {
 
+
+
 const salir = () => {
-  AsyncStorage.removeItem("userToken");
+  removeSpecificItems();
+  navigation.replace('Login');
+
+
 };
+
+const removeSpecificItems = async () => {
+  try {
+    // List of keys to remove
+    const keysToRemove = ["userId", "userInfo", "userName", "userToken"];
+    
+    // Loop through the keys and remove each item
+    for (let key of keysToRemove) {
+      await AsyncStorage.removeItem(key);
+    }
+    
+    // Optionally, log the remaining keys to confirm removal
+    const remainingKeys = await AsyncStorage.getAllKeys();
+
+  } catch (error) {
+    console.error('Error removing items from AsyncStorage:', error);
+  }
+};
+
   return (
     <View style={styles.container}>
       <Image
@@ -31,26 +55,7 @@ const salir = () => {
           <Text style={styles.cardTitle}>Cobranza</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.card}
-        >
-          <Storage size={40} color="#333" />
-          <Text style={styles.cardTitle}>Bodega</Text>
-        </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.card}
-        >
-          <Storage size={40} color="#333" />
-          <Text style={styles.cardTitle}>Bodega</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.card}
-        >
-          <Storage size={40} color="#333" />
-          <Text style={styles.cardTitle}>Bodega</Text>
-        </TouchableOpacity>
 
       </View>
 

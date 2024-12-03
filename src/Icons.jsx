@@ -51,6 +51,10 @@ export const User = (props) => {
   return <FontAwesome6 name="user" size={props.size} color={props.color} />
 };
 
+export const UserBlack = (props) => {
+  return <FontAwesome name="user" size={props.size} color={props.color} />
+};
+
 export const Book = (props) => {
   return <FontAwesome6 name="contact-book" size={props.size} color={props.color} />
 };
@@ -97,6 +101,9 @@ export const DriversLicenseO = (props) => {
 
 
 export const FileText = (props) => {
+  return <FontAwesome name="file-text-o" size={props.size} color={props.color} />;
+}
+export const CreditCard = (props) => {
   return <FontAwesome name="file-text-o" size={props.size} color={props.color} />;
 }
 

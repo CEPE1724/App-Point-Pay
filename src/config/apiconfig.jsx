@@ -1,6 +1,6 @@
 
-const API_BASE_URL = "http://179.49.21.45:3025/cobranza/api/v1/point/";
-const SOCKET_BASE_URL = "http://179.49.21.45:3025"; 
+const API_BASE_URL = "http://192.168.2.124:3035/cobranza/api/v1/point/";
+const SOCKET_BASE_URL = "http://192.168.2.124:3035"; 
 export const APIURL = {
    
     senLogin: () => `${API_BASE_URL}login`,
@@ -35,4 +35,8 @@ export const APIURL = {
     postGestiondiaria: ()=> `${API_BASE_URL}GestionDiaria/list`,
     postGestiondiariaId: () => `${API_BASE_URL}GestionDiaria/allGestionId`, 
     getAllGestionDiaria : () =>`${API_BASE_URL}GestionDiaria/allGestion`,
+    getViewLastGestiones: () => `${API_BASE_URL}AppSave/ViewGestionesDeCobranzas`,
+    getViewTablaAmortizacion : () => `${API_BASE_URL}AppSave/TablaAmrtizacion`,
+    getViewTablaAmortizacionValores : () => `${API_BASE_URL}AppSave/TablaValoresPendientes`,
+    getViewListadoProductos : () => `${API_BASE_URL}Inventario/Productos`,
 };

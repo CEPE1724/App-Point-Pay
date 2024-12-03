@@ -190,7 +190,7 @@ export const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: '#ffffff', // Fondo blanco
     marginBottom: 20, // Espacio debajo del área de texto
-    textTransform: "uppercase",
+    //textTransform: "uppercase",
   },
   uploadButton: {
     flexDirection: 'row',

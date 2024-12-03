@@ -189,6 +189,7 @@ export function Recojo({ route, setModalVisibleRecojo, setSubmittedDataRecojo, s
             style={styles.observationInput}
             placeholder="Ingrese observaciones"
             value={observations[item.idDetCompra] || ""}
+            autoCapitalize="characters"
             onChangeText={(text) =>
               handleObservationChange(item.idDetCompra, text)
             }

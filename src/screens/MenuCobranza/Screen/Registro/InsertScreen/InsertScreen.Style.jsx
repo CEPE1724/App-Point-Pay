@@ -45,6 +45,22 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 12,
   },
+  buttonAmortizacion : {
+    backgroundColor: '#ff8a2f',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  buttonGestiones : {
+    backgroundColor: 'green',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    marginTop: 12,
+  },
   rowPro: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -197,7 +213,7 @@ export const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: '#ffffff', // Fondo blanco
     marginBottom: 20, // Espacio debajo del área de texto
-    textTransform: "uppercase",
+    //textTransform: "uppercase",
   },
   uploadButton: {
     flexDirection: 'row',

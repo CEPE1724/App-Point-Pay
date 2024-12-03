@@ -5,6 +5,7 @@ import SplashScreen from "../screens/SplashScreen/SplashScreen";
 import LoginScreen from "../screens/LoginScreen/LoginScreen";
 import { MenuTabNavigator } from "../../src/navigation/MenuTabNavigator";
 import { CobranzaTabs } from "../screens/MenuCobranza/CobranzaTabs/CobranzaTabs";
+import { VentasTabs } from "../screens/MenuVentas/VentasTabs/VentasTabs";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LocationTracker } from "../components/Location/Location";
 import LocationSender from "../components/Location/LocationSender";
@@ -26,6 +27,11 @@ function TabNavigator() {
       <Tab.Screen
         name="Cobranza"
         component={CobranzaTabs}
+        options={{ tabBarStyle: { display: "none" } }}
+      />
+      <Tab.Screen
+        name="Ventas"
+        component={VentasTabs}
         options={{ tabBarStyle: { display: "none" } }}
       />
     </Tab.Navigator>

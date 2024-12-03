@@ -37,7 +37,7 @@
                 borderRadius: 10,
                 backgroundColor: "#fff",
                 fontSize: 16,
-                textTransform: "uppercase",
+                //textTransform: "uppercase",
               },
               button: {
                 width: "100%",

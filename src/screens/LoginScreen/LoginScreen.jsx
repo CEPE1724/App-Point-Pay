@@ -143,6 +143,7 @@ export default function LoginScreen({ navigation }) {
             keyboardType="email-address"
             value={email}
             onChangeText={handleEmailChange}
+            autoCapitalize="characters"
           />
         </View>
 

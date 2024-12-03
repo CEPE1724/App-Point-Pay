@@ -23,6 +23,7 @@ import { AlertComponent } from "../../../../../components";
 import { ConfirmationModal } from "../../../../../components";
 import { LoadingIndicator } from  "../../../../../components";
 import { HandleSave } from "./HandleSave"; // Asegúrate de importar la función handleGuardar
+import {UserBlack} from "../../../../../Icons"
 export function InsertScreen({ route, navigation }) {
   
   const { item } = route.params;
@@ -94,6 +95,15 @@ export function InsertScreen({ route, navigation }) {
     navigation.navigate(screen.registro.product, { item });
   };
 
+  const handleViewGestiones= () => {
+    navigation.navigate(screen.registro.viewGestiones, { item });
+  };
+
+  const handleViewAmortizacion= () => {
+    navigation.navigate(screen.registro.TablaAmortizacion, { item });
+  };
+
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -397,7 +407,7 @@ export function InsertScreen({ route, navigation }) {
       <View style={styles.card}>
         <View style={styles.detailsContainer}>
           <View style={styles.row}>
-            <Icon name="user" size={24} color="#333" style={styles.icon} />
+            <UserBlack size={24} color="#333" style={styles.icon} />
             <Text style={styles.value}>{item.Cliente}</Text>
           </View>
           <View style={styles.row}>
@@ -418,21 +428,22 @@ export function InsertScreen({ route, navigation }) {
             />
             <Text style={styles.value}>{item.Numero_Documento}</Text>
           </View>
-          <TouchableOpacity onPress={handleButtonPress} style={styles.button}>
+          <TouchableOpacity onPress={handleViewAmortizacion} style={styles.buttonAmortizacion}>
+              <View style={styles.rowPro}>
+                <Icon name="shopping-cart" size={24} color="#fff" />
+              <Text style={styles.valueProAmo}>Tabla</Text>
+              <Text style={styles.valueProAmo}>Amortización</Text>
+              </View>
+            </TouchableOpacity>
+          <View style={styles.buttonsContainer}>
+            
+            <TouchableOpacity onPress={handleButtonPress} style={styles.button}>
             <View style={styles.rowPro}>
               <Icon name="shopping-cart" size={24} color="#fff" />
               <Text style={styles.valuePro}>Productos</Text>
             </View>
           </TouchableOpacity>
-          <View style={styles.buttonsContainer}>
-            <TouchableOpacity onPress={handleButtonPress} style={styles.button}>
-              <View style={styles.rowPro}>
-                <Icon name="shopping-cart" size={24} color="#fff" />
-                <Text style={styles.valueProAmo}>Tabla Amortización</Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={handleButtonPress} style={styles.button}>
+            <TouchableOpacity onPress={handleViewGestiones} style={styles.buttonGestiones}>
               <View style={styles.rowPro}>
                 <Icon name="shopping-cart" size={24} color="#fff" />
                 <Text style={styles.valueProAmo}>Gestiones</Text>
@@ -646,6 +657,7 @@ export function InsertScreen({ route, navigation }) {
             numberOfLines={4} // Número de líneas visibles
             textAlignVertical="top" // Alineación del texto en la parte superior
             value={observations}
+            autoCapitalize="characters"
             onChangeText={(text) => {
               setObservations(text); // Actualiza el estado con el nuevo texto
             }}

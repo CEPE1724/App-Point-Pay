@@ -23,6 +23,9 @@ const registroStack = {
     insert: "RegistroInsert",
     insertCall: "RegistroInsertCall",
     product: "Productos",
+    viewGestiones: "ViewGestiones",
+    TablaAmortizacion: "TablaAmortizacion",
+
 }
 
 const terrenoStack = {
@@ -37,6 +40,11 @@ const gestionDiariaStack = {
     inicio: "GestionDiaria",
     diaria: "Diaria",
 }
+
+const menuVentasStack = {
+    tab: "MenuVentasTab",
+    inicio: "MenuVentas",
+}
 export const screen = {
         drive: driveStack,
         home: homeStack,
@@ -44,6 +52,7 @@ export const screen = {
         terreno: terrenoStack,
         gestionDiaria: gestionDiariaStack,
         menu: menuStack,
+        menuVentas: menuVentasStack,
 
     };
 //navigation.navigate(screen.drive.insert);   para viajar en las mismas pantallas o stack

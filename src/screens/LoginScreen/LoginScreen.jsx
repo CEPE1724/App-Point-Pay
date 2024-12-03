@@ -104,10 +104,19 @@ export default function LoginScreen({ navigation }) {
   };
 
   const storeUserData = async (data) => {
-    await AsyncStorage.setItem("userToken", data.token);
-    await AsyncStorage.setItem("userInfo", JSON.stringify(data.usuario));
-    await AsyncStorage.setItem("userName", data.usuario.Nombre);
-    await AsyncStorage.setItem("userId", String(data.usuario.idUsuario));
+    try {
+      // Guardamos el token y los detalles del usuario en AsyncStorage
+      await AsyncStorage.setItem("userToken", data.token);
+      await AsyncStorage.setItem("userInfo", JSON.stringify(data.usuario));
+      await AsyncStorage.setItem("userName", data.usuario.Nombre);
+      await AsyncStorage.setItem("userId", String(data.usuario.idUsuario));
+      await AsyncStorage.setItem("userBodega", JSON.stringify(data.usuario.bodegas));  // Guardamos bodegas como JSON
+      await AsyncStorage.setItem("userPermiso", JSON.stringify(data.usuario.permisosMenu));  // Guardamos permisosMenu como JSON
+
+      console.log("Datos del usuario guardados con éxito");
+    } catch (error) {
+      console.error("Error al guardar datos en AsyncStorage:", error);
+    }
   };
 
   return (
@@ -188,7 +197,7 @@ export default function LoginScreen({ navigation }) {
           )}
         </TouchableOpacity>
 
-        <Text style={styles.version}>V.1.0.0</Text>
+        <Text style={styles.version}>V.1.10.1</Text>
 
       </ScrollView>
     </KeyboardAvoidingView>

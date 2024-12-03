@@ -44,6 +44,7 @@ const gestionDiariaStack = {
 const menuVentasStack = {
     tab: "MenuVentasTab",
     inicio: "MenuVentas",
+    salir: "Salir",
 }
 export const screen = {
         drive: driveStack,

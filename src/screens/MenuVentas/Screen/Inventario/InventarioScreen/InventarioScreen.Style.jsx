@@ -137,4 +137,17 @@ export const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 20,
   },
+  pickerContainer: {
+    marginBottom: 15,
+    paddingHorizontal: 10,
+  },
+  pickerLabel: {
+    fontSize: 16,
+    color: "#333",
+    marginBottom: 5,
+  },
+  picker: {
+    height: 60,
+    width: '100%',
+  },
 });

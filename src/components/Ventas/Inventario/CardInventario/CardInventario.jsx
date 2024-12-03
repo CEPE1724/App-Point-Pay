@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { User, FileText, CreditCard, Box } from '../../../../Icons'; // Asegúrate de que los iconos sean correctos
+import { View, Text, TouchableOpacity } from 'react-native';
+import { FileText, CreditCard } from '../../../../Icons'; // Asegúrate de que los iconos sean correctos
 import { styles } from './CardInventario.Style'; // Asegúrate de importar los estilos correctamente
 
 export function CardInventario({
@@ -25,10 +25,7 @@ export function CardInventario({
     <TouchableOpacity
       style={[
         styles.card,
-        {
-          backgroundColor: pressedCardIndex === index ? "#e0e0e0" : "#fff", // Cambia el fondo al presionar
-          borderColor: pressedCardIndex === index ? "#ccc" : "#ddd", // Cambia el borde al presionar
-        },
+        pressedCardIndex === index && styles.pressedCard, // Estilo cuando la tarjeta es presionada
       ]}
       onPress={() => onPress(item, index)}
       onPressIn={() => onPressIn(index)} // Establecer índice cuando se presiona

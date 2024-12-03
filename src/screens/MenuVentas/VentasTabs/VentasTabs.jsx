@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Text, Keyboard } from "react-native";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { VentasStack } from '../VentasStack';
+import { ExitVentasStack } from '../ExitVentasStack';
 import { screen } from "../../../utils";
 import { CircleInfoIcon, Home, Book, Terrain, CalendarToday, AccountCircle} from "../../../Icons"; // Verifica que este icono esté importado correctamente
 
@@ -45,9 +46,14 @@ export function VentasTabs() {
             })}
         >
             <Tab.Screen
-                name={screen.menuVentas.tab}
+                name={screen.menuVentas.inicio}
                 component={VentasStack}
-                options={{ title: "Inicio" }}
+                options={{ title: "Productos" }}
+            />
+            <Tab.Screen
+                name={screen.menuVentas.salir}
+                component={ExitVentasStack}
+                options={{ title: "Cuenta" }}
             />
         </Tab.Navigator>
     );
@@ -55,21 +61,16 @@ export function VentasTabs() {
 
 function renderIcon(route, color, size, focused) {
     let IconComponent = CircleInfoIcon; // Solo tienes un ícono en el ejemplo
-    if(route.name === screen.home.tab) {
+    if(route.name === screen.menuVentas.salir) {
         IconComponent = AccountCircle ;
     }
-    if(route.name === screen.drive.tab) {
+    if(route.name === screen.menuVentas.tab) {
         IconComponent = Home;
     }
-    if(route.name === screen.registro.tab) {
+    if(route.name === screen.menuVentas.inicio) {
         IconComponent = Book ;
     }
-    if(route.name === screen.terreno.tab) {
-        IconComponent = Terrain;
-    }
-    if(route.name === screen.gestionDiaria.tab) {
-        IconComponent = CalendarToday ;
-    }
+  
 
     return (
         <View
@@ -88,16 +89,12 @@ function renderIcon(route, color, size, focused) {
 
 function renderLabel(route) {
     switch (route.name) {
-        case screen.home.tab:
-            return "Cuenta";
-        case screen.drive.tab:
+        case screen.menuVentas.tab:
             return "Inicio";
-        case screen.registro.tab:
-            return "Registros";
-        case screen.terreno.tab:
-            return "Terreno";
-        case screen.gestionDiaria.tab:
-            return "Diaria";
+        case screen.menuVentas.inicio:
+            return "Productos";
+        case screen.menuVentas.salir:
+            return "Cuenta";
         default:
             return "";
     }

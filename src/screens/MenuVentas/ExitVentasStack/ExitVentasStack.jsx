@@ -1,10 +1,9 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import {InventarioScreen} from "../Screen";
+import {ExitVenta} from "../Screen";
 import { screen } from "../../../utils";
-
 const Stack = createNativeStackNavigator();
 
-export function VentasStack()  {
+export function ExitVentasStack()  {
   return (
     <Stack.Navigator
       screenOptions={{
@@ -13,10 +12,10 @@ export function VentasStack()  {
       }}
     >
       <Stack.Screen 
-        name={screen.menuVentas.inicio} 
-        component={InventarioScreen} 
-        options={{ title: "Productos" }}
-      />
+        name={screen.menuVentas.salir} 
+        component={ExitVenta} 
+        options={{ title: "Cuenta" }}
+      />      
     </Stack.Navigator>
   );
 };

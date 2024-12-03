@@ -1,5 +1,5 @@
 import { styles } from "./Menu.Style";
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // Importamos useNavigation
 import { Storage, Location, Exit } from '../../Icons';
@@ -7,35 +7,58 @@ import LogoCobranza from '../../../assets/PontyDollar.png';
 import LogoVentas from '../../../assets/PointVentas.png';
 import logo from '../../../assets/Point.png';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { User } from '../../Icons';
 
 export function Menu({ navigation }) {
+  const [permisosMenu, setPermisosMenu] = useState([]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Obtener la información del usuario desde AsyncStorage
+        const userInfo = await AsyncStorage.getItem("userInfo");
 
+        if (userInfo) {
+          // Convertir la cadena JSON a un objeto JavaScript
+          const parsedUserInfo = JSON.parse(userInfo);
+          
+          // Acceder a permisosMenu dentro del objeto parsedUserInfo
+          console.log("Permisos Menu:", parsedUserInfo.permisosMenu);
 
-const salir = () => {
-  removeSpecificItems();
-  navigation.replace('Login');
+          // Guardar permisosMenu en el estado
+          setPermisosMenu(parsedUserInfo.permisosMenu);
+        } else {
+          console.log("No user info found in AsyncStorage");
+        }
+      } catch (error) {
+        console.error('Error fetching data from AsyncStorage:', error);
+      }
+    };
 
+    fetchData();
+  }, []);
 
-};
+  const salir = () => {
+    removeSpecificItems();
+    navigation.replace('Login');
+  };
 
-const removeSpecificItems = async () => {
-  try {
-    // List of keys to remove
-    const keysToRemove = ["userId", "userInfo", "userName", "userToken"];
-    
-    // Loop through the keys and remove each item
-    for (let key of keysToRemove) {
-      await AsyncStorage.removeItem(key);
+  const removeSpecificItems = async () => {
+    try {
+      // List of keys to remove
+      const keysToRemove = ["userId", "userInfo", "userName", "userToken"];
+      
+      // Loop through the keys and remove each item
+      for (let key of keysToRemove) {
+        await AsyncStorage.removeItem(key);
+      }
+      
+      // Optionally, log the remaining keys to confirm removal
+      const remainingKeys = await AsyncStorage.getAllKeys();
+    } catch (error) {
+      console.error('Error removing items from AsyncStorage:', error);
     }
-    
-    // Optionally, log the remaining keys to confirm removal
-    const remainingKeys = await AsyncStorage.getAllKeys();
-
-  } catch (error) {
-    console.error('Error removing items from AsyncStorage:', error);
-  }
-};
+  };
 
   return (
     <View style={styles.container}>
@@ -44,34 +67,50 @@ const removeSpecificItems = async () => {
         style={[styles.image, { width: 150, height: 60, marginBottom: 20 }]}
         resizeMode="contain"
       />
-      <Text style={styles.title}>Version: 1.0.0.1</Text>
+      <Text style={styles.title}>Version: 1.10.1</Text>
 
       <View style={styles.cardContainer}>
+        {/* Condicional para mostrar "Cobranza" si permisosMenu incluye el valor 1 */}
+        {permisosMenu.includes(1) && (
+          <TouchableOpacity
+            style={styles.card}
+            onPress={() => navigation.navigate('Cobranza')}
+          >
+            <Image source={LogoCobranza} style={{ width: 70, height: 50 }} />
+            <Text style={styles.cardTitle}>Cobranza</Text>
+          </TouchableOpacity>
+        )}
 
-        <TouchableOpacity
-          style={styles.card}
-          onPress={() => navigation.navigate('Cobranza')}
-        >
-          <Image source={LogoCobranza} style={{ width: 70, height: 50 }} />
-          <Text style={styles.cardTitle}>Cobranza</Text>
-        </TouchableOpacity>
+        {/* Condicional para mostrar "Ventas" si permisosMenu incluye el valor 2 */}
+        {permisosMenu.includes(2) && (
+          <TouchableOpacity
+            style={styles.card}
+            onPress={() => navigation.navigate('Ventas')}
+          >
+            <Image source={LogoVentas} style={{ width: 70, height: 50 }} />
+            <Text style={styles.cardTitle}>Ventas</Text>
+          </TouchableOpacity>
+        )}
 
-        <TouchableOpacity
-          style={styles.card}
-          onPress={() => navigation.navigate('Ventas')}
-        >
-          <Image source={LogoVentas} style={{ width: 70, height: 50 }} />
-          <Text style={styles.cardTitle}>Ventas</Text>
-        </TouchableOpacity>
+        {/* Si no tiene permisos para Cobranza ni para Ventas, muestra un mensaje */}
+        {(!permisosMenu.includes(1) && !permisosMenu.includes(2)) && (
+          <View style={styles.errorContainer}>
+            <User size={50} color="#fff" />
+            <Text style={styles.errorMessage}>
+              No tienes permisos para acceder a ninguna sección.
+            </Text>
+            <Text style={styles.errorMessage}>
+              Comuníquese con el administrador Ext. 803 - EC
+            </Text>
+          </View>
+        )}
       </View>
 
       <Text style={styles.title}>Cuida tus credenciales, no las compartas con nadie.</Text>
 
       <View style={styles.cardContainerLoc}>
-
         <TouchableOpacity
           style={styles.cardLoc}
-
         >
           <Location size={40} color="#2066a4" />
           <Text style={styles.cardTitleLoc}>Ubicanos</Text>
@@ -80,7 +119,6 @@ const removeSpecificItems = async () => {
         <TouchableOpacity
           style={styles.cardLoc}
           onPress={salir}
-
         >
           <Exit size={40} color="#2066a4" />
           <Text style={styles.cardTitleLoc}>Salir</Text>

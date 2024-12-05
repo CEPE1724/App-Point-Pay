@@ -1,6 +1,6 @@
 import { styles } from "./Menu.Style";
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // Importamos useNavigation
 import { Storage, Location, Exit } from '../../Icons';
 import LogoCobranza from '../../../assets/PontyDollar.png';
@@ -8,8 +8,10 @@ import LogoVentas from '../../../assets/PointVentas.png';
 import logo from '../../../assets/Point.png';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { User } from '../../Icons';
+import { useAuth } from '../../navigation/AuthContext'; // Importamos el contexto
 
 export function Menu({ navigation }) {
+  const { logout } = useAuth(); // Usamos el contexto de autenticación
   const [permisosMenu, setPermisosMenu] = useState([]);
 
   useEffect(() => {
@@ -38,9 +40,9 @@ export function Menu({ navigation }) {
     fetchData();
   }, []);
 
-  const salir = () => {
-    removeSpecificItems();
-    navigation.replace('Login');
+  const salir = async () => {
+    await removeSpecificItems(); // Limpiar datos del usuario en AsyncStorage
+    logout(); // Ejecutamos el logout del contexto
   };
 
   const removeSpecificItems = async () => {
@@ -115,7 +117,7 @@ export function Menu({ navigation }) {
 
         <TouchableOpacity
           style={styles.cardLoc}
-          onPress={salir}
+          onPress={salir} // Ejecuta logout y redirige
         >
           <Exit size={40} color="#2066a4" />
           <Text style={styles.cardTitleLoc}>Salir</Text>

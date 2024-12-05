@@ -6,6 +6,8 @@ const SOCKET_BASE_URL = "http://192.168.2.184:3025";
 export const APIURL = {
    
     senLogin: () => `${API_BASE_URL}login`,
+    senLoginV1: () => `${API_BASE_URL}v1/login`,
+    senLoginPin: () => `${API_BASE_URL}v1/loginPin`,
     postAllCountGestiones : () =>`${API_BASE_URL}all`,
     getAllcliente : () =>`${API_BASE_URL}registro`,
     getAllclienteInsert : () =>`${API_BASE_URL}registroindividual`,

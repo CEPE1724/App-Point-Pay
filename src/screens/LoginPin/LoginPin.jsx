@@ -1,15 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Image, Alert } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons'; // Para los íconos
-import point from "../../../assets/Point.png"; // Imagen de fondo
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import point from "../../../assets/Point.png"; 
+import { useAuth } from "../../navigation/AuthContext"; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { APIURL } from "../../config/apiconfig";
 
 export default function PinInput({ navigation }) {
     const { width, height } = Dimensions.get('window');
     const [pin, setPin] = useState(['', '', '', '', '', '']); // Array de 6 elementos para el PIN
+    const { login } = useAuth(); 
+    const [isLoading, setIsLoading] = useState(false);
 
     // Función para manejar el ingreso del PIN
     const handlePinPress = (digit) => {
-        // Comprobar si hay menos de 6 dígitos
         if (pin.join('').length < 6) {
             const newPin = [...pin];
             const emptyIndex = newPin.indexOf('');  // Encontrar el primer espacio vacío
@@ -18,44 +22,101 @@ export default function PinInput({ navigation }) {
                 setPin(newPin);
             }
         }
-
-        // Si el pin ya tiene 6 dígitos, ejecutar handlePinComplete
-        if (pin.join('').length === 5) {
-            handlePinComplete(); // Esto se ejecutará cuando se alcance el sexto dígito
-        }
     };
-
 
     // Función para borrar el último número del PIN
     const handleDelete = () => {
         const newPin = [...pin];
-
-        // Encuentra el índice del último valor ingresado (no vacío)
-        const lastFilledIndex = newPin.findLastIndex(digit => digit !== ''); // Encontrar el último número ingresado
-
-        // Si encontramos un valor lleno (no vacío)
+        const lastFilledIndex = newPin.findLastIndex(digit => digit !== ''); 
         if (lastFilledIndex !== -1) {
-            newPin[lastFilledIndex] = ''; // Borrar el último número ingresado
+            newPin[lastFilledIndex] = ''; 
         }
-        setPin(newPin); // Actualizar el estado con el nuevo array
+        setPin(newPin);
     };
 
-
-    // Función para manejar la finalización del PIN
+    // Función para manejar el final del PIN
     const handlePinComplete = () => {
-
-        Alert.alert("Éxito", "¡El PIN ha sido configurado correctamente!");
-        // Aquí puedes navegar a otro screen o hacer lo que sea necesario
+        setIsLoading(true);  // Activar el indicador de carga
+        printAsyncStorage();
     };
+
+    // Función para mostrar los datos de AsyncStorage
+    const printAsyncStorage = async () => {
+        try {
+            const keys = await AsyncStorage.getAllKeys();  
+            const result = await AsyncStorage.multiGet(keys);  
+            let keyDispositivo = null;
+            let keyData = null;
+            console.log('result:', pin.join(''));
+            result.forEach(([key, value]) => {
+                if (key === 'userData' && value) {
+                    const parsedValue = JSON.parse(value);
+                    keyDispositivo = parsedValue.keyDispositivo;
+                    keyData = parsedValue.kEYdATA;
+                    console.log('keyDispositivo:', keyDispositivo);
+                    console.log('keyData:', keyData);
+                }
+            });
+
+            if (!keyDispositivo || !keyData) {
+                Alert.alert("Error", "No se encontraron las claves necesarias en AsyncStorage.");
+                return;
+            }
+
+            try {
+                const url = APIURL.senLoginPin(); 
+                console.log('url:', pin);
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ KeyPinPass: pin.join(''), KeyDispositivo: keyDispositivo }),
+                });
+
+                const data = await response.json();
+                console.log("Inicio de sesión exitoso:", data);
+
+                if (data.estado === "success") {
+                    await storeUserData(data);  
+                    login();  
+                } else {
+                    Alert.alert("Error", data.message || "Credenciales incorrectas");
+                }
+            } catch (error) {
+                Alert.alert("Error", "Hubo un problema al iniciar sesión. Inténtalo de nuevo.");
+            } finally {
+                setIsLoading(false);  
+            }
+        } catch (error) {
+            console.error('Error fetching AsyncStorage data', error);
+            setIsLoading(false);
+        }
+    };
+
+    // Función para almacenar los datos del usuario en AsyncStorage
+    const storeUserData = async (data) => {
+        try {
+            await AsyncStorage.setItem("userToken", data.token);
+            await AsyncStorage.setItem("userInfo", JSON.stringify(data.usuario));
+            await AsyncStorage.setItem("userName", data.usuario.Nombre);
+            await AsyncStorage.setItem("userId", String(data.usuario.idUsuario));
+            await AsyncStorage.setItem("userBodega", JSON.stringify(data.usuario.bodegas));  
+            await AsyncStorage.setItem("userPermiso", JSON.stringify(data.usuario.permisosMenu));  
+            console.log("Datos del usuario guardados con éxito");
+        } catch (error) {
+            console.error("Error al guardar datos en AsyncStorage:", error);
+        }
+    };
+
+    // useEffect para verificar cuando el PIN tenga 6 dígitos y proceder con el login
+    useEffect(() => {
+        if (pin.join('').length === 6) {
+            handlePinComplete();  // Llamar a la función de completar el PIN
+        }
+    }, [pin]);
 
     // Función para navegar al login
     const handleBack = () => {
- 
-                console.log("Going back...");
-               /// navigation.goBack(); // Solo si es posible regresar
-   
-                console.log("Navigating to Login...");
-                navigation.navigate('Login'); // Si no, navega explícitamente a la pantalla de Login
+        navigation.navigate('Login'); 
     };
 
     return (
@@ -65,25 +126,22 @@ export default function PinInput({ navigation }) {
                 style={[styles.image, { width: 150, height: 60, marginBottom: 0 }]}
                 resizeMode="contain"
             />
-
-            {/* Círculos del PIN */}
             <View style={styles.pinContainer}>
                 {pin.map((circle, index) => (
                     <View
                         key={index}
-                        style={[
-                            styles.circle,
-                            { backgroundColor: circle ? '#00416D' : '#fff' }, // Cambiar color si está lleno
-                        ]}
+                        style={[styles.circle, { backgroundColor: circle ? '#00416D' : '#fff' }]} // Cambiar color si está lleno
                     />
                 ))}
             </View>
+
             <TouchableOpacity style={styles.backButton} onPress={handleBack}>
                 <Text style={styles.buttonText}>Regresar</Text>
             </TouchableOpacity>
+
             {/* Botones numéricos */}
             <View style={styles.buttonContainer}>
-                {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'x', '',].map((digit) => (
+                {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'x'].map((digit) => (
                     <TouchableOpacity
                         key={digit}
                         style={digit === 'x' ? styles.deleteButton : styles.numButton}
@@ -98,8 +156,7 @@ export default function PinInput({ navigation }) {
                 ))}
             </View>
 
-            {/* Botón regresar */}
-
+            {isLoading && <Text>Loading...</Text>} 
         </View>
     );
 }
@@ -135,11 +192,10 @@ const styles = StyleSheet.create({
         width: '80%',
         marginBottom: 30,
         justifyContent: 'space-between',
-        
     },
     numButton: {
         width: '30%',
-        paddingVertical: 12,  // Tamaño reducido
+        paddingVertical: 12,
         backgroundColor: '#00416D',
         marginBottom: 15,
         justifyContent: 'center',
@@ -148,12 +204,12 @@ const styles = StyleSheet.create({
     },
     numButtonText: {
         color: '#fff',
-        fontSize: 20,  // Tamaño de texto reducido
+        fontSize: 20,
         fontWeight: 'bold',
     },
     deleteButton: {
         width: '30%',
-        paddingVertical: 12,  // Tamaño reducido
+        paddingVertical: 12,
         backgroundColor: '#FF4C4C',
         marginBottom: 15,
         justifyContent: 'center',

@@ -3,14 +3,18 @@ import { View, Text, StyleSheet, Platform, BackHandler } from 'react-native';
 import { Button, Title, Paragraph } from 'react-native-paper';  // Usamos react-native-paper
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Para AsyncStorage
 import Modal from 'react-native-modal'; // Librería para el modal
-import {XCircle} from '../../../../../Icons'; // Importa los iconos necesarios
+import { XCircle } from '../../../../../Icons'; // Importa los iconos necesarios
 import { styles } from "./ExitVenta.Style"; // Verifica la ruta
 import { screen } from '../../../../../utils/screenName'; // Importa la configuración de las pantallas
 import { refresh } from '@react-native-community/netinfo';
 import { CommonActions } from '@react-navigation/native';
+import { useAuth } from '../../../../../navigation/AuthContext'; // Importamos el contexto
+
+
 
 export function ExitVenta({ navigation }) {
   // Estado para almacenar la información del usuario
+  const { logout } = useAuth(); // Usamos el contexto de autenticación
   const [userInfo, setUserInfo] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false); // Estado para mostrar el modal
   const [isLoggingOut, setIsLoggingOut] = useState(false); // Estado para verificar si el cierre de sesión está en proceso
@@ -35,7 +39,7 @@ export function ExitVenta({ navigation }) {
   // Función para cerrar sesión
   const handleLogout = () => {
     setIsModalVisible(true); // Mostrar el modal para confirmar el cierre de sesión
-  
+
   };
 
   // Función para confirmar el cierre de sesión
@@ -43,37 +47,24 @@ export function ExitVenta({ navigation }) {
     setIsLoggingOut(true); // Indicate that the logout process is ongoing
     setIsModalVisible(false); // Hide the modal after confirming
     removeSpecificItems();
+    logout(); // Ejecutamos el logout del contexto
+   
 
-
-// En el componente donde quieras redirigir al usuario a Login
-navigation.dispatch(
-  CommonActions.reset({
-    index: 0, // Asegúrate de que sea el índice correcto
-    routes: [{ name: 'Login' }],
-  })
-);
-
-
-    navigation.reset({
-      index: 0, // Start from the first screen in the stack
-      routes: [{ name: 'Login' }], // Navigate directly to 'Cobranza'
-    });
-  
   };
-  
+
   const removeSpecificItems = async () => {
     try {
       // List of keys to remove
       const keysToRemove = ["userId", "userInfo", "userName", "userToken"];
-      
+
       // Loop through the keys and remove each item
       for (let key of keysToRemove) {
         await AsyncStorage.removeItem(key);
       }
-      
+
       // Optionally, log the remaining keys to confirm removal
       const remainingKeys = await AsyncStorage.getAllKeys();
-  
+
     } catch (error) {
       console.error('Error removing items from AsyncStorage:', error);
     }
@@ -86,7 +77,7 @@ navigation.dispatch(
 
   // Función para salir de la aplicación
   const handleExit = () => {
-   
+
     navigation.reset({
       index: 0, // Start from the first screen in the stack
       routes: [{ name: 'MenuTabs' }], // Navigate directly to 'Cobranza'
@@ -94,9 +85,9 @@ navigation.dispatch(
     // Esto cerrará la aplicación
     //if (Platform.OS === 'ios') {
     //  BackHandler.exitApp();
-   // } else {
-   //   BackHandler.exitApp();
-   // }
+    // } else {
+    //   BackHandler.exitApp();
+    // }
   };
 
   // Verifica si los datos de usuario están disponibles antes de renderizar
@@ -112,7 +103,7 @@ navigation.dispatch(
   const userName = userInfo.ingresoCobrador?.nombre || "Nombre del Usuario";
 
   // Extraer la primera letra del primer nombre
-  const firstLetter = userName.charAt(0).toUpperCase(); 
+  const firstLetter = userName.charAt(0).toUpperCase();
 
   return (
     <View style={styles.container}>
@@ -140,16 +131,8 @@ navigation.dispatch(
           Menù Principal
         </Button>
 
-        <Button
-          mode="outlined"
-         
-          onPress={handleLogout  }
-          style={styles.exitButton}
-          icon="exit-to-app"
-        >
-          Salir
-        </Button>
-      </View>
+        {/*  <Button mode="outlined" onPress={handleLogout} style={styles.exitButton} icon="exit-to-app" >  Salir </Button> */}
+         </View>
 
       {/* Modal para confirmar cierre de sesión */}
       <Modal

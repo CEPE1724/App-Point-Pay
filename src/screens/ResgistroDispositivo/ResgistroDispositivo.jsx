@@ -114,6 +114,11 @@ export default function FormularioRegistro({ navigation }) {
       Alert.alert("Error", "Los PINs no coinciden.");
       return;
     }
+    console.log("PIN creado:", pin);
+    console.log("PIN confirmado:", confirmPin);
+    console.log("Datos del usuario:", DataStore);
+    console.log("Datos del usuario:", DataStore.Cedula);
+    console.log("Datos del usuario:", DataStore.KeyDispositivo);
     try {
       const url = APIURL.getValDispositivoImei(); // La cédula ahora se pasa como parámetro en la URL
       const response = await fetch(url, {

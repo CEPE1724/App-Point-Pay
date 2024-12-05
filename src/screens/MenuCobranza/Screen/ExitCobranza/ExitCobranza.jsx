@@ -127,15 +127,8 @@ export function ExitCobranza({ navigation }) {
           Menù Principal
         </Button>
 
-        <Button
-          mode="outlined"
-         
-          onPress={handleLogout  }
-          style={styles.exitButton}
-          icon="exit-to-app"
-        >
-          Salir
-        </Button>
+        {/* <Button  mode="outlined"  onPress={handleLogout  }  style={styles.exitButton} icon="exit-to-app"  > Salir   </Button>*/}
+
       </View>
 
       {/* Modal para confirmar cierre de sesión */}

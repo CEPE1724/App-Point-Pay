@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -16,12 +16,13 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import point from "../../../assets/Point.png";
-import  logo from "../../../assets/PontyDollar.png";
+import logo from "../../../assets/PontyDollar.png";
 import { APIURL } from "../../config/apiconfig";
 import { styles } from "./LoginScreen.Style";
-
+import { useAuth } from "../../navigation/AuthContext"; // Importar el contexto de autenticación
 
 export default function LoginScreen({ navigation }) {
+  const { login } = useAuth(); // Accedemos a la función login desde el contexto
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isEmailEntered, setIsEmailEntered] = useState(false);
@@ -31,6 +32,50 @@ export default function LoginScreen({ navigation }) {
   const [isLoading, setIsLoading] = useState(false);
   const opacityAnim = useRef(new Animated.Value(0)).current;
   const { width, height } = Dimensions.get("window");
+  const [idTipoPersona, setIdTipoPersona] = useState(null);
+  const [keyDispositivo, setKeyDispositivo] = useState(null);
+
+  // useEffect para imprimir los datos de AsyncStorage al cargar el componente
+  useEffect(() => {
+    const printAsyncStorage = async () => {
+      try {
+        const keys = await AsyncStorage.getAllKeys();  // Obtener todas las claves de AsyncStorage
+        const result = await AsyncStorage.multiGet(keys);  // Obtener los valores asociados a esas claves
+
+        result.forEach(([key, value]) => {
+          console.log(`Clave: ${key}, Valor: ${value}`);
+
+          if (key === "userToken" || key === "userInfo" || key === "userName" || key === "userId" || key === "userBodega" || key === "userPermiso") {
+            console.log(`Dato de ${key}:`, value);
+          }
+
+          // Si existe el 'userData' almacenado
+          if (key === "userData" && value) {
+            const parsedValue = JSON.parse(value);
+            console.log("Datos completos del usuario:", parsedValue);
+            // Aquí puedes acceder a las propiedades de 'userData' si las necesitas
+            setIdTipoPersona(parsedValue.Empresa);
+            setKeyDispositivo(parsedValue.keyDispositivo);
+            console.log("keyDispositivo:", parsedValue.Empresa);
+          }
+        });
+      } catch (error) {
+        console.error("Error al obtener datos de AsyncStorage:", error);
+      }
+    };
+
+    printAsyncStorage();
+  }, []); // Se ejecuta una sola vez cuando se monta el componente
+
+  // useEffect para detectar cuando el valor de idTipoPersona cambia
+  useEffect(() => {
+    if (idTipoPersona !== null) {
+      console.log("KeyBuild:", idTipoPersona);  // Se captura el valor de idTipoPersona después de que cambia
+    }
+    if (keyDispositivo !== null) {
+      console.log("keyDispositivo:", keyDispositivo);  // Se captura el valor de keyDispositivo después de que cambia
+    }
+  }, [idTipoPersona, keyDispositivo]); // Se ejecuta cada vez que idTipoPersona o keyDispositivo cambian
 
   const handleEmailChange = (text) => {
     setEmail(text);
@@ -75,27 +120,27 @@ export default function LoginScreen({ navigation }) {
       Alert.alert("Error", "Por favor ingresa tus credenciales.");
       return;
     }
+    if(!idTipoPersona || !keyDispositivo) {
+      Alert.alert("Error", "No se ha podido obtener el KeyBuild o el keyDispositivo.");
+      return
+    }
     setIsLoading(true);
 
     try {
-      const url = APIURL.senLogin();
+      const url = APIURL.senLoginV1();
       const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nombre: email, clave: password }),
+        body: JSON.stringify({ nombre: email, clave: password, keyDispositivo: keyDispositivo, KeyBuild: idTipoPersona }),
       });
 
       const data = await response.json();
       console.log("Inicio de sesión exitoso:", data);
 
       if (data.estado === "success") {
-        await storeUserData(data);
-        console.log("Navigating to TabScreens...Login screen");
-        navigation.reset({
-          index: 0, // Start from the first screen in the stack
-          routes: [{ name: "TabScreens" }], // Navigate directly to 'TabScreens'
-        });
-        
+        await storeUserData(data); // Guardar datos en AsyncStorage
+        console.log("Datos del usuario guardados con éxito", data);
+        login(); // Llamar a la función login del contexto para actualizar el estado global
       } else {
         Alert.alert("Error", data.message || "Credenciales incorrectas");
       }
@@ -105,6 +150,7 @@ export default function LoginScreen({ navigation }) {
       setIsLoading(false);
     }
   };
+
   const storeUserData = async (data) => {
     try {
       // Guardamos el token y los detalles del usuario en AsyncStorage
@@ -123,11 +169,8 @@ export default function LoginScreen({ navigation }) {
 
   const handleBack = () => {
     console.log("Going back...");
-    /// navigation.goBack(); // Solo si es posible regresar
-
-     console.log("Navigating to Login...");
-     navigation.navigate('Login'); // Si no, navega explícitamente a la pantalla de Login
-  }
+    navigation.navigate("Login"); // Navegar a la pantalla de bienvenida
+  };
 
   return (
     <KeyboardAvoidingView
@@ -139,11 +182,7 @@ export default function LoginScreen({ navigation }) {
           {/* Imagen 1 - point */}
           <Image
             source={point}
-            style={[styles.image, { 
-              width: 150, // Ajuste fijo en píxeles
-              height: 60, // Ajuste fijo en píxeles
-              marginBottom: 0 
-            }]} // La mitad del tamaño original
+            style={[styles.image, { width: 150, height: 60, marginBottom: 0 }]} // La mitad del tamaño original
             resizeMode="contain"
           />
           {/* Imagen 2 - logo */}
@@ -165,7 +204,7 @@ export default function LoginScreen({ navigation }) {
             autoCapitalize="characters"
           />
         </View>
-         
+
         {showPasswordFields && (
           <Animated.View style={[styles.passwordContainer, { opacity: opacityAnim }]}>
             <View style={styles.inputContainer}>
@@ -206,12 +245,12 @@ export default function LoginScreen({ navigation }) {
             </Text>
           )}
         </TouchableOpacity>
-        <TouchableOpacity style={styles.backButton} onPress={handleBack} >
-                <Text style={styles.buttonTextBack}>Regresar</Text>
-            </TouchableOpacity>
+
+        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <Text style={styles.buttonTextBack}>Regresar</Text>
+        </TouchableOpacity>
 
         <Text style={styles.version}>V.1.10.1</Text>
-
       </ScrollView>
     </KeyboardAvoidingView>
   );

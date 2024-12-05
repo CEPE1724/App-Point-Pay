@@ -2,16 +2,14 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';  // Para los íconos
 import point from "../../../assets/Point.png";
+import { useAuth } from "../../navigation/AuthContext"; // Importar el contexto de autenticación
 export default function PinConfigurado({ navigation }) {
   const { width, height } = Dimensions.get('window');
-
+  const { stlogoutEmail } = useAuth(); // Accedemos a la función login desde el contexto
   // Función que maneja el inicio de sesión (puedes ajustarla según tu lógica)
   const handleLogin = () => {
     // Aquí puedes realizar la lógica para iniciar sesión
-    navigation.reset({
-      index: 0, // Start from the first screen in the stack
-      routes: [{ name: 'Login' }], // Navigate directly to 'Cobranza'
-    });
+    stlogoutEmail(true); // Llamamos a la función de cierre de sesión
   };
 
   return (
@@ -36,7 +34,7 @@ export default function PinConfigurado({ navigation }) {
       </Text>
 
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Iniciar sesión</Text>
+        <Text style={styles.buttonText}>Iniciar sesiónmmm</Text>
       </TouchableOpacity>
     </View>
   );

@@ -90,9 +90,12 @@ export default function LoginScreen({ navigation }) {
 
       if (data.estado === "success") {
         await storeUserData(data);
-        console.log("Navigating to TabScreens...");
-        navigation.replace("Main");
-   
+        console.log("Navigating to TabScreens...Login screen");
+        navigation.reset({
+          index: 0, // Start from the first screen in the stack
+          routes: [{ name: "TabScreens" }], // Navigate directly to 'TabScreens'
+        });
+        
       } else {
         Alert.alert("Error", data.message || "Credenciales incorrectas");
       }
@@ -102,7 +105,6 @@ export default function LoginScreen({ navigation }) {
       setIsLoading(false);
     }
   };
-
   const storeUserData = async (data) => {
     try {
       // Guardamos el token y los detalles del usuario en AsyncStorage
@@ -118,6 +120,14 @@ export default function LoginScreen({ navigation }) {
       console.error("Error al guardar datos en AsyncStorage:", error);
     }
   };
+
+  const handleBack = () => {
+    console.log("Going back...");
+    /// navigation.goBack(); // Solo si es posible regresar
+
+     console.log("Navigating to Login...");
+     navigation.navigate('Login'); // Si no, navega explícitamente a la pantalla de Login
+  }
 
   return (
     <KeyboardAvoidingView
@@ -155,7 +165,7 @@ export default function LoginScreen({ navigation }) {
             autoCapitalize="characters"
           />
         </View>
-
+         
         {showPasswordFields && (
           <Animated.View style={[styles.passwordContainer, { opacity: opacityAnim }]}>
             <View style={styles.inputContainer}>
@@ -196,6 +206,9 @@ export default function LoginScreen({ navigation }) {
             </Text>
           )}
         </TouchableOpacity>
+        <TouchableOpacity style={styles.backButton} onPress={handleBack} >
+                <Text style={styles.buttonTextBack}>Regresar</Text>
+            </TouchableOpacity>
 
         <Text style={styles.version}>V.1.10.1</Text>
 

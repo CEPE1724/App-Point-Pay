@@ -1,7 +1,7 @@
 
  
-const API_BASE_URL = "http://179.49.21.45:3025/cobranza/api/v1/point/";
-const SOCKET_BASE_URL = "http://179.49.21.45:3025"; 
+const API_BASE_URL = "http://192.168.2.184:3025/cobranza/api/v1/point/";
+const SOCKET_BASE_URL = "http://192.168.2.184:3025"; 
 
 export const APIURL = {
    
@@ -43,4 +43,6 @@ export const APIURL = {
     getViewListadoProductos : () => `${API_BASE_URL}Inventario/Productos`,
     getViewListadoProductosId : () => `${API_BASE_URL}Inventario/ProductosId`,
     getViewListadoProductosBodega : () => `${API_BASE_URL}BodegaUsuario`,
+    getValDispositivo : () => `${API_BASE_URL}DispositivosAPP/Val`,
+    getValDispositivoImei : () => `${API_BASE_URL}DispositivosAPP/ValEmai`,
 };

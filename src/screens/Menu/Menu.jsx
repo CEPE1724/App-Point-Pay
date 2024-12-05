@@ -52,9 +52,6 @@ export function Menu({ navigation }) {
       for (let key of keysToRemove) {
         await AsyncStorage.removeItem(key);
       }
-      
-      // Optionally, log the remaining keys to confirm removal
-      const remainingKeys = await AsyncStorage.getAllKeys();
     } catch (error) {
       console.error('Error removing items from AsyncStorage:', error);
     }

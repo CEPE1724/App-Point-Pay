@@ -93,4 +93,17 @@
                 marginBottom: 5, // Margen inferior general de las imágenes (puedes ajustar esto según sea necesario)
                 
               },
+              backButton: {
+                backgroundColor: 'green',
+                paddingVertical: 5,
+                paddingHorizontal: 20,
+                borderRadius: 8,
+                marginTop: 20,
+                marginBottom: 30,
+            },
+            buttonTextBack: {
+              color: "#fff",
+              fontSize: 15,
+              fontWeight: "bold",
+            },
             });   

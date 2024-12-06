@@ -34,7 +34,7 @@ export default function PinConfigurado({ navigation }) {
       </Text>
 
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Iniciar sesiónmmm</Text>
+        <Text style={styles.buttonText}>Iniciar sesión</Text>
       </TouchableOpacity>
     </View>
   );

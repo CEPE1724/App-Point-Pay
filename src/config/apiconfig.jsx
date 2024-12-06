@@ -1,8 +1,9 @@
 
  
-const API_BASE_URL = "http://192.168.2.184:3025/cobranza/api/v1/point/";
-const SOCKET_BASE_URL = "http://192.168.2.184:3025"; 
-
+const API_BASE_URL = "http://179.49.21.45:3025/cobranza/api/v1/point/";
+const SOCKET_BASE_URL = "http://179.49.21.45:3025"; 
+// const API_BASE_URL = http://179.49.21.45:3025
+// const API_BASE_URL = "http://192.168.10.236:3025/cobranza/api/v1/point/";
 export const APIURL = {
    
     senLogin: () => `${API_BASE_URL}login`,

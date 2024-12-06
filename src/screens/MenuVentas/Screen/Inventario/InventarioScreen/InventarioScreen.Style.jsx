@@ -4,150 +4,127 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: "#fff",
+    backgroundColor: "#f7f7f7", // Fondo general
   },
-  grid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-  card: {
-    width: "48%", // Adjust width to fit two items per row
-    backgroundColor: "#f8f8f8",
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 5,
-    borderColor: "#ddd",
-    borderWidth: 1,
-  },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 5,
-  },
-  rowProyect: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 8,
-    backgroundColor: "#FFFFFF",
-  },
-  rowCash: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 5,
-    backgroundColor: "#FFFFFF",
-  },
-  text: {
-    flex: 1, // This will make the text take up all available space
-    fontSize: 12, // Increased font size for better readability
+  pickerContainer: {
     marginBottom: 5,
-  },
-  textProyect: {
-    flex: 1, // This will make the text take up all available space
-    fontSize: 12, // Increased font size for better readability
-    marginBottom: 5,
-    color: "#a91519",
-    fontStyle: "italic",
-    fontWeight: "bold",
-  },
-  icon: {
-    marginLeft: 1, // Adjust this value to increase/decrease the space between text and icon
-    marginRight: 5,
-  },
-  button: {
-    backgroundColor: "#007bff",
+    backgroundColor: '#ffffff',
     padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  buttonText: {
-    color: "#fff",
-    textAlign: "center",
-  },
-  noData: {
-    textAlign: "center",
-    marginTop: 20,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  footer: {
-    alignItems: "center",
-    padding: 10,
-  },
-  loadingText: {
-    marginTop: 10,
-  },
-  floatingButton: {
-    position: "absolute",
-    bottom: 20,
-    right: 20,
-    backgroundColor: "#007bff",
-    borderRadius: 30,
-    padding: 15,
-    elevation: 5,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  loadingIndicator: {
-    marginVertical: 20,
-    alignSelf: "center",
-  },
-  input: {
-    height: 40,
-    borderColor: "#ddd",
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    marginVertical: 10,
-    borderRadius: 4, // Añadido para bordes redondeados
-  },
-
-  containersearch: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 2,
-    color: "red",
+  picker: {
+    height: 50,
+    width: '100%',
+    borderRadius: 8,
   },
   inputContainersearch: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 5,
-    width: "100%",
-    paddingHorizontal: 10,
-    backgroundColor: "#fff",
-    marginBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  iconsearch: {
+    marginRight: 10,
   },
   inputsearch: {
     flex: 1,
     height: 40,
-    fontSize: 16,
-    paddingLeft: 40, // Espacio para el ícono
-  },
-  iconsearch: {
-    position: "absolute",
-    left: 10,
-  },
-  iconNoData: {
-    textAlign: "center",
-    marginTop: 20,
-  },
-  pickerContainer: {
-    marginBottom: 15,
-    paddingHorizontal: 10,
-  },
-  pickerLabel: {
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingLeft: 10,
     fontSize: 16,
     color: "#333",
-    marginBottom: 5,
   },
-  picker: {
-    height: 60,
-    width: '100%',
+  scrollView: {
+    flex: 1,
+  },
+  tableContainer: {
+    marginTop: 20,
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    backgroundColor: '#0066cc',
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+    borderBottomWidth: 2,
+    borderColor: '#004d99',
+  },
+  tableHeaderText: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: '#ffffff',
+    flex: 1,
+    textAlign: 'left',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderBottomWidth: 1,
+    borderColor: '#ddd',
+  },
+  tableRowText: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 10,
+    color: '#333',
+  },
+  tableRowOdd: {
+    backgroundColor: '#f9f9f9',
+  },
+  tableRowEven: {
+    backgroundColor: '#ffffff',
+  },
+  iconNoData: {
+    alignSelf: 'center',
+    marginVertical: 20,
+  },
+  noData: {
+    textAlign: 'center',
+    fontSize: 16,
+    color: '#777',
+  },
+
+  
+
+
+ 
+  
+ 
+  
+  imageThumbnail: {
+    width: 50,
+    height: 50,
+    marginRight: 10,
+    borderRadius: 5,
+  },
+
+
+ 
+  recordsFoundText: {
+    fontSize: 12,
+    color: 'black',
   },
 });

@@ -1,20 +1,12 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  ActivityIndicator,
-  TouchableOpacity,
-  TextInput,
-} from "react-native";
+import { View, Text, ActivityIndicator, TouchableOpacity, Image, FlatList, TextInput } from "react-native";
 import axios from "axios";
 import { styles } from "./InventarioScreen.Style";
-import { screen } from "../../../../../utils/screenName";
 import { APIURL } from "../../../../../config/apiconfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { CardInventario } from "../../../../../components";
 import { Plus, History, Search } from "../../../../../Icons";
-import { Picker } from "@react-native-picker/picker"; // Importamos el Picker
+import { Picker } from "@react-native-picker/picker";
+import { ImageModal } from '../../../../../components'; // Importamos el componente ImageModal
 
 export function InventarioScreen(props) {
   const { navigation } = props;
@@ -24,11 +16,10 @@ export function InventarioScreen(props) {
   const [limit, setLimit] = useState(10); // Límite de productos por página
   const [loading, setLoading] = useState(false); // Estado de carga inicial
   const [loadingMore, setLoadingMore] = useState(false); // Estado para cargar más
-  const [pressedCardIndex, setPressedCardIndex] = useState(null); // Índice de la tarjeta presionada
   const [filtro, setFiltro] = useState(""); // Filtro para la búsqueda
   const [Bodegas, setBodegas] = useState([]); // Lista de bodegas
-  const [BodegaUser, setBodegaUser] = useState([]); // Bodega del usuario
   const [selectedBodega, setSelectedBodega] = useState(null); // Bodega seleccionada
+  const [selectedItem, setSelectedItem] = useState(null); // Elemento seleccionado para el carrusel
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,8 +28,6 @@ export function InventarioScreen(props) {
 
         if (userInfo) {
           const parsedUserInfo = JSON.parse(userInfo);
-          console.log("Bodegas del Usuario:", parsedUserInfo.bodegas);
-          setBodegaUser(parsedUserInfo.bodegas);
           fetchBodegas(parsedUserInfo);
         } else {
           console.log("No user info found in AsyncStorage");
@@ -53,16 +42,14 @@ export function InventarioScreen(props) {
 
   const fetchBodegas = async (bodegas) => {
     try {
-      console.log("Fetching bodegas:", bodegas.bodegas);
       const url = APIURL.getViewListadoProductosBodega();
       const response = await axios.get(url, {
         params: {
-          ids: JSON.stringify(bodegas.bodegas), // Enviar todos los IDs de bodegas
+          ids: JSON.stringify(bodegas.bodegas),
         },
       });
 
       const fetchedData = response.data;
-      console.log("Bodegas obtenidas:", fetchedData);
       setBodegas(fetchedData);
     } catch (error) {
       console.error("Error fetching bodegas:", error);
@@ -77,16 +64,23 @@ export function InventarioScreen(props) {
       const url = APIURL.getViewListadoProductos();
       const response = await axios.get(url, {
         params: {
-          Bodega: selectedBodega ? selectedBodega.Bodega : 31, // Usar la bodega seleccionada
+          Bodega: selectedBodega ? selectedBodega.Bodega : 31,
           Articulo: filtro,
           PaginaNumero: page,
           RegistrosPorPagina: limit,
         },
       });
 
-      const { data: fetchedData } = response.data;
+      const { data: fetchedData, total } = response.data; // Aquí se debe asegurar que "total" existe en la respuesta
+
+      // Si la API no devuelve el total, podrías intentar calcularlo o asumir que es el tamaño de la respuesta
+      if (total) {
+        setTotalRecords(total); // Actualiza el número total de productos
+      } else {
+        setTotalRecords(fetchedData.length); // Si no hay "total", usamos el tamaño de los resultados
+      }
+
       setData((prevData) => (page === 1 ? fetchedData : [...prevData, ...fetchedData]));
-      setTotalRecords(fetchedData.length);
       setLoading(false);
       setLoadingMore(false);
     } catch (error) {
@@ -102,7 +96,7 @@ export function InventarioScreen(props) {
   };
 
   useEffect(() => {
-    fetchData(currentPage); // Obtiene los datos al montar el componente
+    fetchData(currentPage);
   }, [currentPage, selectedBodega]);
 
   useEffect(() => {
@@ -118,13 +112,32 @@ export function InventarioScreen(props) {
     }
   };
 
-  const handleCardPress = (item, index) => {
-    console.log("Card pressed:", item);
+  const handleImageSelect = (item) => {
+    setSelectedItem(item); // Set the selected item for the full screen view
   };
+
+  const renderItem = ({ item, index }) => (
+    <TouchableOpacity onPress={() => handleImageSelect(item)}>
+      <View
+        style={[styles.tableRow, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
+      >
+        {/* Imagen pequeña */}
+        <Image
+          source={{
+            uri: `https://storage.googleapis.com/point_pweb/web2023/IMAGENES%20WEB/${item.Codigo}.jpg`,
+          }}
+          style={styles.imageThumbnail}
+        />
+        <Text style={styles.tableRowText}>{item.Articulo}</Text>
+        <Text style={styles.tableRowText}>{item.Codigo}</Text>
+      </View>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
-       <View style={styles.pickerContainer}>
+      {/* Picker para seleccionar bodega */}
+      <View style={styles.pickerContainer}>
         <Picker
           selectedValue={selectedBodega}
           onValueChange={(itemValue) => setSelectedBodega(itemValue)}
@@ -139,6 +152,8 @@ export function InventarioScreen(props) {
           ))}
         </Picker>
       </View>
+
+      {/* Input de búsqueda */}
       <View style={styles.inputContainersearch}>
         <Search size={24} color="black" style={styles.iconsearch} />
         <TextInput
@@ -150,35 +165,48 @@ export function InventarioScreen(props) {
         />
       </View>
 
-     
+      {/* Mostrar el total de registros encontrados */}
+      {totalRecords > 0 && (
+        <Text style={styles.recordsFoundText}>
+          {totalRecords} productos encontrados
+        </Text>
+      )}
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={{ paddingBottom: 80 }}
-      >
-        <View style={styles.grid}>
-          {data.map((item, index) => (
-            <CardInventario
-              key={index}
-              item={item}
-              index={index}
-              onPress={handleCardPress}
-              onPressIn={() => setPressedCardIndex(index)}
-              onPressOut={() => setPressedCardIndex(null)}
-              pressedCardIndex={pressedCardIndex}
-            />
-          ))}
+      {/* Tabla con filas desplazables (mostrar solo 3 elementos a la vez) */}
+      <View style={styles.tableContainer}>
+        <View style={styles.tableHeader}>
+          <Text style={styles.tableHeaderText}></Text>
+          <Text style={styles.tableHeaderText}>Artículo</Text>
+          <Text style={styles.tableHeaderText}>Código</Text>
         </View>
-        {loading && !loadingMore && <ActivityIndicator size="large" color="#0000ff" />}
-        {!loading && !loadingMore && data.length === 0 && (
-          <View>
-            <History size={80} color="#fffff" style={styles.iconNoData} />
-            <Text style={styles.noData}>No se encontró nada</Text>
-            <Text style={styles.noData}>Pruebe con una palabra clave distinta.</Text>
-          </View>
-        )}
-        {loadingMore && <ActivityIndicator size="large" color="#0000ff" style={styles.loadingIndicator} />}
-      </ScrollView>
+
+        {/* Limitar la altura visible a solo 3 elementos */}
+        <FlatList
+          data={data}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => String(index)}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={loadingMore ? <ActivityIndicator size="small" color="#0000ff" /> : null}
+          contentContainerStyle={{ padding: 0, margin: 0 }}
+          // Establecer la altura máxima visible
+          style={{ maxHeight: 380 }}  
+        />
+      </View>
+
+      {/* Indicador de carga */}
+      {loading && !loadingMore && <ActivityIndicator size="large" color="#0000ff" />}
+      {!loading && !loadingMore && data.length === 0 && (
+        <View>
+          <History size={80} color="#fffff" style={styles.iconNoData} />
+          <Text style={styles.noData}>No se encontró nada</Text>
+          <Text style={styles.noData}>Pruebe con una palabra clave distinta.</Text>
+        </View>
+      )}
+
+      {/* Modal de imagen */}
+      <ImageModal isVisible={selectedItem !== null} selectedItem={selectedItem} onClose={() => setSelectedItem(null)} />
     </View>
+
   );
 }

@@ -4,6 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { CobranzaStack } from '../CobranzaStack';
 import { RegistroStack } from '../RegistroStack';
 import { ExitCobranzaStack } from '../ExitCobranzaStack';
+import { TerrenaStack } from "../TerrenaStack";
 import { screen } from "../../../utils";
 import { CircleInfoIcon, Home, Book, Terrain, CalendarToday, AccountCircle} from "../../../Icons"; // Verifica que este icono esté importado correctamente
 
@@ -63,7 +64,7 @@ export function CobranzaTabs() {
             />
             <Tab.Screen
                 name={screen.terreno.tab}
-                component={CobranzaStack}
+                component={TerrenaStack}
                 options={{ title: "Terreno" }}
             />
             <Tab.Screen

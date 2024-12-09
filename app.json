@@ -4,7 +4,7 @@
     "slug": "App-Point-Pay",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/Point.png",
+    "icon": "./assets/IconApp.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {

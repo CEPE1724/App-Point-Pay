@@ -23,7 +23,7 @@ const LocationSender = () => {
     const storedUserInfo = await AsyncStorage.getItem("userInfo");
     const userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : {};
     const idUser = userInfo.ingresoCobrador?.idIngresoCobrador;
-
+    console.log('ID de usuario:', idUser);
     if (!idUser || idUser <= 0) {
       console.log('Usuario no logueado o ID de usuario inválido, no se enviará la ubicación.');
       return;  // Si el usuario no está logueado, no se envía la ubicación

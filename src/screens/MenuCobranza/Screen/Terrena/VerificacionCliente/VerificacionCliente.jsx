@@ -16,7 +16,7 @@ import { RadioGroup } from "../../../../../components";
 import { TextInputField } from "../../../../../components";
 import { launchImageLibrary } from "react-native-image-picker";
 import * as ImagePicker from "expo-image-picker";
-import {MapaCustomModal} from "../../../../../components";
+import { MapaCustomModal } from "../../../../../components";
 import { APIURL } from "../../../../../config/apiconfig";
 import PropTypes from "prop-types";
 import { useNavigation } from "@react-navigation/native";
@@ -128,6 +128,9 @@ const DomicilioTab = ({ state, setState }) => {
     acceso,
     coberturaSeñal,
     refGPS,
+    callePrincipalRef,
+    calleSecundariaRef,
+
   } = state;
   const renderRadioGroup = (label, value, onChange, options) => (
     <RadioGroup
@@ -159,8 +162,8 @@ const DomicilioTab = ({ state, setState }) => {
           onChange={(text) => setState({ ...state, tiempoVivienda: text })}
           keyboardType="numeric"
         />
-         {/* Tipo de Vivienda */}
-         {renderRadioGroup(
+        {/* Tipo de Vivienda */}
+        {renderRadioGroup(
           "Tipo de Vivienda:",
           tipoVivienda,
           (value) => setState({ ...state, tipoVivienda: value }),
@@ -187,7 +190,7 @@ const DomicilioTab = ({ state, setState }) => {
           (value) => setState({ ...state, propia: value }),
           options.propiedadOptions
         )}
-        {isArrendado && (
+        {propia == 2 && (
           <TextInputField
             label="Valor Arrendado"
             placeholder="Ingrese valor arrendado"
@@ -196,8 +199,8 @@ const DomicilioTab = ({ state, setState }) => {
             keyboardType="decimal-pad"
           />
         )}
-         {/* Acceso */}
-         {renderRadioGroup(
+        {/* Acceso */}
+        {renderRadioGroup(
           "Acceso:",
           acceso,
           (value) => setState({ ...state, acceso: value }),
@@ -216,15 +219,15 @@ const DomicilioTab = ({ state, setState }) => {
           value={puntoReferencia}
           onChange={(text) => setState({ ...state, puntoReferencia: text })}
         />
-         <TextInputField
+        <TextInputField
           label="Persona Entrevistada"
           placeholder="Ingrese nombre"
           value={personaEntrevistadaDomicilio}
           onChange={(text) =>
             setState({ ...state, personaEntrevistadaDomicilio: text })
           }
-          // keyboardType="numeric" // Teclado numérico
-          //keyboardType="decimal-pad" // Teclado para números decimales
+        // keyboardType="numeric" // Teclado numérico
+        //keyboardType="decimal-pad" // Teclado para números decimales
         />
 
         <TextInputField
@@ -241,6 +244,18 @@ const DomicilioTab = ({ state, setState }) => {
           placeholder="Ingrese nombre"
           value={vecinoEntrevistado}
           onChange={(text) => setState({ ...state, vecinoEntrevistado: text })}
+        />
+        <TextInputField
+          label="Calle Principal"
+          placeholder="Ingrese Calle Principal"
+          value={callePrincipalRef}
+          onChange={(text) => setState({ ...state, callePrincipalRef: text })}
+        />
+        <TextInputField
+          label="Calle Secundaria"
+          placeholder="Ingrese Calle Secundaria"
+          value={calleSecundariaRef}
+          onChange={(text) => setState({ ...state, calleSecundariaRef: text })}
         />
         <ScrollView contentContainerStyle={styles.containerMaps}>
           <View style={styles.overlay}>
@@ -412,6 +427,8 @@ const LaboralTab = ({ state, setState }) => {
     calleSecundariaLaboral,
     puntoReferenciaLaboral,
     personaEntrevistada,
+    callePrincipalLaboralRef,
+    calleSecundariaLaboralRef,
   } = state;
   const renderRadioGroup = (label, value, onChange, options) => (
     <RadioGroup
@@ -482,6 +499,18 @@ const LaboralTab = ({ state, setState }) => {
         value={personaEntrevistada}
         onChange={(text) => setState({ ...state, personaEntrevistada: text })}
       />
+      <TextInputField
+        label="Calle Principal"
+        placeholder="Ingrese Calle Principal"
+        value={callePrincipalLaboralRef}
+        onChange={(text) => setState({ ...state, callePrincipalLaboralRef: text })}
+      />
+      <TextInputField
+        label="Calle Secundaria"
+        placeholder="Ingrese Calle Secundaria"
+        value={calleSecundariaLaboralRef}
+        onChange={(text) => setState({ ...state, calleSecundariaLaboralRef: text })}
+      />
       <ScrollView contentContainerStyle={styles.containerMaps}>
         <View style={styles.overlay}>
           <Icon name="map-marker" size={50} onPress={toggleModal} />
@@ -531,7 +560,7 @@ const LaboralTab = ({ state, setState }) => {
 export function VerificacionCliente({ route, navigation }) {
   const { item, tipo } = route.params;
   const [modalVisible, setModalVisible] = useState(false);
-  const [showImages, setShowImages] = useState(false); 
+  const [showImages, setShowImages] = useState(false);
   const [data, setData] = useState({});
   const [activeButton, setActiveButton] = useState('detalles');
   const [loading, setLoading] = useState(false);
@@ -566,6 +595,10 @@ export function VerificacionCliente({ route, navigation }) {
     tipoTrabajo: 1,
     domicilioImages: [],
     laboralImages: [],
+    callePrincipalRef: "",
+    calleSecundariaRef: "",
+    callePrincipalLaboralRef: "",
+    calleSecundariaLaboralRef: "",
   });
 
   const [showTabContent, setShowTabContent] = useState({
@@ -586,6 +619,8 @@ export function VerificacionCliente({ route, navigation }) {
         tiempoVivienda: { min: 1, max: 120, label: "Tiempo de Vivienda" },
         puntoReferencia: { min: 10, max: 249, label: "Punto de Referencia" },
         vecinoEntrevistado: { min: 1, max: 100, label: "Vecino Entrevistado" },
+        callePrincipalRef: { min: 5, max: 250, label: "Calle Principal" },
+        calleSecundariaRef: { min: 5, max: 250, label: "Calle Secundaria" },
         callePrincipal: { min: 1, max: 100, label: "Ubicación Domicilio" },
         calleSecundaria: { min: 1, max: 100, label: "Ubicación Domicilio" },
         refGPS: { min: 5, max: 100, label: "Ubicación Domicilio" },
@@ -630,6 +665,16 @@ export function VerificacionCliente({ route, navigation }) {
           max: 100,
           label: "Persona Entrevistada",
         },
+        callePrincipalLaboralRef: {
+          min: 5,
+          max: 250,
+          label: "Calle Principal Laboral",
+        },
+        calleSecundariaLaboralRef: {
+          min: 5,
+          max: 250,
+          label: "Calle Secundaria Laboral",
+        },
         callePrincipalLaboral: { min: 1, max: 100, label: "Ubicación Trabajo" },
         calleSecundariaLaboral: {
           min: 1,
@@ -638,6 +683,7 @@ export function VerificacionCliente({ route, navigation }) {
         },
         refGPSLab: { min: 5, max: 100, label: "Ubicación Trabajo" },
       },
+
     };
 
     let missingFields = { domicilio: [], laboral: [] };
@@ -655,13 +701,21 @@ export function VerificacionCliente({ route, navigation }) {
           const length = value.length; // Obtener la longitud de la cadena
           if (length < min || length > max) {
             invalidFields.domicilio.push(
-              `${label} (debe tener entre ${min} y ${
-                max === Infinity ? "infinito" : max
+              `${label} (debe tener entre ${min} y ${max === Infinity ? "infinito" : max
               } letras)`
             );
           }
         }
       }
+      if (state.propia === 2) {  // Verifica si la propiedad es arrendada (propia === 2)
+        const valorArrendado = state.valorArrendado ? parseFloat(state.valorArrendado) : 0; // Aseguramos que sea un número
+      
+        // Si el campo valorArrendado está vacío o tiene un valor menor o igual a 0, se marca como inválido
+        if (valorArrendado <= 0 || isNaN(valorArrendado)) {
+          invalidFields.domicilio.push("Ingresos el valor arrendado (debe ser mayor que 0)");
+        }
+      }
+      
       if (state.domicilioImages.length < 5) {
         invalidFields.domicilio.push(
           "Se requieren al menos 5 imágenes para Domicilio."
@@ -679,8 +733,7 @@ export function VerificacionCliente({ route, navigation }) {
           const length = value.length; // Obtener la longitud de la cadena
           if (length < min || length > max) {
             invalidFields.laboral.push(
-              `${label} (debe tener entre ${min} y ${
-                max === Infinity ? "infinito" : max
+              `${label} (debe tener entre ${min} y ${max === Infinity ? "infinito" : max
               } letras)`
             );
           }
@@ -725,142 +778,147 @@ export function VerificacionCliente({ route, navigation }) {
     return true;
   };
 
- 
+
   const saveVerificationDomicilio = async (data, tipoS) => {
-      console.log("Data to savesss:", data);
-      const url =
-          tipoS === 1
-              ? APIURL.postTerrenaGestionDomicilioSave()
-              : APIURL.postTerrenaGestionTrabajoSave();
-      const tipoUrl = tipoS === 1 ? "Domicilio" : "Trabajo";
-      const urlGoogle = APIURL.putGoogle();
-      const uploadedImageUrls = [];
-      const tipoVariable = tipoS === 1 ? "domicilioImages" : "trabajoImages";
-  
-      setLoading(true); // Iniciar el indicador de carga
-  
-      // Verificar conectividad a Internet
-      const state = await NetInfo.fetch();
-      if (!state.isConnected) {
-          Alert.alert("Error", "No hay conexión a Internet.");
-          setLoading(false);
-          return;
+    console.log("Data to savesss:", data);
+    const url =
+      tipoS === 1
+        ? APIURL.postTerrenaGestionDomicilioSave()
+        : APIURL.postTerrenaGestionTrabajoSave();
+    const tipoUrl = tipoS === 1 ? "Domicilio" : "Trabajo";
+    const urlGoogle = APIURL.putGoogle();
+    const uploadedImageUrls = [];
+    const tipoVariable = tipoS === 1 ? "domicilioImages" : "trabajoImages";
+
+    setLoading(true); // Iniciar el indicador de carga
+
+    // Verificar conectividad a Internet
+    const state = await NetInfo.fetch();
+    if (!state.isConnected) {
+      Alert.alert("Error", "No hay conexión a Internet.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      for (const imagePath of data[tipoVariable]) {
+        const formData = new FormData();
+        formData.append("file", {
+          uri: imagePath,
+          name: `${Date.now()}.jpg`,
+          type: "image/jpeg",
+        });
+        formData.append("cedula", item.Ruc); // Asegúrate de que 'cedula' esté correctamente referenciado
+        formData.append("nombre_del_archivo", `${Date.now()}.jpg`);
+        formData.append("tipo", tipoUrl);
+
+        // Hacer la solicitud a la API de Google
+        const responseGoogle = await fetch(urlGoogle, {
+          method: "PUT",
+          body: formData,
+        });
+
+        // Verificar si la respuesta es exitosa
+        if (!responseGoogle.ok) {
+          const errorResponse = await responseGoogle.json();
+          throw new Error(`Error en la subida de la imagen: ${responseGoogle.status} - ${errorResponse.message || responseGoogle.statusText}`);
+        }
+
+        const responseGoogleData = await responseGoogle.json();
+
+        // Capturar la URL nueva de la respuesta
+        if (responseGoogleData.status !== "success") {
+          throw new Error(`Error en la respuesta de Google: ${responseGoogleData.message}`);
+        }
+
+        uploadedImageUrls.push(responseGoogleData.url);
       }
-  
-      try {
-          for (const imagePath of data[tipoVariable]) {
-              const formData = new FormData();
-              formData.append("file", {
-                  uri: imagePath,
-                  name: `${Date.now()}.jpg`,
-                  type: "image/jpeg",
-              });
-              formData.append("cedula", item.Ruc); // Asegúrate de que 'cedula' esté correctamente referenciado
-              formData.append("nombre_del_archivo", `${Date.now()}.jpg`);
-              formData.append("tipo", tipoUrl);
-  
-              // Hacer la solicitud a la API de Google
-              const responseGoogle = await fetch(urlGoogle, {
-                  method: "PUT",
-                  body: formData,
-              });
-  
-              // Verificar si la respuesta es exitosa
-              if (!responseGoogle.ok) {
-                  const errorResponse = await responseGoogle.json();
-                  throw new Error(`Error en la subida de la imagen: ${responseGoogle.status} - ${errorResponse.message || responseGoogle.statusText}`);
-              }
-  
-              const responseGoogleData = await responseGoogle.json();
-  
-              // Capturar la URL nueva de la respuesta
-              if (responseGoogleData.status !== "success") {
-                  throw new Error(`Error en la respuesta de Google: ${responseGoogleData.message}`);
-              }
-  
-              uploadedImageUrls.push(responseGoogleData.url);
-          }
-  
-          // Hacer la solicitud para guardar los datos solo si todas las imágenes fueron subidas correctamente
-          const response = await fetch(url, {
-              method: "POST",
-              headers: {
-                  "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ ...data, [tipoVariable]: uploadedImageUrls }),
-          });
-  
-          // Verificar si la respuesta es exitosa
-          if (!response.ok) {
-              const errorResponse = await response.json(); // Captura el cuerpo de la respuesta
-              throw new Error(`Error al guardar los datos: ${response.status} - ${errorResponse.message || response.statusText}`);
-          }
-  
-          const responseData = await response.json();
-          Alert.alert("Éxito", "Datos guardados exitosamente.");
-          navigation.navigate(screen.terreno.tab, {
-              screen: screen.terreno.inicio,
-          });
-  
-      } catch (error) {
-          console.error("Error al guardar los datos final:", error.message); // Solo imprimir el mensaje del error
-  
-          // Manejo de errores específicos
-          if (error.message.includes("401")) {
-              Alert.alert("Error", "No autorizado. Verifique sus credenciales.");
-          } else if (error.message.includes("500")) {
-              Alert.alert("Error", "Error interno en el servidor. Inténtelo más tarde.");
-          } else {
-              Alert.alert("Error", `No se pudieron guardar los datos. ${error.message}`);
-          }
-      } finally {
-          setLoading(false); // Finalizar el indicador de carga
+
+      // Hacer la solicitud para guardar los datos solo si todas las imágenes fueron subidas correctamente
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ...data, [tipoVariable]: uploadedImageUrls }),
+      });
+
+      // Verificar si la respuesta es exitosa
+      if (!response.ok) {
+        const errorResponse = await response.json(); // Captura el cuerpo de la respuesta
+        throw new Error(`Error al guardar los datos: ${response.status} - ${errorResponse.message || response.statusText}`);
       }
+
+      const responseData = await response.json();
+      Alert.alert("Éxito", "Datos guardados exitosamente.");
+      navigation.navigate(screen.terreno.tab, {
+        screen: screen.terreno.inicio,
+      });
+
+    } catch (error) {
+      console.error("Error al guardar los datos final:", error.message); // Solo imprimir el mensaje del error
+
+      // Manejo de errores específicos
+      if (error.message.includes("401")) {
+        Alert.alert("Error", "No autorizado. Verifique sus credenciales.");
+      } else if (error.message.includes("500")) {
+        Alert.alert("Error", "Error interno en el servidor. Inténtelo más tarde.");
+      } else {
+        Alert.alert("Error", `No se pudieron guardar los datos. ${error.message}`);
+      }
+    } finally {
+      setLoading(false); // Finalizar el indicador de carga
+    }
   };
-  
+
   const handleSave = () => {
     let valid = validateFields();
     if (valid) {
       let newData = {};
       if (tipo === 1) {
         newData = {
-            idTerrenaGestionDomicilio: 0,
-            idClienteVerificacion: parseInt(item.idClienteVerificacion, 10),
-            idTerrenaTipoCliente: parseInt(state.tipocliente, 10),
-            iTiempoVivienda: parseInt(state.tiempoVivienda, 10),
-            idTerrenaTipoVivienda: parseInt(state.tipoVivienda, 10),
-            idTerrenaEstadoVivienda: parseInt(state.estado, 10) || 1,
-            idTerrenaZonaVivienda: parseInt(state.zonas, 10) || 1,
-            idTerrenaPropiedad: parseInt(state.propia, 10) || 1,
-            idTerrenaAcceso: parseInt(state.acceso, 10) || 1,
-            idTerrenaCobertura: parseInt(state.coberturaSeñal, 10) || 1,
-            PuntoReferencia: state.puntoReferencia || "",
-            PersonaEntrevistada: state.personaEntrevistadaDomicilio || "",
-            Observaciones: state.observacion || "",
-            VecinoEntreVisto: state.vecinoEntrevistado || "",
-            DireccionesVisitada: state.refGPS || "",
-            Latitud: state.callePrincipal || "",
-            Longitud: state.calleSecundaria || "",
-            domicilioImages: state.domicilioImages || [],
+          idTerrenaGestionDomicilio: 0,
+          idClienteVerificacion: parseInt(item.idClienteVerificacion, 10),
+          idTerrenaTipoCliente: parseInt(state.tipocliente, 10),
+          iTiempoVivienda: parseInt(state.tiempoVivienda, 10),
+          idTerrenaTipoVivienda: parseInt(state.tipoVivienda, 10),
+          idTerrenaEstadoVivienda: parseInt(state.estado, 10) || 1,
+          idTerrenaZonaVivienda: parseInt(state.zonas, 10) || 1,
+          idTerrenaPropiedad: parseInt(state.propia, 10) || 1,
+          idTerrenaAcceso: parseInt(state.acceso, 10) || 1,
+          idTerrenaCobertura: parseInt(state.coberturaSeñal, 10) || 1,
+          PuntoReferencia: state.puntoReferencia || "",
+          PersonaEntrevistada: state.personaEntrevistadaDomicilio || "",
+          Observaciones: state.observacion || "",
+          VecinoEntreVisto: state.vecinoEntrevistado || "",
+          DireccionesVisitada: state.refGPS || "",
+          Latitud: state.callePrincipal || "",
+          Longitud: state.calleSecundaria || "",
+          domicilioImages: state.domicilioImages || [],
+          CallePrincipal: state.callePrincipalRef || "",
+          CalleSecundaria: state.calleSecundariaRef || "",
+          ValorArrendado: parseInt(state.propia, 10) === 2 ? state.valorArrendado : 0,
         };
-    } else {
+      } else {
         newData = {
-            idTerrenaGestionTrabajo: 0,
-            idClienteVerificacion: item.idClienteVerificacion,
-            idTerrenaTipoTrabajo: parseInt(state.tipoTrabajo, 10) || 1,
-            iTiempoTrabajo: parseInt(state.tiempoTrabajoMeses, 10) || 1,
-            iTiempoTrabajoYear: parseInt(state.tiempoTrabajo, 10) || 1,
-            dIngresoTrabajo: state.ingresosMensuales || 0,
-            ActividadTrabajo: state.actividadLaboral || "",
-            TelefonoTrabajo: state.telefonoLaboral || "",
-            PuntoReferencia: state.puntoReferenciaLaboral || "",
-            PersonaEntrevistada: state.personaEntrevistada || "",
-            DireccionesVisitada: state.refGPSLab || "",
-            Latitud: state.callePrincipalLaboral || "",
-            Longitud: state.calleSecundariaLaboral || "",
-            trabajoImages: state.laboralImages || [],
+          idTerrenaGestionTrabajo: 0,
+          idClienteVerificacion: item.idClienteVerificacion,
+          idTerrenaTipoTrabajo: parseInt(state.tipoTrabajo, 10) || 1,
+          iTiempoTrabajo: parseInt(state.tiempoTrabajoMeses, 10) || 1,
+          iTiempoTrabajoYear: parseInt(state.tiempoTrabajo, 10) || 1,
+          dIngresoTrabajo: state.ingresosMensuales || 0,
+          ActividadTrabajo: state.actividadLaboral || "",
+          TelefonoTrabajo: state.telefonoLaboral || "",
+          PuntoReferencia: state.puntoReferenciaLaboral || "",
+          PersonaEntrevistada: state.personaEntrevistada || "",
+          DireccionesVisitada: state.refGPSLab || "",
+          Latitud: state.callePrincipalLaboral || "",
+          Longitud: state.calleSecundariaLaboral || "",
+          trabajoImages: state.laboralImages || [],
+          CallePrincipal: state.callePrincipalLaboralRef || "",
+          CalleSecundaria: state.calleSecundariaLaboralRef || "",
         };
-    }
+      }
 
       setData(newData); // Guardar los datos para pasarlos al modal
       setModalVisible(true); // Mostrar el modal de confirmación
@@ -881,14 +939,14 @@ export function VerificacionCliente({ route, navigation }) {
   }
   return (
     <View style={styles.screenContainer}>
-    <View style={styles.row}>
-      <Icon name="user" size={20} color="#228b22" style={styles.icon} />
-      <Text style={styles.cardSubtitle}>{item.Nombres}</Text>
-    </View>
+      <View style={styles.row}>
+        <Icon name="user" size={20} color="#228b22" style={styles.icon} />
+        <Text style={styles.cardSubtitle}>{item.Nombres}</Text>
+      </View>
 
-    <View style={styles.buttonContainer}>
-    <TouchableOpacity 
-          style={[styles.tabButton, activeButton === 'detalles' && styles.activeTab]} 
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={[styles.tabButton, activeButton === 'detalles' && styles.activeTab]}
           onPress={() => {
             setShowImages(false);
             setActiveButton('detalles'); // Cambiar el botón activo
@@ -896,8 +954,8 @@ export function VerificacionCliente({ route, navigation }) {
         >
           <Text style={[styles.buttonText, activeButton === 'detalles' && styles.activeButtonText]}>Detalles</Text>
         </TouchableOpacity>
-        <TouchableOpacity 
-          style={[styles.tabButton, activeButton === 'imagenes' && styles.activeTab]} 
+        <TouchableOpacity
+          style={[styles.tabButton, activeButton === 'imagenes' && styles.activeTab]}
           onPress={() => {
             setShowImages(true);
             setActiveButton('imagenes'); // Cambiar el botón activo
@@ -905,51 +963,51 @@ export function VerificacionCliente({ route, navigation }) {
         >
           <Text style={[styles.buttonText, activeButton === 'imagenes' && styles.activeButtonText]}>Imágenes</Text>
         </TouchableOpacity>
-    </View>
+      </View>
 
-    <ScrollView>
-      {!showImages ? (
-        // Vista de detalles
-        <>
-          {item.bDomicilio && tipo === 1 && (
-            <DomicilioTab state={state} setState={setState} />
-          )}
-          {item.bTrabajo && tipo === 2 && (
-            <LaboralTab state={state} setState={setState} />
-          )}
-        </>
-      ) : (
-        // Vista de imágenes
-        <>
-          {item.bDomicilio && tipo === 1 && (
-            <DomicilioImagenesTab
-              state={state}
-              setState={setState}
-              type="domicilioImages"
-            />
-          )}
-          {item.bTrabajo && tipo === 2 && (
-            <DomicilioImagenesTab
-              state={state}
-              setState={setState}
-              type="laboralImages"
-            />
-          )}
-        </>
-      )}
-    </ScrollView>
+      <ScrollView>
+        {!showImages ? (
+          // Vista de detalles
+          <>
+            {item.bDomicilio && tipo === 1 && (
+              <DomicilioTab state={state} setState={setState} />
+            )}
+            {item.bTrabajo && tipo === 2 && (
+              <LaboralTab state={state} setState={setState} />
+            )}
+          </>
+        ) : (
+          // Vista de imágenes
+          <>
+            {item.bDomicilio && tipo === 1 && (
+              <DomicilioImagenesTab
+                state={state}
+                setState={setState}
+                type="domicilioImages"
+              />
+            )}
+            {item.bTrabajo && tipo === 2 && (
+              <DomicilioImagenesTab
+                state={state}
+                setState={setState}
+                type="laboralImages"
+              />
+            )}
+          </>
+        )}
+      </ScrollView>
 
-    <View style={styles.buttonContainer}>
-      <Button mode="contained" style={styles.button} onPress={handleSave}>
-        Guardar
-      </Button>
-      <LoadingIndicator visible={loading} />
-      <ConfirmationModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-        onConfirm={handleConfirm}
-      />
+      <View style={styles.buttonContainer}>
+        <Button mode="contained" style={styles.button} onPress={handleSave}>
+          Guardar
+        </Button>
+        <LoadingIndicator visible={loading} />
+        <ConfirmationModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          onConfirm={handleConfirm}
+        />
+      </View>
     </View>
-  </View>
   );
 }

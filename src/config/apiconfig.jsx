@@ -1,9 +1,9 @@
 
  
-const API_BASE_URL = "http://179.49.21.45:3025/cobranza/api/v1/point/";
-const SOCKET_BASE_URL = "http://179.49.21.45:3025"; 
-// const API_BASE_URL = http://179.49.21.45:3025
-// const API_BASE_URL = "http://192.168.10.236:3025/cobranza/api/v1/point/";
+const API_BASE_URL = "http://192.168.2.167:3055/cobranza/api/v1/point/";
+const SOCKET_BASE_URL = "http://192.168.2.167:3055"; 
+//const API_BASE_URL = "http://179.49.21.45:3025/cobranza/api/v1/point/";
+//const SOCKET_BASE_URL = "http://179.49.21.45:3025";
 export const APIURL = {
    
     senLogin: () => `${API_BASE_URL}login`,
@@ -37,6 +37,7 @@ export const APIURL = {
     postSlack: () => `https://hooks.slack.com/services/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`,
     postRecojo: () => `${API_BASE_URL}AppSave/Recojo`,
     postAnticiposAPP: () => `${API_BASE_URL}AppSave/Anticipos`,
+    postCob_AppCobrosEfectivo : () =>`${API_BASE_URL}AppSave/Cob_AppCobrosEfectivo`,
     postGestiondiaria: ()=> `${API_BASE_URL}GestionDiaria/list`,
     postGestiondiariaId: () => `${API_BASE_URL}GestionDiaria/allGestionId`, 
     getAllGestionDiaria : () =>`${API_BASE_URL}GestionDiaria/allGestion`,

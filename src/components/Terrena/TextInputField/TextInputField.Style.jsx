@@ -75,7 +75,6 @@ export const styles = StyleSheet.create({
     borderRadius: 4,
     padding: 6, // Compacto
     backgroundColor: "#fff",
-    textTransform: "uppercase",
 
   },
   submitButton: {

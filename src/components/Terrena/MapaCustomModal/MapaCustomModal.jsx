@@ -3,7 +3,7 @@ import { Modal, StyleSheet, Text, TouchableOpacity, View, Alert, ActivityIndicat
 import { WebView } from 'react-native-webview';
 import * as Location from 'expo-location';
 
-export function MapaCustomModal  ({ visible, onClose, onLocationSelect })  {
+export function MapaCustomModal({ visible, onClose, onLocationSelect }) {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [loading, setLoading] = useState(true);
   const [htmlContent, setHtmlContent] = useState('');
@@ -58,16 +58,39 @@ export function MapaCustomModal  ({ visible, onClose, onLocationSelect })  {
               maxZoom: 19,
               attribution: '© OpenStreetMap'
             }).addTo(map);
-            const marker = L.marker([${latitude}, ${longitude}]).addTo(map)
+            
+            // Crear un marcador en la ubicación inicial
+            let marker = L.marker([${latitude}, ${longitude}]).addTo(map)
               .bindPopup('Ubicación actual')
               .openPopup();
-
-            // Deshabilitar la interacción en el mapa
-            map.dragging.disable();
-            map.touchZoom.disable();
-            map.doubleClickZoom.disable();
-            map.scrollWheelZoom.disable();
-            map.boxZoom.disable();
+  
+            // Habilitar interacciones del mapa
+            map.dragging.enable();
+            map.touchZoom.enable();
+            map.doubleClickZoom.enable();
+            map.scrollWheelZoom.enable();
+            map.boxZoom.enable();
+  
+            // Evento de clic para seleccionar un punto en el mapa
+            map.on('click', function(e) {
+              // Obtener las coordenadas del clic
+              const lat = e.latlng.lat;
+              const lng = e.latlng.lng;
+  
+              // Eliminar el marcador anterior
+              marker.remove();
+  
+              // Crear un nuevo marcador en las coordenadas del clic
+              marker = L.marker([lat, lng]).addTo(map)
+                .bindPopup('Punto seleccionado')
+                .openPopup();
+  
+              // Actualizar la información de la ubicación
+              console.log('Latitud:', lat, 'Longitud:', lng);
+  
+              // Realizar geocodificación inversa para obtener la dirección
+              window.ReactNativeWebView.postMessage(JSON.stringify({ lat, lng }));
+            });
           </script>
         </body>
       </html>
@@ -93,6 +116,28 @@ export function MapaCustomModal  ({ visible, onClose, onLocationSelect })  {
     }
   }, [visible]);
 
+  const handleMessage = async (event) => {
+    const message = JSON.parse(event.nativeEvent.data);
+    const { lat, lng } = message;
+
+    if (lat && lng) {
+      try {
+        // Realizar geocodificación inversa para obtener la dirección
+        const address = await Location.reverseGeocodeAsync({ latitude: lat, longitude: lng });
+        const addressFormatted = formatAddress(address);
+
+        setSelectedLocation((prev) => ({
+          ...prev,
+          latitude: lat,
+          longitude: lng,
+          address: addressFormatted,  // Actualizar dirección
+        }));
+      } catch (error) {
+        console.error('Error al obtener la dirección:', error);
+      }
+    }
+  };
+
   return (
     <Modal
       animationType="slide"
@@ -112,6 +157,7 @@ export function MapaCustomModal  ({ visible, onClose, onLocationSelect })  {
                 style={styles.map}
                 javaScriptEnabled={true}
                 domStorageEnabled={true}
+                onMessage={handleMessage}
               />
               {selectedLocation && (
                 <View style={styles.locationDetails}>

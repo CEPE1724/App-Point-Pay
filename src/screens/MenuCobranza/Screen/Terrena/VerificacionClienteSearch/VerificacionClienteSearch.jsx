@@ -82,6 +82,9 @@ const DomicilioTab = ({ state, setState }) => {
     acceso,
     coberturaSeñal,
     refGPS,
+    CallePrincipalDomicilio,
+    CalleSecundariaDomicilio,
+
   } = state;
 
   const renderInfoRow = (iconName, label, value) => (
@@ -119,21 +122,15 @@ const DomicilioTab = ({ state, setState }) => {
         {renderRadioGroupvIEW("Estado Vivienda :", estado, options.estadoOptions)}
         {renderRadioGroupvIEW("Zona de Vivienda :", zonas, options.zonaOptions)}
         {renderRadioGroupvIEW("Propiedad :", propia, options.propiedadOptions)}
-        {isArrendado && (
-          <TextInputField
-            label="Valor Arrendado"
-            placeholder="Ingrese valor arrendado"
-            value={valorArrendado}
-            onChange={(text) => setState({ ...state, valorArrendado: text })}
-            keyboardType="decimal-pad"
-          />
-        )}
+        {propia === 2 && renderInfoRow("users", "Valor Arriendo:", valorArrendado)}
         {renderRadioGroupvIEW("Acceso :", acceso, options.accesoOptions)}
         {renderRadioGroupvIEW("Cobertura de Señal :", coberturaSeñal, options.coberturaSeñalOptions)}
         {renderInfoRow("map-marker", "Punto de Referencia:", puntoReferencia)}
         {renderInfoRow("user", "Persona Entrevistada:", personaEntrevistadaDomicilio)}
         {renderInfoRow("comment", "Observación:", observacion)}
         {renderInfoRow("users", "Vecino Entrevistado:", vecinoEntrevistado)}
+        {renderInfoRow("users", "Calle Principal:", CallePrincipalDomicilio)}
+        {renderInfoRow("users", "Calle Secundaria:", CalleSecundariaDomicilio)}
         {renderInfoRow("users", "GPS:", refGPS)}
         {renderInfoRow("map-marker", "Latitud:", callePrincipal)}
         {renderInfoRow("map-marker", "Longitud:", calleSecundaria)}
@@ -183,6 +180,8 @@ const LaboralTab = ({ state, setState }) => {
     calleSecundariaLaboral,
     puntoReferenciaLaboral,
     personaEntrevistada,
+    CallePrincipalTrabajo,
+    CalleSecundariaTrabajo,
   } = state;
   const renderInfoRow = (iconName, label, value) => (
     <View style={styles.infoRow}>
@@ -218,6 +217,8 @@ const LaboralTab = ({ state, setState }) => {
       {renderInfoRow("phone", "Teléfono Laboral:", telefonoLaboral)}
       {renderInfoRow("map-marker", "Punto de Referencia Laboral:", puntoReferenciaLaboral)}
       {renderInfoRow("user", "Persona Entrevistada:", personaEntrevistada)}
+      {renderInfoRow("users", "Calle Principal:", CallePrincipalTrabajo)}
+      {renderInfoRow("users", "Calle Secundaria:", CalleSecundariaTrabajo)}
       {renderInfoRow("users", "GPS:", refGPSLab)}
       {renderInfoRow("map-marker", "Latitud:", callePrincipalLaboral)}
       {renderInfoRow("map-marker", "Longitud:", calleSecundariaLaboral)}
@@ -265,6 +266,10 @@ export function VerificacionClienteSearch({ route, navigation }) {
     tipoTrabajo: 0,
     domicilioImages: [],
     laboralImages: [],
+    CallePrincipalDomicilio: "",
+    CalleSecundariaDomicilio: "",
+    CallePrincipalTrabajo: "",
+    CalleSecundariaTrabajo: "",
   });
 
  
@@ -295,6 +300,8 @@ export function VerificacionClienteSearch({ route, navigation }) {
               callePrincipalLaboral: ubicacion.Latitud.toString(),
               calleSecundariaLaboral: ubicacion.Longitud.toString(),
               laboralImages: JSON.parse(ubicacion.trabajoImages),
+              CallePrincipalTrabajo: ubicacion.CallePrincipal,
+              CalleSecundariaTrabajo: ubicacion.CalleSecundaria,
             }));
           }else {
             setState((prevState) => ({
@@ -316,6 +323,9 @@ export function VerificacionClienteSearch({ route, navigation }) {
               calleSecundaria: ubicacion.Longitud.toString(),
               refGPS: ubicacion.DireccionesVisitada,
               domicilioImages: JSON.parse(ubicacion.domicilioImages),
+              CallePrincipalDomicilio: ubicacion.CallePrincipal,
+              CalleSecundariaDomicilio: ubicacion.CalleSecundaria,
+              valorArrendado: ubicacion.ValorArrendado.toString(),
             }));
 
           }

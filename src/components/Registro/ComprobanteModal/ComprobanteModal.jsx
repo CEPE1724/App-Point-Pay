@@ -26,8 +26,10 @@ export function ComprobanteModal({
   setImages,
   onAccept,
   bancos, // Recibe la lista de bancos
-  setSelectedTipoPago
+  setSelectedTipoPago,
+  selectedTipoPago
 }) {
+  console.log(selectedTipoPago);
   return (
     <Modal
       animationType="slide"
@@ -38,7 +40,7 @@ export function ComprobanteModal({
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Información de Comprobante</Text>
-
+         {selectedTipoPago === 2 && (
           <View style={styles.pickerContainer}>
             <Picker
               selectedValue={selectedBanco}
@@ -56,6 +58,8 @@ export function ComprobanteModal({
             </Picker>
             
           </View>
+          )}
+
           <View style={styles.row}>
             <FileTexto size={24} color="#333" style={styles.icon} />
             <TextInput

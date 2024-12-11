@@ -27,6 +27,7 @@ export function TextInputField({
         textAlignVertical={multiline ? "top" : "center"}
         editable={editable} // Pass the editable prop here
         pointerEvents={pointerEvents} // Pass the pointerEvents prop here
+        autoCapitalize="characters"
       />
     </View>
   );

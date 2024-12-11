@@ -58,7 +58,6 @@ export function InsertScreen({ route, navigation }) {
     number: 0,
     selectedBanco: null,
   });
-  console.log("summitDataTransfer");
   const [loading, setLoading] = useState(false);
   const [dataGestion, setDataGestion] = useState([]);
   const [modalVisibleOk, setModalVisibleOk] = useState(false);
@@ -66,11 +65,12 @@ export function InsertScreen({ route, navigation }) {
     const fetchUserInfo = async () => {
       try {
         const storedUserInfo = await AsyncStorage.getItem("userInfo");
+        console.log("storedUserInfo cepeda", storedUserInfo);
         if (storedUserInfo) {
           const user = JSON.parse(storedUserInfo);
           setUserInfo({
             ingresoCobrador: user.ingresoCobrador.idIngresoCobrador || "",
-            Usuario: user.ingresoCobrador.codigo || "",
+            Usuario: user.ingresoCobrador.Codigo || "",
           });
         }
       } catch (error) {
@@ -81,6 +81,7 @@ export function InsertScreen({ route, navigation }) {
     fetchUserInfo();
   }, []);
 
+  console.log("userInfoEdison", userInfo);
   const TipoPago = [
     { id: 1, name: "EFECTIVO" },
     { id: 2, name: "TRANSFERENCIA" },
@@ -195,7 +196,7 @@ export function InsertScreen({ route, navigation }) {
 
   useEffect(() => {
     // Cerrar modal si selectedResultado es 61
-    if (selectedTipoPago === 2) {
+    if (selectedTipoPago === 2 || selectedTipoPago === 1) {
       fetchBancos();
       setModalVisible(true);
     }
@@ -221,11 +222,18 @@ export function InsertScreen({ route, navigation }) {
 
   const onAccept = () => {
     // Validar campos y manejar datos
-    if (!selectedBanco || !comprobante || !number || images.length === 0) {
+    if(selectedTipoPago === 2){
+      if (!selectedBanco ) {
+        alert("Por favor, complete todos los campos.");
+        return;
+      }
+    }
+       
+    if ( !comprobante || !number || images.length === 0) {
       alert("Por favor, complete todos los campos.");
       return;
     }
-
+ /// mnadar parametrso aqui te quedaste
     // Aquí puedes enviar los datos al servidor
     const newData = {
       IdBanco: parseInt(selectedBanco, 10),
@@ -233,13 +241,13 @@ export function InsertScreen({ route, navigation }) {
       Abono: parseFloat(number),
       images: images,
     };
+
     setSummitDataTransfer(newData);
     setModalVisible(false);
   };
 
   const handleSave = () => {
     // Función para mostrar alertas
-    console.log("selectedResultado", selectedResultado);
     const showAlert = (message) => {
       setAlertMessage(message);
       setAlertVisible(true);
@@ -274,22 +282,15 @@ export function InsertScreen({ route, navigation }) {
         return;
       }
 
-      if (selectedTipoPago === 1) {
-        if (!number || number === "") {
-          showAlert("Ingrese el valor recibido.");
-          return;
-        }
-        if (number <= 0) {
-          showAlert("El valor no puede ser menor o igual a 0.");
-          return;
-        }
-      }
-
       if (selectedTipoPago === 2) {
         if (!summitDataTransfer.IdBanco) {
           showAlert("Seleccione el banco.");
           return;
         }
+      }
+
+      if (selectedTipoPago === 1 || selectedTipoPago === 2) {
+
         if (!summitDataTransfer.NumeroDeposito) {
           showAlert("Ingrese el número de comprobante.");
           return;
@@ -609,6 +610,7 @@ export function InsertScreen({ route, navigation }) {
             onAccept={onAccept}
             bancos={bancos} // Pasa los bancos al modal
             setSelectedTipoPago={setSelectedTipoPago}
+            selectedTipoPago={selectedTipoPago}
           />
           <View
             style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
@@ -633,21 +635,7 @@ export function InsertScreen({ route, navigation }) {
           </View>
         </View>
       ) : null}
-      {selectedTipoPago === 1 && selectedResultado === 61 ? (
-        <View style={styles.calendarContainer}>
-          {/* Contenedor para el campo de valor */}
-          <Icon name="dollar" size={24} color="#333" style={styles.icon} />
-          <View style={{ flex: 1 }}>
-            <TextInput
-              style={styles.input}
-              keyboardType="numeric"
-              value={number}
-              onChangeText={handleNumberChange}
-              placeholder="Ingrese el Valor"
-            />
-          </View>
-        </View>
-      ) : null}
+   
       {selectedResultado ? (
         <View>
           <TextInput

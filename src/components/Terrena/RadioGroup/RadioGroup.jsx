@@ -16,7 +16,7 @@ export function RadioGroup({ label, options, value, onChange }) {
                 <RadioButton value={option.value} />
                 <Icon
                   name={option.icon}
-                  size={20}
+                  size={15}
                   color="#228b22"
                   style={styles.icon}
                 />

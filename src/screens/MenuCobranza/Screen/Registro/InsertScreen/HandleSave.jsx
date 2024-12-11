@@ -1,5 +1,4 @@
 import axios from "axios";
-import { sendSlackMessage } from "../../../../../components";
 import { screen } from "../../../../../utils/screenName";
 import { APIURL } from "../../../../../config/apiconfig";
 export const HandleSave = async ({
@@ -14,7 +13,8 @@ export const HandleSave = async ({
   setLoading,
 }) => {
 
-  console.log("Entra a guardar");
+
+
   setLoading(true);
   const urlGoogle = APIURL.putGoogle();
   let IdCbo_GestionesDeCobranzas = 0;
@@ -25,7 +25,6 @@ export const HandleSave = async ({
 
     // Procesar recojo si es necesario
     if (selectedResultado === 60) {
-        console.log("selectedResultado", selectedResultado);
       await processRecojo(
         IdCbo_GestionesDeCobranzas,
         submittedDataRecojo,
@@ -36,7 +35,7 @@ export const HandleSave = async ({
     let voucher = null;
     // Guardar en la segunda API si es necesario
     if (selectedResultado === 61 && selectedTipoPago === 2) {
-       voucher = await saveDepositosPendientesAPP(
+      voucher = await saveDepositosPendientesAPP(
         summitDataTransfer,
         urlGoogle,
         item.idCompra,
@@ -45,23 +44,25 @@ export const HandleSave = async ({
       );
     }
     if (selectedResultado === 61 && selectedTipoPago === 1) {
-        voucher = await saveAnticiposAPP(
-          data.idCompra,
-          data.Valor,
-          userInfo.Usuario
-        );
-         
-      }
+
+      voucher = await saveAnticiposAPP(
+        summitDataTransfer,
+        urlGoogle,
+        item.idCompra,
+        userInfo,
+        item
+      );
+
+    }
     let msg = "Datos guardados correctamente.";
     if (voucher) {
-        msg += `\nNúmero de Comprobante:\n${voucher}`;
-      }
-      alert(msg); // Mensaje de éxito
-      navigation.navigate(screen.registro.tab, { screen: screen.registro.inicio, params: { refresh: true } , }); // Navegar a la pantalla de inicio
+      msg += `\nNúmero de Comprobante:\n${voucher}`;
+    }
+    alert(msg); // Mensaje de éxito
+    navigation.navigate(screen.registro.tab, { screen: screen.registro.inicio, params: { refresh: true }, }); // Navegar a la pantalla de inicio
 
   } catch (error) {
     alert("Error al guardar los datos.");
-    await logErrorToSlack(error, data, summitDataTransfer, userInfo);
   } finally {
     setLoading(false);
   }
@@ -87,19 +88,9 @@ const uploadImages = async (images, urlGoogle, idCompra, userInfo) => {
     });
     if (!responseGoogle.ok) {
       const errorResponse = await responseGoogle.json();
-      await logErrorToSlack(
-        new Error(
-          `Error en la subida de la imagen: ${responseGoogle.status} - ${
-            errorResponse.message || responseGoogle.statusText
-          }`
-        ),
-        null,
-        null,
-        userInfo
-      );
+
       throw new Error(
-        `Error en la subida de la imagen: ${responseGoogle.status} - ${
-          errorResponse.message || responseGoogle.statusText
+        `Error en la subida de la imagen: ${responseGoogle.status} - ${errorResponse.message || responseGoogle.statusText
         }`
       );
     }
@@ -117,7 +108,6 @@ const uploadImages = async (images, urlGoogle, idCompra, userInfo) => {
 
 // Función para guardar Gestiones de Cobranzas
 const saveGestionesDeCobranzas = async (data) => {
-    console.log("data", data);
   const url = APIURL.postCbo_GestionesDeCobranzas();
   const response = await axios.post(url, { ...data });
   return response.data.result[0].IdCbo_GestionesDeCobranzas;
@@ -155,7 +145,6 @@ const processRecojo = async (
       await axios.post(urlRecojo, dataRecojo);
     } catch (error) {
       console.error("Error en processRecojo:", error);
-      await logErrorToSlack(error, dataRecojo, null, userInfo);
     }
   }
 };
@@ -182,19 +171,8 @@ const uploadRecojoImages = async (images, idDetCompra, userInfo) => {
 
       if (!responseGoogle.ok) {
         const errorResponse = await responseGoogle.json();
-        await logErrorToSlack(
-          new Error(
-            `Error en la subida de la imagen: ${responseGoogle.status} - ${
-              errorResponse.message || responseGoogle.statusText
-            }`
-          ),
-          null,
-          null,
-          userInfo
-        );
         throw new Error(
-          `Error en la subida de la imagen: ${responseGoogle.status} - ${
-            errorResponse.message || responseGoogle.statusText
+          `Error en la subida de la imagen: ${responseGoogle.status} - ${errorResponse.message || responseGoogle.statusText
           }`
         );
       }
@@ -247,50 +225,54 @@ const saveDepositosPendientesAPP = async (
     return voucher;
   } catch (transferError) {
     alert("Error al guardar los datos en la segunda API.");
-    await logErrorToSlack(transferError, dataTransfer, item, userInfo);
   }
 };
 
 const saveAnticiposAPP = async (
-    idCompra,
-    Abono,
-    Usuario
-  ) => {
-    const dataAnticipo = {
-        idCompra: idCompra,
-        Abono: Abono,
-        Usuario: Usuario
-    };
-  
-    const urlTransfer = APIURL.postAnticiposAPP();
-    try {
-      const responseTransfer = await axios.post(urlTransfer, dataAnticipo);
-      const voucher = responseTransfer.data.result[0]?.Numero;
-  
-      // Mensaje personalizado al guardar
-      //alert("Datos guardados correctamente\nNúmero de Comprobante:\n " + voucher);
-      return voucher;
-    } catch (transferError) {
-      alert("Error al guardar los datos en la segunda API.");
-      await logErrorToSlack(transferError, dataTransfer, item, userInfo);
-    }
-  };
-// Función para loguear errores en Slack
-const logErrorToSlack = async (
-  error,
-  data,
   summitDataTransfer,
+  urlGoogle,
+  idCompra,
   userInfo,
-  context = null
+  item
 ) => {
-  await sendSlackMessage({
-    userId: userInfo.ingresoCobrador,
-    username: userInfo.Usuario,
-    component: "handleGuardar",
-    errorMessage: error.message,
-    process: "Guardar Datos",
-    context: context || { data, summitDataTransfer },
-    stackTrace: "",
-    severity: "ERROR",
-  });
+
+
+  const dataTransfer = {
+    idCompra: parseInt(idCompra, 10),
+    idCobrador: parseInt(userInfo.ingresoCobrador, 10),
+    Valor: parseFloat(summitDataTransfer.Abono),
+    Voucher : summitDataTransfer.NumeroDeposito,
+    Usuario: userInfo.Usuario,
+    Imagen: await uploadImages(
+      summitDataTransfer.images,
+      urlGoogle,
+      idCompra,
+      userInfo
+    ),
+  };
+
+
+  const urlTransfer = APIURL.postCob_AppCobrosEfectivo();
+  
+  try {
+    const responseTransfer = await axios.post(urlTransfer, dataTransfer);
+    
+    // Acceder correctamente al voucher en la respuesta
+    const voucher = responseTransfer.data.Voucher;  // Acceso correcto a Voucher
+
+
+    if (voucher) {
+      // Si el voucher es válido, lo retornas
+      return voucher;
+    } else {
+      console.error("No se encontró el voucher en la respuesta");
+    }
+  } catch (transferError) {
+    console.error("Error durante la llamada a la API:", transferError);  // Log del error
+    alert("Error al guardar los datos en la segunda API...");
+  }
 };
+
+
+
+// Función para loguear errores en Slack

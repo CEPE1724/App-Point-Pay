@@ -95,6 +95,7 @@ export default function PinInput({ navigation }) {
     // Función para almacenar los datos del usuario en AsyncStorage
     const storeUserData = async (data) => {
         try {
+            console.log("Guardando datos del usuario en AsyncStorage...", data);
             await AsyncStorage.setItem("userToken", data.token);
             await AsyncStorage.setItem("userInfo", JSON.stringify(data.usuario));
             await AsyncStorage.setItem("userName", data.usuario.Nombre);

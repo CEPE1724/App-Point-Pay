@@ -250,7 +250,7 @@ export default function LoginScreen({ navigation }) {
           <Text style={styles.buttonTextBack}>Regresar</Text>
         </TouchableOpacity>
 
-        <Text style={styles.version}>V.1.10.1</Text>
+        <Text style={styles.version}>Version: 2.2.1.0</Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );

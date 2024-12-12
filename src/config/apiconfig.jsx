@@ -1,7 +1,7 @@
 
  
-const API_BASE_URL = "http://192.168.2.167:3055/cobranza/api/v1/point/";
-const SOCKET_BASE_URL = "http://192.168.2.167:3055"; 
+const API_BASE_URL = "http://192.168.2.167:3025/cobranza/api/v1/point/";
+const SOCKET_BASE_URL = "http://192.168.2.167:3025"; 
 //const API_BASE_URL = "http://179.49.21.45:3025/cobranza/api/v1/point/";
 //const SOCKET_BASE_URL = "http://179.49.21.45:3025";
 export const APIURL = {
@@ -44,7 +44,8 @@ export const APIURL = {
     getViewLastGestiones: () => `${API_BASE_URL}AppSave/ViewGestionesDeCobranzas`,
     getViewTablaAmortizacion : () => `${API_BASE_URL}AppSave/TablaAmrtizacion`,
     getViewTablaAmortizacionValores : () => `${API_BASE_URL}AppSave/TablaValoresPendientes`,
-    getViewListadoProductos : () => `${API_BASE_URL}Inventario/Productos`,
+    getViewListadoProductos : () => `${API_BASE_URL}Inventario/V1/Productos`,
+    getViewListadoProductosDet : () => `${API_BASE_URL}Inventario/V1/Productos/Det`,
     getViewListadoProductosId : () => `${API_BASE_URL}Inventario/ProductosId`,
     getViewListadoProductosBodega : () => `${API_BASE_URL}BodegaUsuario`,
     getValDispositivo : () => `${API_BASE_URL}DispositivosAPP/Val`,

@@ -7,9 +7,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Plus, History, Search } from "../../../../../Icons";
 import { Picker } from "@react-native-picker/picker";
 import { ImageModal } from '../../../../../components'; // Importamos el componente ImageModal
+import { RadioButton } from 'react-native-paper';
+import { RadioGroupInv } from '../../../../../components'; // Importamos el componente RadioGroupInv
 
 export function InventarioScreen(props) {
   const { navigation } = props;
+  
+  // Estados para manejar los datos y filtros
   const [data, setData] = useState([]); // Almacena la data de los productos
   const [totalRecords, setTotalRecords] = useState(0); // Número total de productos
   const [currentPage, setCurrentPage] = useState(1); // Página actual
@@ -20,7 +24,16 @@ export function InventarioScreen(props) {
   const [Bodegas, setBodegas] = useState([]); // Lista de bodegas
   const [selectedBodega, setSelectedBodega] = useState(null); // Bodega seleccionada
   const [selectedItem, setSelectedItem] = useState(null); // Elemento seleccionado para el carrusel
+  const [stockFilter, setStockFilter] = useState(1); // Estado para el filtro de stock
+  const [tipocliente, setTipocliente] = useState(0); // Estado para el tipo de cliente
 
+  // Opciones para el filtro de tipo de cliente
+  const options = [
+    { value: 1, label: "Con stock", icon: "check" },
+    { value: 0, label: "Sin stock", icon: "times" },
+  ];
+
+  // Efecto para obtener los datos de bodegas desde AsyncStorage
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -40,6 +53,7 @@ export function InventarioScreen(props) {
     fetchData();
   }, []);
 
+  // Función para obtener las bodegas de la API
   const fetchBodegas = async (bodegas) => {
     try {
       const url = APIURL.getViewListadoProductosBodega();
@@ -49,62 +63,59 @@ export function InventarioScreen(props) {
         },
       });
 
-      const fetchedData = response.data;
-      setBodegas(fetchedData);
+      setBodegas(response.data);
     } catch (error) {
       console.error("Error fetching bodegas:", error);
     }
   };
 
+  // Función para obtener los productos de la API
   const fetchData = async (page = 1, retries = 3) => {
     if (loading || (page > 1 && data.length >= totalRecords)) return;
 
     setLoading(true);
+
     try {
       const url = APIURL.getViewListadoProductos();
       const response = await axios.get(url, {
         params: {
-          Bodega: selectedBodega ? selectedBodega.Bodega : 31,
+          Bodega: selectedBodega ? selectedBodega.Bodega : 31, // Asegúrate de que la bodega esté definida
           Articulo: filtro,
           PaginaNumero: page,
           RegistrosPorPagina: limit,
+          Inventario: stockFilter, // Usamos el estado `stockFilter` aquí
         },
       });
 
-      const { data: fetchedData, total } = response.data; // Aquí se debe asegurar que "total" existe en la respuesta
-
-      // Si la API no devuelve el total, podrías intentar calcularlo o asumir que es el tamaño de la respuesta
-      if (total) {
-        setTotalRecords(total); // Actualiza el número total de productos
-      } else {
-        setTotalRecords(fetchedData.length); // Si no hay "total", usamos el tamaño de los resultados
-      }
+      const { data: fetchedData, total } = response.data;
+      setTotalRecords(total || fetchedData.length); // Si total no está disponible, usamos la longitud de los resultados
 
       setData((prevData) => (page === 1 ? fetchedData : [...prevData, ...fetchedData]));
       setLoading(false);
       setLoadingMore(false);
     } catch (error) {
       if (retries > 0) {
-        console.error(`Retrying fetch data, attempts remaining: ${retries - 1}`);
-        setTimeout(() => fetchData(page, retries - 1), 1000);
+        setTimeout(() => fetchData(page, retries - 1), 1000); // Reintentos
       } else {
-        console.error("Error fetching data:", error);
         setLoading(false);
         setLoadingMore(false);
       }
     }
   };
 
+  // Llamada a la API cuando cambian los filtros o la página
   useEffect(() => {
     fetchData(currentPage);
-  }, [currentPage, selectedBodega]);
+  }, [currentPage, selectedBodega, stockFilter]); // Aseguramos que `stockFilter` se considere
 
+  // Llamada a la API cuando cambia el filtro de búsqueda
   useEffect(() => {
     setCurrentPage(1);
-    setData([]);
-    fetchData(1);
+    setData([]); // Limpiar los datos cuando cambie el filtro
+    fetchData(1); // Llamada a la API con el nuevo filtro
   }, [filtro]);
 
+  // Función para manejar la carga de más productos
   const handleLoadMore = () => {
     if (!loadingMore && data.length < totalRecords) {
       setLoadingMore(true);
@@ -112,16 +123,15 @@ export function InventarioScreen(props) {
     }
   };
 
+  // Función para seleccionar una imagen
   const handleImageSelect = (item) => {
-    setSelectedItem(item); // Set the selected item for the full screen view
+    setSelectedItem(item); // Establecer el elemento seleccionado para la vista completa
   };
 
+  // Función para renderizar cada fila de la lista
   const renderItem = ({ item, index }) => (
     <TouchableOpacity onPress={() => handleImageSelect(item)}>
-      <View
-        style={[styles.tableRow, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
-      >
-        {/* Imagen pequeña */}
+      <View style={[styles.tableRow, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}>
         <Image
           source={{
             uri: `https://storage.googleapis.com/point_pweb/web2023/IMAGENES%20WEB/${item.Codigo}.jpg`,
@@ -136,6 +146,13 @@ export function InventarioScreen(props) {
 
   return (
     <View style={styles.container}>
+      {/* Radio button para seleccionar el filtro de stock */}
+      <RadioGroupInv
+        value={stockFilter}
+        onChange={setStockFilter} // Actualiza el estado de stockFilter
+        options={options} // Pasamos las opciones como props
+      />
+
       {/* Picker para seleccionar bodega */}
       <View style={styles.pickerContainer}>
         <Picker
@@ -146,8 +163,9 @@ export function InventarioScreen(props) {
           {Bodegas.map((bodega) => (
             <Picker.Item
               key={bodega.Bodega}
-              label={` ${bodega.Codigo} - ${bodega.Nombre}`}
+              label={`${bodega.Codigo} - ${bodega.Nombre}`}
               value={bodega}
+              style={styles.pickerItem}
             />
           ))}
         </Picker>
@@ -164,15 +182,10 @@ export function InventarioScreen(props) {
           onChangeText={setFiltro}
         />
       </View>
-
-      {/* Mostrar el total de registros encontrados */}
-      {totalRecords > 0 && (
-        <Text style={styles.recordsFoundText}>
-          {totalRecords} productos encontrados
-        </Text>
-      )}
-
-      {/* Tabla con filas desplazables (mostrar solo 3 elementos a la vez) */}
+      <Text style={styles.recordsFoundText}>
+        {totalRecords} {totalRecords === 1 ? "registro encontrado" : "registros encontrados"}
+      </Text>
+      {/* FlatList para mostrar los productos */}
       <View style={styles.tableContainer}>
         <View style={styles.tableHeader}>
           <Text style={styles.tableHeaderText}></Text>
@@ -205,8 +218,7 @@ export function InventarioScreen(props) {
       )}
 
       {/* Modal de imagen */}
-      <ImageModal isVisible={selectedItem !== null} selectedItem={selectedItem} onClose={() => setSelectedItem(null)} />
+      <ImageModal isVisible={selectedItem !== null} selectedItem={selectedItem} onClose={() => setSelectedItem(null)} stock = {stockFilter} />
     </View>
-
   );
 }

@@ -1,42 +1,64 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, TouchableOpacity, Text, Image, ScrollView, ActivityIndicator } from 'react-native';
+import { Modal, View, TouchableOpacity, Text, Image, ScrollView, ActivityIndicator, FlatList } from 'react-native';
 import { styles } from './ImageModal.Style'; // Asegúrate de tener el archivo de estilos disponible
+import axios from 'axios'; // Asegúrate de tener axios instalado
+import { APIURL } from "../../../config/apiconfig";
 
-export function ImageModal({ isVisible, selectedItem, onClose }) {
-  // Verificamos que selectedItem no sea nulo o indefinido antes de intentar acceder a sus propiedades
+export function ImageModal({ isVisible, selectedItem, onClose, stock }) {
   if (!selectedItem || !selectedItem.Codigo) {
-    return null; // No renderizamos el modal si no hay un artículo válido
+    return null;
   }
 
-  const [selectedImage, setSelectedImage] = useState(`${selectedItem.Codigo}.jpg`); // Imagen seleccionada
-  const [imageError, setImageError] = useState(false); // Detectar si la imagen tiene un error al cargar
-  const [isLoading, setIsLoading] = useState(false); // Estado de carga
+  const [selectedImage, setSelectedImage] = useState(`${selectedItem.Codigo}.jpg`);
+  const [imageError, setImageError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [bodegas, setBodegas] = useState([]); // Para almacenar los datos de la API
+  const [loadingBodegas, setLoadingBodegas] = useState(false); // Para el indicador de carga de bodegas
+  const [showBodegas, setShowBodegas] = useState(false); // Controla si mostrar el listado de bodegas
 
   // Función para cambiar la imagen seleccionada
   const handleThumbnailPress = (image) => {
     setSelectedImage(image);
-    setImageError(false); // Reseteamos el error cuando cambiamos la imagen
+    setImageError(false);
   };
 
-  // Función para manejar el error de la carga de imagen
   const handleImageError = () => {
-    setImageError(true); // Si ocurre un error, marcamos la imagen como errónea
+    setImageError(true);
   };
 
-  // Función para manejar la carga de la imagen
   const handleImageLoad = () => {
-    setIsLoading(false); // La imagen se ha cargado correctamente
+    setIsLoading(false);
   };
 
-  // Generamos la URL de la imagen
   const getImageUrl = (image) => {
     return `https://storage.googleapis.com/point_pweb/web2023/IMAGENES%20WEB/${encodeURIComponent(image)}`;
   };
 
-  console.log(selectedItem);
-  // Mostrar una imagen por defecto si ocurre un error
+  // Función que se ejecuta cuando se presiona el botón "Visualizar"
+  const handleShowBodegas = async () => {
+    setLoadingBodegas(true); // Mostramos el indicador de carga
+    try {
+      const response = await axios.get(APIURL.getViewListadoProductosDet(), {
+        params: {
+          idArticulo: selectedItem.idArticulo // Enviamos el código del artículo
+        },
+      });
+      setBodegas(response.data.data); // Guardamos los datos de bodegas
+      setShowBodegas(true); // Mostramos el listado de bodegas
+    } catch (error) {
+      console.error('Error fetching bodegas:', error);
+    } finally {
+      setLoadingBodegas(false); // Ocultamos el indicador de carga
+    }
+  };
+
+  // Función para cerrar el listado de bodegas
+  const closeBodegas = () => {
+    setShowBodegas(false);
+  };
+
+  // Renderizamos la imagen principal
   const renderImage = () => {
-   
     return (
       <Image
         source={{ uri: getImageUrl(selectedImage) }}
@@ -47,53 +69,84 @@ export function ImageModal({ isVisible, selectedItem, onClose }) {
     );
   };
 
+  // Renderizamos el listado de bodegas
+  const renderBodegas = () => {
+    if (loadingBodegas) {
+      return <ActivityIndicator size="large" color="#0000ff" />;
+    }
+
+    return (
+      <FlatList
+        data={bodegas}
+        keyExtractor={(item) => item.bodega.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.bodegaItem}>
+            <Text style={styles.bodegaText}>Bodega: {item.nombre}</Text>
+            <Text style={styles.bodegaText}>Stock: {item.Stock}</Text>
+          </View>
+        )}
+        contentContainerStyle={{ paddingBottom: 30 }} 
+      />
+    );
+  };
+
   return (
-    <Modal visible={isVisible} onRequestClose={onClose} animationType="slide" >
-        
+    <Modal visible={isVisible} onRequestClose={onClose} animationType="slide">
       <View style={styles.modalContainer}>
-        {/* Botón de cerrar sobre todo */}
-        
+        {/* Botón para cerrar modal */}
         <TouchableOpacity style={styles.closeButton} onPress={onClose}>
           <Text style={styles.closeButtonText}>Cerrar</Text>
         </TouchableOpacity>
 
-        {/* Cargar imagen con un indicador de carga */}
-       
-        {isLoading ? (
-          <ActivityIndicator size="large" color="#0000ff" />
-        ) : (
-          renderImage()
-        )}
+        {/* Mostrar detalles o listado de bodegas */}
+        {!showBodegas ? (
+          <View>
+            {isLoading ? (
+              <ActivityIndicator size="large" color="#0000ff" />
+            ) : (
+              renderImage()
+            )}
 
-        {/* Miniaturas de las imágenes */}
+            <ScrollView horizontal contentContainerStyle={styles.thumbnailContainer}>
+              {[`${selectedItem.Codigo}.jpg`, `${selectedItem.Codigo}_2.jpg`, `${selectedItem.Codigo}_3.jpg`, `${selectedItem.Codigo}_4.jpg`, `${selectedItem.Codigo}_5.jpg`].map((image, index) => (
+                <TouchableOpacity key={index} onPress={() => handleThumbnailPress(image)}>
+                  <Image source={{ uri: getImageUrl(image) }} style={styles.thumbnailImage} onError={handleImageError} />
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
 
-        <ScrollView horizontal contentContainerStyle={styles.thumbnailContainer}>
-          {[`${selectedItem.Codigo}.jpg`,
-            `${selectedItem.Codigo}_2.jpg`,
-            `${selectedItem.Codigo}_3.jpg`,
-            `${selectedItem.Codigo}_4.jpg`,
-            `${selectedItem.Codigo}_5.jpg`,].map((image, index) => (
-            <TouchableOpacity key={index} onPress={() => handleThumbnailPress(image)}>
-              <Image
-                source={{ uri: getImageUrl(image) }}
-                style={styles.thumbnailImage}
-                onError={handleImageError} // Manejar el error de carga
-              />
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
-      <View style={styles.cardContainer}>
-          <Text style={styles.productTitle}>{selectedItem.Articulo}</Text>
-          <View style={styles.cardContent}>
-            <Text style={styles.productCode}>Código: {selectedItem.Codigo}</Text>
-            <Text style={styles.productCode}>Credito: ${selectedItem.Credito.toFixed(2)}</Text>
-            <Text style={styles.productInstallments}>Cuotas: {selectedItem.Cuotas}</Text>
-            <Text style={styles.productStock}>Stock: {selectedItem.Stock}</Text>
-            <Text style={styles.productStock}>Tarjeta: {selectedItem.Tarjeta}</Text>
-            <Text style={styles.productPrice}>Valor Cuota: ${selectedItem.ValorCuota.toFixed(2)}</Text>
+            <View style={styles.cardContainer}>
+              <Text style={styles.productTitle}>{selectedItem.Articulo}</Text>
+              <View style={styles.cardContent}>
+                <Text style={styles.productCode}>Código: {selectedItem.Codigo}</Text>
+                <Text style={styles.productCode}>Credito: ${selectedItem.Credito.toFixed(2)}</Text>
+                <Text style={styles.productInstallments}>Cuotas: {selectedItem.Cuotas}</Text>
+
+                <View style={styles.stockrows}>
+                  <Text style={styles.productStock}>Stock: {selectedItem.Stock}</Text>
+                  {stock === 0 && (
+                    <TouchableOpacity style={styles.showButton} onPress={handleShowBodegas}>
+                      <Text style={styles.showButtonText}>Visualizar</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+
+                <Text style={styles.productStock}>Tarjeta: {selectedItem.Tarjeta}</Text>
+                <Text style={styles.productPrice}>Valor Cuota: ${selectedItem.ValorCuota.toFixed(2)}</Text>
+              </View>
+            </View>
           </View>
-        </View>
+        ) : (
+          <View style={styles.bodegaContainer}>
+            {/* Botón para cerrar el listado de bodegas */}
+            <TouchableOpacity onPress={closeBodegas} style={styles.closeBodegasButton}>
+              <Text style={styles.closeBodegasText}>X</Text>
+            </TouchableOpacity>
+            <Text style={styles.bodegaTitle}>Bodegas disponibles</Text>
+            {renderBodegas()}
+          </View>
+        )}
+      </View>
     </Modal>
   );
 }

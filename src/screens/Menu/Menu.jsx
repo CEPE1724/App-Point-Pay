@@ -66,7 +66,7 @@ export function Menu({ navigation }) {
         style={[styles.image, { width: 150, height: 60, marginBottom: 20 }]}
         resizeMode="contain"
       />
-      <Text style={styles.title}>Version: 2.2.1.0</Text>
+      <Text style={styles.title}>Versión: 2.2.1.0</Text>
 
       <View style={styles.cardContainer}>
         {/* Condicional para mostrar "Cobranza" si permisosMenu incluye el valor 1 */}

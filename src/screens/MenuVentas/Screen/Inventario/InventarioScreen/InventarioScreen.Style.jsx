@@ -9,7 +9,7 @@ export const styles = StyleSheet.create({
   pickerContainer: {
     marginBottom: 5,
     backgroundColor: '#ffffff',
-    padding: 10,
+    padding: 5,
     borderRadius: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -21,11 +21,16 @@ export const styles = StyleSheet.create({
     height: 50,
     width: '100%',
     borderRadius: 8,
+    borderRadius: 8,
+    shadowColor: '#000',
+  },
+  pickerItem: {
+    fontSize: 12,
   },
   inputContainersearch: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 5,
     backgroundColor: '#fff',
     padding: 10,
     borderRadius: 8,

@@ -3,6 +3,7 @@ import { View, StyleSheet, Text, Keyboard } from "react-native";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { VentasStack } from '../VentasStack';
 import { ExitVentasStack } from '../ExitVentasStack';
+import {CombosStack} from "../CombosStack"; // Verifica que este import esté correctamente
 import { screen } from "../../../utils";
 import { CircleInfoIcon, Home, Book, Terrain, CalendarToday, AccountCircle} from "../../../Icons"; // Verifica que este icono esté importado correctamente
 
@@ -50,11 +51,17 @@ export function VentasTabs() {
                 component={VentasStack}
                 options={{ title: "Productos" }}
             />
+             <Tab.Screen
+               name = {screen.menuVentas.combos}
+                component = {CombosStack}
+                options = {{title: "Combos"}}
+            />
             <Tab.Screen
                 name={screen.menuVentas.salir}
                 component={ExitVentasStack}
                 options={{ title: "Cuenta" }}
             />
+          
         </Tab.Navigator>
     );
 }
@@ -69,6 +76,9 @@ function renderIcon(route, color, size, focused) {
     }
     if(route.name === screen.menuVentas.inicio) {
         IconComponent = Book ;
+    }
+    if(route.name === screen.menuVentas.combos) {
+        IconComponent = CalendarToday ;
     }
   
 
@@ -93,6 +103,8 @@ function renderLabel(route) {
             return "Inicio";
         case screen.menuVentas.inicio:
             return "Productos";
+        case screen.menuVentas.combos:
+            return "Combos";
         case screen.menuVentas.salir:
             return "Cuenta";
         default:

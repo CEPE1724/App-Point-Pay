@@ -7,9 +7,10 @@ export const styles = StyleSheet.create({
   },
 
   radioButtonGroup: {
-    flexDirection: "row",
-    justifyContent: "flex-start", // Alineamos a la izquierda
-    marginTop: 0, // Eliminamos cualquier margen superior adicional
+    flexDirection: "row",        // Alineación horizontal
+    flexWrap: "wrap",            // Permite que los ítems se acomoden en varias filas
+    justifyContent: "flex-start", // Alineación a la izquierda
+    marginTop: 0,                // Eliminamos cualquier margen superior adicional
   },
   radioButtonItem: {
     flexDirection: "row",

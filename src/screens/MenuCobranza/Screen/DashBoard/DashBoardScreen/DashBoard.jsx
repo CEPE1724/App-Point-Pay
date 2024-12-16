@@ -226,6 +226,7 @@ export function DashBoard(props) {
         style={styles.fab}
         activeOpacity={0.7}
         disabled={loading}
+        onPress={fetchData}
       >
         {loading ? (
           <ActivityIndicator size="small" color="#fff" />

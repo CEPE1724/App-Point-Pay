@@ -44,6 +44,8 @@ const gestionDiariaStack = {
 const menuVentasStack = {
     tab: "MenuVentasTab",
     inicio: "MenuVentas",
+    combos: "Combos",
+    detallecombos : "DetalleCombos",
     salir: "Salir",
 }
 export const screen = {

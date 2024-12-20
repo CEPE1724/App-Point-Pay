@@ -1,7 +1,7 @@
 
  
-const API_BASE_URL = "http://192.168.2.167:3025/cobranza/api/v1/point/";
-const SOCKET_BASE_URL = "http://192.168.2.167:3025"; 
+const API_BASE_URL = "http://192.168.2.167:3035/cobranza/api/v1/point/";
+const SOCKET_BASE_URL = "http://192.168.2.167:3035"; 
 //const API_BASE_URL = "http://179.49.21.45:3025/cobranza/api/v1/point/";
 //const SOCKET_BASE_URL = "http://179.49.21.45:3025";
 export const APIURL = {
@@ -9,11 +9,11 @@ export const APIURL = {
     senLogin: () => `${API_BASE_URL}login`,
     senLoginV1: () => `${API_BASE_URL}v1/login`,
     senLoginPin: () => `${API_BASE_URL}v1/loginPin`,
-    postAllCountGestiones : () =>`${API_BASE_URL}all`,
-    getAllcliente : () =>`${API_BASE_URL}registro`,
-    getAllclienteInsert : () =>`${API_BASE_URL}registroindividual`,
+    postAllCountGestiones : () =>`${API_BASE_URL}all`,//
+    getAllcliente : () =>`${API_BASE_URL}registro`,//
+    getAllclienteInsert : () =>`${API_BASE_URL}registroindividual`,//
     socketEndpoint: () => `${SOCKET_BASE_URL}`,
-    getAllVerificacionTerrena : () =>`${API_BASE_URL}ClientesVerificionTerrena/list`,
+    getAllVerificacionTerrena : () =>`${API_BASE_URL}ClientesVerificionTerrena/list`,//
     postUbicacionesAPPlocation : () =>`${API_BASE_URL}UbicacionesAPP/location`,
     getUbicacionesAPPidUser: (idUser) =>`${API_BASE_URL}UbicacionesAPP/idUser/${idUser}`,
     /* API DE VERIFICACION TERRENA */
@@ -52,4 +52,6 @@ export const APIURL = {
     getViewListadoProductosBodega : () => `${API_BASE_URL}BodegaUsuario`,
     getValDispositivo : () => `${API_BASE_URL}DispositivosAPP/Val`,
     getValDispositivoImei : () => `${API_BASE_URL}DispositivosAPP/ValEmai`,
+    getTelefono : () => `${API_BASE_URL}Cre_GCTelefono/all`,
+    SaveTelefono : () => `${API_BASE_URL}Cre_GCTelefono/add`,
 };

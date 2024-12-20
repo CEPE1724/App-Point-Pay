@@ -15,7 +15,7 @@ export function VentasStack()  {
       <Stack.Screen 
         name={screen.menuVentas.inicio} 
         component={InventarioScreen} 
-        options={{ title: "Productos" }}
+        options={{ title: "Inventario" }}
       />
     </Stack.Navigator>
   );

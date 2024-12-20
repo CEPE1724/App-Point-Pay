@@ -1,6 +1,11 @@
 import axios from "axios";
 import { screen } from "../../../../../utils/screenName";
 import { APIURL } from "../../../../../config/apiconfig";
+import { useAuth } from '../../../../../navigation/AuthContext'; // Importamos el contexto
+import { handleError } from '../../../../../utils/errorHandler';
+
+
+// Función principal que maneja el proceso de guardado
 export const HandleSave = async ({
   data,
   summitDataTransfer,
@@ -11,17 +16,16 @@ export const HandleSave = async ({
   userInfo,
   submittedDataRecojo,
   setLoading,
+  token,
 }) => {
-
-
-
+  const { expireToken } = useAuth(); // Usamos el contexto de autenticación
   setLoading(true);
   const urlGoogle = APIURL.putGoogle();
   let IdCbo_GestionesDeCobranzas = 0;
 
   try {
     // Guardar Gestiones de Cobranzas
-    IdCbo_GestionesDeCobranzas = await saveGestionesDeCobranzas(data);
+    IdCbo_GestionesDeCobranzas = await saveGestionesDeCobranzas(data, token);
 
     // Procesar recojo si es necesario
     if (selectedResultado === 60) {
@@ -29,9 +33,11 @@ export const HandleSave = async ({
         IdCbo_GestionesDeCobranzas,
         submittedDataRecojo,
         item,
-        userInfo
+        userInfo,
+        token
       );
     }
+
     let voucher = null;
     // Guardar en la segunda API si es necesario
     if (selectedResultado === 61 && selectedTipoPago === 2) {
@@ -40,20 +46,21 @@ export const HandleSave = async ({
         urlGoogle,
         item.idCompra,
         userInfo,
-        item
+        item,
+        token
       );
     }
     if (selectedResultado === 61 && selectedTipoPago === 1) {
-
       voucher = await saveAnticiposAPP(
         summitDataTransfer,
         urlGoogle,
         item.idCompra,
         userInfo,
-        item
+        item,
+        token
       );
-
     }
+
     let msg = "Datos guardados correctamente.";
     if (voucher) {
       msg += `\nNúmero de Comprobante:\n${voucher}`;
@@ -62,14 +69,14 @@ export const HandleSave = async ({
     navigation.navigate(screen.registro.tab, { screen: screen.registro.inicio, params: { refresh: true }, }); // Navegar a la pantalla de inicio
 
   } catch (error) {
-    alert("Error al guardar los datos.");
+    handleError(error, expireToken); // Usamos el manejador de errores global
   } finally {
     setLoading(false);
   }
 };
 
 // Función para subir imágenes
-const uploadImages = async (images, urlGoogle, idCompra, userInfo) => {
+const uploadImages = async (images, urlGoogle, idCompra, userInfo, token) => {
   const uploadedImageUrls = [];
   for (const imagePath of images) {
     const formData = new FormData();
@@ -82,35 +89,50 @@ const uploadImages = async (images, urlGoogle, idCompra, userInfo) => {
     formData.append("nombre_del_archivo", `${Date.now()}.jpg`);
     formData.append("tipo", "VOUCHER");
 
-    const responseGoogle = await fetch(urlGoogle, {
-      method: "PUT",
-      body: formData,
-    });
-    if (!responseGoogle.ok) {
-      const errorResponse = await responseGoogle.json();
+    try {
+      const responseGoogle = await axios.put(urlGoogle, formData, {
+        headers: {
+          "Authorization": `Bearer ${token}`, // Agregamos el token de autorización
+          "Content-Type": "multipart/form-data", // Se establece el tipo adecuado para cargar archivos
+        },
+      });
 
-      throw new Error(
-        `Error en la subida de la imagen: ${responseGoogle.status} - ${errorResponse.message || responseGoogle.statusText
-        }`
-      );
-    }
+      if (responseGoogle.status !== 200) {
+        throw new Error(
+          `Error en la subida de la imagen: ${responseGoogle.status} - ${responseGoogle.statusText}`
+        );
+      }
 
-    const responseGoogleData = await responseGoogle.json();
-    if (responseGoogleData.status !== "success") {
-      throw new Error(
-        `Error en la respuesta de Google: ${responseGoogleData.message}`
-      );
+      const responseGoogleData = responseGoogle.data;
+      if (responseGoogleData.status !== "success") {
+        throw new Error(
+          `Error en la respuesta de Google: ${responseGoogleData.message}`
+        );
+      }
+      uploadedImageUrls.push(responseGoogleData.url);
+    } catch (error) {
+      console.error(`Error al subir la imagen ${imagePath}:`, error);
+      continue;
     }
-    uploadedImageUrls.push(responseGoogleData.url);
   }
   return uploadedImageUrls;
 };
 
 // Función para guardar Gestiones de Cobranzas
-const saveGestionesDeCobranzas = async (data) => {
+const saveGestionesDeCobranzas = async (data, token) => {
   const url = APIURL.postCbo_GestionesDeCobranzas();
-  const response = await axios.post(url, { ...data });
-  return response.data.result[0].IdCbo_GestionesDeCobranzas;
+  try {
+    const response = await axios.post(url, { ...data }, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data.result[0].IdCbo_GestionesDeCobranzas;
+  } catch (error) {
+    console.error("Error al guardar gestiones de cobranzas:", error);
+    throw error; // Rethrow error after logging it
+  }
 };
 
 // Función para procesar recojo
@@ -118,7 +140,8 @@ const processRecojo = async (
   IdCbo_GestionesDeCobranzas,
   submittedDataRecojo,
   item,
-  userInfo
+  userInfo,
+  token
 ) => {
   for (const itemRe of submittedDataRecojo) {
     if (!itemRe.imagenes || itemRe.imagenes.length === 0) {
@@ -132,7 +155,8 @@ const processRecojo = async (
       const uploadedImageUrls = await uploadRecojoImages(
         itemRe.imagenes,
         itemRe.idDetCompra,
-        userInfo
+        userInfo,
+        token
       );
       const dataRecojo = {
         idCbo_GestionesDeCobranzas: IdCbo_GestionesDeCobranzas,
@@ -142,7 +166,12 @@ const processRecojo = async (
         Imagenes: uploadedImageUrls,
       };
       const urlRecojo = APIURL.postRecojo();
-      await axios.post(urlRecojo, dataRecojo);
+      await axios.post(urlRecojo, dataRecojo, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
     } catch (error) {
       console.error("Error en processRecojo:", error);
     }
@@ -150,7 +179,7 @@ const processRecojo = async (
 };
 
 // Función para subir imágenes de recojo
-const uploadRecojoImages = async (images, idDetCompra, userInfo) => {
+const uploadRecojoImages = async (images, idDetCompra, userInfo, token) => {
   const uploadedImageUrls = [];
   for (const imagePath of images) {
     try {
@@ -164,20 +193,20 @@ const uploadRecojoImages = async (images, idDetCompra, userInfo) => {
       formData.append("nombre_del_archivo", `${Date.now()}.jpg`);
       formData.append("tipo", "RECOJO");
 
-      const responseGoogle = await fetch(APIURL.putGoogle(), {
-        method: "PUT",
-        body: formData,
+      const responseGoogle = await axios.put(APIURL.putGoogle(), formData, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
       });
 
-      if (!responseGoogle.ok) {
-        const errorResponse = await responseGoogle.json();
+      if (responseGoogle.status !== 200) {
         throw new Error(
-          `Error en la subida de la imagen: ${responseGoogle.status} - ${errorResponse.message || responseGoogle.statusText
-          }`
+          `Error en la subida de la imagen: ${responseGoogle.status} - ${responseGoogle.statusText}`
         );
       }
 
-      const responseGoogleData = await responseGoogle.json();
+      const responseGoogleData = responseGoogle.data;
       if (responseGoogleData.status !== "success") {
         throw new Error(
           `Error en la respuesta de Google: ${responseGoogleData.message}`
@@ -199,7 +228,8 @@ const saveDepositosPendientesAPP = async (
   urlGoogle,
   idCompra,
   userInfo,
-  item
+  item,
+  token
 ) => {
   const dataTransfer = {
     ...summitDataTransfer,
@@ -211,20 +241,26 @@ const saveDepositosPendientesAPP = async (
       summitDataTransfer.images,
       urlGoogle,
       idCompra,
-      userInfo
+      userInfo,
+      token
     ),
   };
 
   const urlTransfer = APIURL.postDepositosPendientesAPP();
   try {
-    const responseTransfer = await axios.post(urlTransfer, dataTransfer);
+    const responseTransfer = await axios.post(urlTransfer, dataTransfer, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
     const voucher = responseTransfer.data.result[0]?.Voucher;
 
     // Mensaje personalizado al guardar
-    //alert("Datos guardados correctamente\nNúmero de Comprobante:\n " + voucher);
     return voucher;
   } catch (transferError) {
     alert("Error al guardar los datos en la segunda API.");
+    console.error("Error durante la llamada a la API:", transferError);
   }
 };
 
@@ -233,46 +269,43 @@ const saveAnticiposAPP = async (
   urlGoogle,
   idCompra,
   userInfo,
-  item
+  item,
+  token
 ) => {
-
-
   const dataTransfer = {
     idCompra: parseInt(idCompra, 10),
     idCobrador: parseInt(userInfo.ingresoCobrador, 10),
     Valor: parseFloat(summitDataTransfer.Abono),
-    Voucher : summitDataTransfer.NumeroDeposito,
+    Voucher: summitDataTransfer.NumeroDeposito,
     Usuario: userInfo.Usuario,
     Imagen: await uploadImages(
       summitDataTransfer.images,
       urlGoogle,
       idCompra,
-      userInfo
+      userInfo,
+      token
     ),
   };
 
-
   const urlTransfer = APIURL.postCob_AppCobrosEfectivo();
-  
-  try {
-    const responseTransfer = await axios.post(urlTransfer, dataTransfer);
-    
-    // Acceder correctamente al voucher en la respuesta
-    const voucher = responseTransfer.data.Voucher;  // Acceso correcto a Voucher
 
+  try {
+    const responseTransfer = await axios.post(urlTransfer, dataTransfer, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const voucher = responseTransfer.data.Voucher;
 
     if (voucher) {
-      // Si el voucher es válido, lo retornas
       return voucher;
     } else {
       console.error("No se encontró el voucher en la respuesta");
     }
   } catch (transferError) {
-    console.error("Error durante la llamada a la API:", transferError);  // Log del error
+    console.error("Error durante la llamada a la API:", transferError);
     alert("Error al guardar los datos en la segunda API...");
   }
 };
-
-
-
-// Función para loguear errores en Slack

@@ -5,7 +5,7 @@ import { VentasStack } from '../VentasStack';
 import { ExitVentasStack } from '../ExitVentasStack';
 import {CombosStack} from "../CombosStack"; // Verifica que este import esté correctamente
 import { screen } from "../../../utils";
-import { CircleInfoIcon, Home, Book, Terrain, CalendarToday, AccountCircle} from "../../../Icons"; // Verifica que este icono esté importado correctamente
+import { CircleInfoIcon, Home, shoppingSearch, shoppingSale, CalendarToday, AccountCircle} from "../../../Icons"; // Verifica que este icono esté importado correctamente
 
 const Tab = createBottomTabNavigator();
 
@@ -49,7 +49,7 @@ export function VentasTabs() {
             <Tab.Screen
                 name={screen.menuVentas.inicio}
                 component={VentasStack}
-                options={{ title: "Productos" }}
+                options={{ title: "Inventario" }}
             />
              <Tab.Screen
                name = {screen.menuVentas.combos}
@@ -75,10 +75,10 @@ function renderIcon(route, color, size, focused) {
         IconComponent = Home;
     }
     if(route.name === screen.menuVentas.inicio) {
-        IconComponent = Book ;
+        IconComponent = shoppingSearch ;
     }
     if(route.name === screen.menuVentas.combos) {
-        IconComponent = CalendarToday ;
+        IconComponent = shoppingSale ;
     }
   
 
@@ -102,9 +102,9 @@ function renderLabel(route) {
         case screen.menuVentas.tab:
             return "Inicio";
         case screen.menuVentas.inicio:
-            return "Productos";
+            return "Inventario";
         case screen.menuVentas.combos:
-            return "Combos";
+            return "Promociones";
         case screen.menuVentas.salir:
             return "Cuenta";
         default:

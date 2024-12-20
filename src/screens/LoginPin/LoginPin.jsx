@@ -47,14 +47,11 @@ export default function PinInput({ navigation }) {
             const result = await AsyncStorage.multiGet(keys);  
             let keyDispositivo = null;
             let keyData = null;
-            console.log('result:', pin.join(''));
             result.forEach(([key, value]) => {
                 if (key === 'userData' && value) {
                     const parsedValue = JSON.parse(value);
                     keyDispositivo = parsedValue.keyDispositivo;
                     keyData = parsedValue.kEYdATA;
-                    console.log('keyDispositivo:', keyDispositivo);
-                    console.log('keyData:', keyData);
                 }
             });
 
@@ -65,7 +62,6 @@ export default function PinInput({ navigation }) {
 
             try {
                 const url = APIURL.senLoginPin(); 
-                console.log('url:', pin);
                 const response = await fetch(url, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -73,11 +69,14 @@ export default function PinInput({ navigation }) {
                 });
 
                 const data = await response.json();
-                console.log("Inicio de sesión exitoso:", data);
 
                 if (data.estado === "success") {
                     await storeUserData(data);  
-                    login();  
+                    console.log("Datos del usuario almacenados en AsyncStorage:", data);
+                    console.log("Iniciando sesión...", data.token);
+                    console.log("Datos del usuario:", data.usuario);
+                    login(  data.token, data.usuario);  // Almacenar el token y los datos del usuario en el contexto
+                    
                 } else {
                     Alert.alert("Error", data.message || "Credenciales incorrectas");
                 }
@@ -95,27 +94,45 @@ export default function PinInput({ navigation }) {
     // Función para almacenar los datos del usuario en AsyncStorage
     const storeUserData = async (data) => {
         try {
+            // Verificar que los datos estén definidos antes de almacenarlos
+            if (!data.token || !data.usuario) {
+                throw new Error("Faltan datos esenciales para el almacenamiento.");
+            }
+    
             console.log("Guardando datos del usuario en AsyncStorage...", data);
-            await AsyncStorage.setItem("userToken", data.token);
-            await AsyncStorage.setItem("userInfo", JSON.stringify(data.usuario));
-            await AsyncStorage.setItem("userName", data.usuario.Nombre);
-            await AsyncStorage.setItem("userId", String(data.usuario.idUsuario));
-            await AsyncStorage.setItem("userBodega", JSON.stringify(data.usuario.bodegas));  
-            await AsyncStorage.setItem("userPermiso", JSON.stringify(data.usuario.permisosMenu));  
-            console.log("Datos del usuario guardados con éxito");
+    
+            // Verificar y almacenar solo si los valores no son null o undefined
+            if (data.token) {
+                await AsyncStorage.setItem("userToken", data.token);
+            }
+    
+            if (data.usuario) {
+                await AsyncStorage.setItem("userInfo", JSON.stringify(data.usuario));
+                if (data.usuario.Nombre) {
+                    await AsyncStorage.setItem("userName", data.usuario.Nombre);
+                }
+                if (data.usuario.idUsuario) {
+                    await AsyncStorage.setItem("userId", String(data.usuario.idUsuario));
+                }
+                if (data.usuario.bodegas) {
+                    await AsyncStorage.setItem("userBodega", JSON.stringify(data.usuario.bodegas));
+                }
+                if (data.usuario.permisosMenu) {
+                    await AsyncStorage.setItem("userPermiso", JSON.stringify(data.usuario.permisosMenu));
+                }
+            }
         } catch (error) {
-            console.error("Error al guardar datos en AsyncStorage:", error);
+            console.error("Error al guardar datos en AsyncStorage:", error.message);
         }
     };
+    
 
-    // useEffect para verificar cuando el PIN tenga 6 dígitos y proceder con el login
     useEffect(() => {
         if (pin.join('').length === 6) {
             handlePinComplete();  // Llamar a la función de completar el PIN
         }
     }, [pin]);
 
-    // Función para navegar al login
     const handleBack = () => {
         navigation.navigate('Login'); 
     };
@@ -131,7 +148,7 @@ export default function PinInput({ navigation }) {
                 {pin.map((circle, index) => (
                     <View
                         key={index}
-                        style={[styles.circle, { backgroundColor: circle ? '#00416D' : '#fff' }]} // Cambiar color si está lleno
+                        style={[styles.circle, { backgroundColor: circle ? '#00416D' : '#fff' }]} 
                     />
                 ))}
             </View>
@@ -140,7 +157,6 @@ export default function PinInput({ navigation }) {
                 <Text style={styles.buttonText}>Regresar</Text>
             </TouchableOpacity>
 
-            {/* Botones numéricos */}
             <View style={styles.buttonContainer}>
                 {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'x'].map((digit) => (
                     <TouchableOpacity
@@ -161,7 +177,6 @@ export default function PinInput({ navigation }) {
         </View>
     );
 }
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,

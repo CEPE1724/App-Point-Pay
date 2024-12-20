@@ -45,6 +45,14 @@ export const styles = StyleSheet.create({
     fontSize: 12, // Increased font size for better readability
     marginBottom: 5,
   },
+  textDire: {
+    flex: 1, // This will make the text take up all available space
+    fontSize: 10, // Increased font size for better readability
+    marginBottom: 5,
+    color: "#000000",
+    fontStyle: "italic",
+    fontWeight: "bold",
+  },
   textProyect: {
     flex: 1, // This will make the text take up all available space
     fontSize: 12, // Increased font size for better readability

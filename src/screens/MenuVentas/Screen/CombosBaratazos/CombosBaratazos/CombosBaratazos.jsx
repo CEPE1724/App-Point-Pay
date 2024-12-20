@@ -153,7 +153,7 @@ export function CombosBaratazos(props) {
                 />
                 <Text style={styles.tableRowText}>{item.Promo}</Text>
                 <Text style={styles.tableRowText}>{item.Articulo}</Text>
-                <Text style={styles.tableRowText}>{item.Codigo}</Text>
+                <Text style={styles.tableRowText}>{item.Jsoncodigo}</Text>
             </View>
         </TouchableOpacity>
     );

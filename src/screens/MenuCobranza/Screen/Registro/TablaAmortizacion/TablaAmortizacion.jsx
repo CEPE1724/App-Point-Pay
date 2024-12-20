@@ -3,25 +3,65 @@ import { View, Text, FlatList, Alert, TouchableOpacity, ActivityIndicator } from
 import axios from "axios";
 import { APIURL } from "../../../../../config/apiconfig";
 import { styles } from "./TablaAmortizacion.Style";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAuth } from '../../../../../navigation/AuthContext'; // Importamos el contexto
+import { handleError } from '../../../../../utils/errorHandler';
 export const TablaAmortizacion = ({ route }) => {
     const { item } = route.params;
+    const idCompra = item.idCompra;
     const [productos, setProductos] = useState([]);
     const [valores, setValores] = useState({});
-    const idCompra = item.idCompra;
     const [loading, setLoading] = useState(true);
     const [selectedId, setSelectedId] = useState(null);
+    const [token, setToken] = useState(null);
+    const [userInfoLoaded, setUserInfoLoaded] = useState(false);  // Para saber si los datos del token ya se han cargado
+    const { expireToken } = useAuth(); // Usamos el contexto de autenticación
+    useEffect(() => {
+        // Función para obtener el token desde AsyncStorage
+        const fetchUserInfo = async () => {
+            try {
+                const storedToken = await AsyncStorage.getItem("userToken");
+                setToken(storedToken);
+                console.log("Token:", storedToken);
+            } catch (error) {
+                console.error("Error fetching user info:", error);
+            } finally {
+                setUserInfoLoaded(true);  // Marcamos que ya se cargó el token
+            }
+        };
+
+        fetchUserInfo();
+    }, []);  // Se ejecuta solo una vez cuando el componente se monta
+
+    // Solo realiza la llamada a la API cuando el token esté disponible
+    useEffect(() => {
+        if (userInfoLoaded && token) {
+            fetchData();  // Llamamos a fetchData cuando el token esté disponible
+        }
+    }, [userInfoLoaded, token]);  // Dependencias: se ejecuta cuando el token esté listo
 
     const fetchData = async () => {
         setLoading(true);
         try {
             const url = APIURL.getViewTablaAmortizacion();
-            const response = await axios.get(url, { params: { idCompra } });
+            console.log("URL:", token);
+            const headers = {
+                "Authorization": `Bearer ${token}`,  // Añadimos el token en los headers
+                "Content-Type": "application/json",  // Tipo de contenido
+            };
+
+            // Realizamos la solicitud GET con los parámetros y headers
+            const response = await axios.get(url, {
+                params: { idCompra },
+                headers,  // Incluye los headers en la solicitud
+            });
+
+            // Si la respuesta es exitosa
             const fetchedData = response.data;
             setProductos(fetchedData);
+
         } catch (error) {
-            console.error("Error fetching data:", error);
-            Alert.alert("Error", "Hubo un problema al cargar los productos.");
+            handleError(error, expireToken); 
         } finally {
             setLoading(false);
         }
@@ -31,12 +71,18 @@ export const TablaAmortizacion = ({ route }) => {
         setLoading(true);
         try {
             const url = APIURL.getViewTablaAmortizacionValores();
-            const response = await axios.get(url, { params: { idCompra } });
+            console.log("URL valores:", token);
+            const headers = {
+                "Authorization": `Bearer ${token}`,  // Añadimos el token en los headers
+                "Content-Type": "application/json",  // Tipo de contenido
+            }
+            const response = await axios.get(url, { params: { idCompra } },
+                { headers }
+            );
             const fetchedData = response.data;
             setValores(fetchedData[0] || {});
         } catch (error) {
-            console.error("Error fetching data:", error);
-            Alert.alert("Error", "Hubo un problema al cargar los valores.");
+            handleError(error, expireToken); 
         } finally {
             setLoading(false);
         }
@@ -51,6 +97,37 @@ export const TablaAmortizacion = ({ route }) => {
         setSelectedId(id);
     };
 
+    const SearchSaldoVencido = (productos) => {
+        let SaldoVencido = 0;
+    
+        // Obtenemos la fecha actual
+        const today = new Date();
+    
+        // Iteramos sobre los productos y sumamos el saldo de los vencidos
+        productos.forEach((item) => {
+            // Convertimos la fecha de vencimiento a un objeto Date
+            const venceDate = new Date(item.Vence);
+    
+            // Si la fecha actual es mayor que la fecha de vencimiento y el saldo es mayor a 0
+            if (today > venceDate && item.Saldo > 0) {
+                // Sumamos el saldo vencido
+                SaldoVencido += item.Saldo;
+            }
+        });
+        return SaldoVencido.toFixed(2);
+    };
+    useEffect(() => {
+        if (productos.length > 0) {
+            const saldoVencido = SearchSaldoVencido(productos);
+            console.log("Saldo Vencido:", saldoVencido);
+            setValores((prevValores) => ({
+                ...prevValores,
+                SaldoVencido: saldoVencido,
+            }));
+        }
+    }, [productos]);  // Se ejecuta cada vez que productos cambian
+    
+    
     const renderItem = ({ item }) => {
         const isSelected = item.idCre_TablaDeAmortizacion === selectedId;
         return (

@@ -16,7 +16,7 @@ export function CombosStack()  {
       <Stack.Screen 
         name={screen.menuVentas.inicio} 
         component={CombosBaratazos} 
-        options={{ title: "Combos/Baratazos" }}
+        options={{ title: "Promociones" }}
       />
 
       <Stack.Screen

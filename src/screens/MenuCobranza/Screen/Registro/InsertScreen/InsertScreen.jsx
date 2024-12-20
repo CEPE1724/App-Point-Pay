@@ -18,14 +18,19 @@ import { Picker } from "@react-native-picker/picker";
 import * as ImagePicker from "expo-image-picker";
 import { ComprobanteModal } from "../../../../../components"; // Asegúrate de importar el componente ComprobanteModal
 import { Recojo } from "../../../../../components";
+import { Telefono } from "../../../../../components";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AlertComponent } from "../../../../../components";
 import { ConfirmationModal } from "../../../../../components";
-import { LoadingIndicator } from  "../../../../../components";
+import { LoadingIndicator } from "../../../../../components";
 import { HandleSave } from "./HandleSave"; // Asegúrate de importar la función handleGuardar
-import {UserBlack} from "../../../../../Icons"
+import { UserBlack } from "../../../../../Icons"
+import { useAuth } from '../../../../../navigation/AuthContext';
+import { handleError } from '../../../../../utils/errorHandler';
+
+import { shoppingSearch } from '../../../../../Icons';
 export function InsertScreen({ route, navigation }) {
-  
+  const [isModalVisibleCont, setIsModalVisibleCont] = useState(false); // Controla la visibilidad del modal
   const { item } = route.params;
   const [items, setItems] = useState([]);
   const [selectedValue, setSelectedValue] = useState("");
@@ -61,11 +66,15 @@ export function InsertScreen({ route, navigation }) {
   const [loading, setLoading] = useState(false);
   const [dataGestion, setDataGestion] = useState([]);
   const [modalVisibleOk, setModalVisibleOk] = useState(false);
+  const [token, setToken] = useState(null);
+  const { expireToken } = useAuth();
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
         const storedUserInfo = await AsyncStorage.getItem("userInfo");
-        console.log("storedUserInfo cepeda", storedUserInfo);
+        const token = await AsyncStorage.getItem("userToken");
+        setToken(token);
+        console.log("storedUserInfo cepeda", token);
         if (storedUserInfo) {
           const user = JSON.parse(storedUserInfo);
           setUserInfo({
@@ -81,7 +90,6 @@ export function InsertScreen({ route, navigation }) {
     fetchUserInfo();
   }, []);
 
-  console.log("userInfoEdison", userInfo);
   const TipoPago = [
     { id: 1, name: "EFECTIVO" },
     { id: 2, name: "TRANSFERENCIA" },
@@ -96,28 +104,57 @@ export function InsertScreen({ route, navigation }) {
     navigation.navigate(screen.registro.product, { item });
   };
 
-  const handleViewGestiones= () => {
+  const handleViewGestiones = () => {
     navigation.navigate(screen.registro.viewGestiones, { item });
   };
 
-  const handleViewAmortizacion= () => {
+  const handleViewAmortizacion = () => {
     navigation.navigate(screen.registro.TablaAmortizacion, { item });
   };
 
+   const handleOpenModal = (cliente) => {
+    setSelectedItem(cliente);
+    setIsModalVisible(true);
+  };
+
+  // Función para cerrar el modal
+  const handleCloseModalCel = () => {
+    setIsModalVisibleCont(false);
+  };
+
+  const handleViewCel = () => {
   
+    setIsModalVisibleCont(true);
+  };
+
   useEffect(() => {
     const fetchData = async () => {
+      if (!token) {
+        console.log("Token no disponible.");
+        return; // No hace la solicitud si no hay token
+      }
+
       try {
-        const response = await fetch(APIURL.Cbo_EstadosGestion());
-        const data = await response.json();
-        setItems(data); // Asumiendo que tu API devuelve un array de elementos
+        console.log("token", token);
+        const response = await axios.get(APIURL.Cbo_EstadosGestion(), {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+            "Cache-Control": "max-age=300, must-revalidate",
+          },
+        });
+
+        // Si la respuesta es exitosa, actualizamos los datos
+        setItems(response.data); // Asumiendo que tu API devuelve un array de elementos
+
       } catch (error) {
-        console.error("Error fetching data:", error);
+        handleError(error, expireToken); // Usamos el manejador de errores global
       }
     };
 
     fetchData();
-  }, []);
+  }, [token]); // Asegúrate de que el efecto se ejecute cada vez que el token cambie
+
 
   const handleValueChange = async (value) => {
     setSelectedValue(value);
@@ -126,10 +163,16 @@ export function InsertScreen({ route, navigation }) {
 
     if (value) {
       try {
-        const response = await axios.get(APIURL.getEstadosTipoContacto(value));
+        const response = await axios.get(APIURL.getEstadosTipoContacto(value), {
+          headers: {
+            "Authorization": `Bearer ${token}`, // El token de autorización, si lo tienes disponible
+            "Content-Type": "application/json", // Asegura que los datos sean JSON
+            "Cache-Control": "max-age=300, must-revalidate", // Control de caché (opcional)
+          },
+        });
         setContactTypes(response.data); // Establece los datos para el segundo Picker
       } catch (error) {
-        console.error("Error al obtener tipos de contacto:", error);
+        handleError(error, expireToken);
       }
     } else {
       setContactTypes([]); // Resetear si no hay estado seleccionado
@@ -142,7 +185,14 @@ export function InsertScreen({ route, navigation }) {
 
     if (value) {
       try {
-        const response = await axios.get(APIURL.getResultadoGestion(value));
+        const response = await axios.get(APIURL.getResultadoGestion(value),
+          {
+            headers: {
+              "Authorization": `Bearer ${token}`, // El token de autorización, si lo tienes disponible
+              "Content-Type": "application/json", // Asegura que los datos sean JSON
+              "Cache-Control": "max-age=300, must-revalidate", // Control de caché (opcional)
+            },
+          });
         setResultadoGestion(response.data); // Establecer los datos para el tercer Picker
       } catch (error) {
         console.error("Error al obtener resultados de gestión:", error);
@@ -178,7 +228,14 @@ export function InsertScreen({ route, navigation }) {
 
   const fetchBancos = async () => {
     try {
-      const response = await axios.get(APIURL.getBancos());
+      const response = await axios.get(APIURL.getBancos(),
+        {
+          headers: {
+            "Authorization": `Bearer ${token}`, // El token de autorización, si lo tienes disponible
+            "Content-Type": "application/json", // Asegura que los datos sean JSON
+            "Cache-Control": "max-age=300, must-revalidate", // Control de caché (opcional)
+          },
+        });
       setBancos(response.data);
     } catch (error) {
       console.error("Error fetching banks:", error);
@@ -222,18 +279,18 @@ export function InsertScreen({ route, navigation }) {
 
   const onAccept = () => {
     // Validar campos y manejar datos
-    if(selectedTipoPago === 2){
-      if (!selectedBanco ) {
+    if (selectedTipoPago === 2) {
+      if (!selectedBanco) {
         alert("Por favor, complete todos los campos.");
         return;
       }
     }
-       
-    if ( !comprobante || !number || images.length === 0) {
+
+    if (!comprobante || !number || images.length === 0) {
       alert("Por favor, complete todos los campos.");
       return;
     }
- /// mnadar parametrso aqui te quedaste
+    /// mnadar parametrso aqui te quedaste
     // Aquí puedes enviar los datos al servidor
     const newData = {
       IdBanco: parseInt(selectedBanco, 10),
@@ -348,7 +405,7 @@ export function InsertScreen({ route, navigation }) {
 
 
   const handleConfirm = () => {
-   
+
     HandleGuardar(dataGestion, summitDataTransfer); // Guardar los datos
     setModalVisibleOk(false); // Cerrar el modal
   };
@@ -381,7 +438,7 @@ export function InsertScreen({ route, navigation }) {
   };
 
   const HandleGuardar = async (data, summitDataTransfer) => {
-   
+
     await HandleSave({
       data,
       summitDataTransfer,
@@ -392,6 +449,7 @@ export function InsertScreen({ route, navigation }) {
       userInfo,
       submittedDataRecojo,
       setLoading, // Pasar setLoading como argumento
+      token,
     });
   };
 
@@ -429,24 +487,33 @@ export function InsertScreen({ route, navigation }) {
             />
             <Text style={styles.value}>{item.Numero_Documento}</Text>
           </View>
+          <View style={styles.buttonsContainer}>
           <TouchableOpacity onPress={handleViewAmortizacion} style={styles.buttonAmortizacion}>
-              <View style={styles.rowPro}>
-                <Icon name="shopping-cart" size={24} color="#fff" />
+            <View style={styles.rowPro}>
+              <Icon name="bank" size={24} color="#fff" />
               <Text style={styles.valueProAmo}>Tabla</Text>
               <Text style={styles.valueProAmo}>Amortización</Text>
-              </View>
-            </TouchableOpacity>
-          <View style={styles.buttonsContainer}>
-            
-            <TouchableOpacity onPress={handleButtonPress} style={styles.button}>
-            <View style={styles.rowPro}>
-              <Icon name="shopping-cart" size={24} color="#fff" />
-              <Text style={styles.valuePro}>Productos</Text>
             </View>
           </TouchableOpacity>
-            <TouchableOpacity onPress={handleViewGestiones} style={styles.buttonGestiones}>
+          <TouchableOpacity onPress={handleViewCel} style={styles.buttonAmortizacion}>
+            <View style={styles.rowPro}>
+              <Icon name="volume-control-phone" size={24} color="#fff" />
+              <Text style={styles.valueProAmo}>Contactos</Text>
+            </View>
+          </TouchableOpacity>
+          </View>
+
+          <View style={styles.buttonsContainer}>
+
+            <TouchableOpacity onPress={handleButtonPress} style={styles.button}>
               <View style={styles.rowPro}>
                 <Icon name="shopping-cart" size={24} color="#fff" />
+                <Text style={styles.valuePro}>Productos</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleViewGestiones} style={styles.buttonGestiones}>
+              <View style={styles.rowPro}>
+                <Icon name="file-text-o" size={24} color="#fff" />
                 <Text style={styles.valueProAmo}>Gestiones</Text>
               </View>
             </TouchableOpacity>
@@ -635,7 +702,11 @@ export function InsertScreen({ route, navigation }) {
           </View>
         </View>
       ) : null}
-   
+    <Telefono
+        isVisible={isModalVisibleCont}
+        item={item}
+        onClose={handleCloseModalCel}
+      />
       {selectedResultado ? (
         <View>
           <TextInput
@@ -671,5 +742,6 @@ export function InsertScreen({ route, navigation }) {
         />
       )}
     </ScrollView>
+    
   );
 }

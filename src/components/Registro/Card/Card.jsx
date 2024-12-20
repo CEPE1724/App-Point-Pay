@@ -2,7 +2,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { styles } from './Card.Style'; // Asegúrate de importar correctamente los estilos
-import { User, DriversLicenseO, FileText } from '../../../Icons';
+import { User, DriversLicenseO, FileText, Terrain, Bank } from '../../../Icons';
 export function Card  ({ item, index, onPress, onPressIn, onPressOut, pressedCardIndex })  {
   const getColorForValue = (projected, collected) => {
     if (collected < projected && collected > 0) {
@@ -31,6 +31,11 @@ export function Card  ({ item, index, onPress, onPressIn, onPressOut, pressedCar
         <User size={18} color="black" style={styles.icon} />
         <Text style={styles.text}> {item.Cliente}</Text>
       </View>
+       <View style={styles.row}>
+        <Bank size={18} color="black" style={styles.icon} />
+        <Text style={styles.text}> {item.Banco}</Text>
+      </View>
+      
       <View style={styles.row}>
         <DriversLicenseO size={18} color="black" style={styles.icon} />
         <Text style={styles.text}> {item.Cedula}</Text>
@@ -56,6 +61,9 @@ export function Card  ({ item, index, onPress, onPressIn, onPressOut, pressedCar
         >
           ${item.Valor_Cobrado.toFixed(2)}
         </Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.textDire}> {item.Barrio}/{item.Direccion}</Text>
       </View>
     </TouchableOpacity>
   );

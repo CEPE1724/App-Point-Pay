@@ -125,7 +125,7 @@ export default function Login({ navigation }) {
           )}
         </View>
 
-        <Text style={styles.version}>Versión: 2.2.1.0</Text>
+        <Text style={styles.version}>Versión: 2.3.1.0</Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );

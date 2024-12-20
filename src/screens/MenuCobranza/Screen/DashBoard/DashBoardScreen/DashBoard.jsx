@@ -12,7 +12,8 @@ import { styles } from "./DashBoard.Style"; // Verifica la ruta
 import { APIURL } from "../../../../../config/apiconfig";
 import { Cash, People, Upload, CheckCircle, PendingActions, Done, Refresh, Assessment, PieChart } from "../../../../../Icons";
 import { screen } from "../../../../../utils/screenName";
-
+import { useAuth } from '../../../../../navigation/AuthContext'; // Importamos el contexto
+import { handleError } from '../../../../../utils/errorHandler';
 export function DashBoard(props) {
   const { navigation } = props;
   const [totalAmount, setTotalAmount] = useState(0); // Cambié el valor inicial a 0
@@ -20,12 +21,12 @@ export function DashBoard(props) {
   const [totalProjected, setTotalProjected] = useState(0);
   const [percentageCollected, setPercentageCollected] = useState(0);
   const [loading, setLoading] = useState(false);
-
+  const { expireToken } = useAuth(); // Usamos el contexto de autenticación
   const fetchData = async () => {
     setLoading(true);
     try {
       const userInfo = await AsyncStorage.getItem("userInfo");
-      const token = await AsyncStorage.getItem("userToken");
+      const token = await AsyncStorage.getItem("userToken"); 
       const url = APIURL.postAllCountGestiones();
 
       if (userInfo) {
@@ -60,7 +61,7 @@ export function DashBoard(props) {
         setPercentageCollected(percentage.toFixed(2));
       }
     } catch (error) {
-      console.error("Error fetching data:", error);
+      handleError(error, expireToken); // Usamos el manejador de errores global
     } finally {
       setLoading(false);
     }

@@ -17,31 +17,76 @@ import { styles } from "./Recojo.Style";
 import { Trash, Upload } from '../../../Icons';
 import Icon from "react-native-vector-icons/FontAwesome";
 import * as ImagePicker from "expo-image-picker";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAuth } from '../../../navigation/AuthContext'; // Importamos el contexto
+import { handleError } from '../../../utils/errorHandler'; // Importamos la función para manejar errores
 export function Recojo({ route, setModalVisibleRecojo, setSubmittedDataRecojo, setSelectedResultado }) {
   const { item } = route.params;
   const [productos, setProductos] = useState([]);
   const idCompra = item.idCompra;
   const [loading, setLoading] = useState(true);
   const idMotivo = 0;
+  const { expireToken } = useAuth(); // Usamos el contexto de autenticación
+  const [token, setToken] = useState(null);
+      const [userInfoLoaded, setUserInfoLoaded] = useState(false);  // Para saber si los datos del token ya se han cargado
+      useEffect(() => {
+        // Función para obtener el token desde AsyncStorage
+        const fetchUserInfo = async () => {
+            try {
+                const storedToken = await AsyncStorage.getItem("userToken");
+                setToken(storedToken);
+                console.log("Token:", storedToken);
+            } catch (error) {
+                console.error("Error fetching user info:", error);
+            } finally {
+                setUserInfoLoaded(true);  // Marcamos que ya se cargó el token
+            }
+        };
+
+        fetchUserInfo();
+    }, []);  // Se ejecuta solo una vez cuando el componente se monta
+
+    // Solo realiza la llamada a la API cuando el token esté disponible
+    useEffect(() => {
+        if (userInfoLoaded && token) {
+            fetchData();  // Llamamos a fetchData cuando el token esté disponible
+        }
+    }, [userInfoLoaded, token]);  // Dependencias: se ejecuta cuando el token esté listo
+
 
   const fetchData = async () => {
     setLoading(true);
     try {
       const url = APIURL.getProducto();
+      const headers = {
+        "Authorization": `Bearer ${token}`,  // Añadimos el token en los headers
+        "Content-Type": "application/json",  // Tipo de contenido
+      };
       const response = await axios.get(url, {
         params: { idCompra, idMotivo },
+        headers,
       });
       const fetchedData = response.data;
       setProductos(fetchedData);
     } catch (error) {
-      console.error("Error fetching data:", error);
-      Alert.alert("Error", "Hubo un problema al cargar los productos.");
+      // Manejo de errores detallado
+      if (error.response) {
+        // Si la respuesta contiene un error (status code)
+        const { status } = error.response;
+        handleError(error, expireToken); // Llama a la función para manejar el error basado en el status
+      } else if (error.request) {
+        // Si la solicitud fue hecha pero no hubo respuesta
+        console.error("Error en la solicitud: no se recibió respuesta del servidor", error.request);
+        Alert.alert("Error", "No se recibió respuesta del servidor.");
+      } else {
+        // Si hubo un problema al configurar la solicitud
+        console.error("Error en la configuración de la solicitud", error.message);
+        Alert.alert("Error", "Hubo un problema en la configuración de la solicitud.");
+      }
     } finally {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchData();
   }, [idCompra]);
@@ -143,20 +188,20 @@ export function Recojo({ route, setModalVisibleRecojo, setSubmittedDataRecojo, s
   const handleAccept = () => {
     const hasSelectedItems = Object.values(selectedProducts).some(selected => selected);
     if (!hasSelectedItems) {
-        Alert.alert("Error", "Debes seleccionar al menos un artículo antes de proceder.");
-        return;
+      Alert.alert("Error", "Debes seleccionar al menos un artículo antes de proceder.");
+      return;
     }
     if (validateSelections()) {
-        const dataToSubmit = Object.keys(selectedProducts).filter(id => selectedProducts[id]).map(id => ({
-            idDetCompra: id,
-            observaciones: observations[id] || "",
-            imagenes: images[id] || [],
-        }));
-        setSubmittedData(dataToSubmit);
-        setSubmittedDataRecojo(dataToSubmit);
-        setModalVisibleRecojo(false);
+      const dataToSubmit = Object.keys(selectedProducts).filter(id => selectedProducts[id]).map(id => ({
+        idDetCompra: id,
+        observaciones: observations[id] || "",
+        imagenes: images[id] || [],
+      }));
+      setSubmittedData(dataToSubmit);
+      setSubmittedDataRecojo(dataToSubmit);
+      setModalVisibleRecojo(false);
     }
-};
+  };
 
 
   const renderItem = ({ item }) => (
@@ -245,8 +290,8 @@ export function Recojo({ route, setModalVisibleRecojo, setSubmittedDataRecojo, s
 
   return (
     <View style={styles.container}>
-        
-       
+
+
       <FlatList
         data={productos}
         renderItem={renderItem}

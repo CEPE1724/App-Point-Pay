@@ -14,8 +14,8 @@ export const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 10,
         shadowOffset: { width: 0, height: 10 },
-        elevation: 5,
-        marginBottom: 20,
+        elevation: 10,
+        marginBottom: 5,
         borderWidth: 0.5,
         borderColor: "#e0e0e0",
     },
@@ -76,13 +76,15 @@ export const styles = StyleSheet.create({
         marginVertical: 16,
     },
     paymentMethodItem: {
-        padding: 10,
+        padding: 12,
         backgroundColor: "#FF6F61",
         borderRadius: 5,
     },
     paymentMethodText: {
         color: "#fff",
         fontWeight: "bold",
+        textAlign: "center",
+        fontSize: 10,
     },
     table: {
         marginTop: 20,
@@ -117,15 +119,40 @@ export const styles = StyleSheet.create({
         borderLeftColor: "#e0e0e0",
     },
     tableCell: {
-        fontSize: 12,
+        fontSize: 10,
         color: "#333",
         textAlign: "left",
         flex: 1,
     },
     tableCellData: {
-        fontSize: 10,
+        fontSize: 9,
         color: "#333",
         textAlign: "center",
         flex: 1,
+    },
+    selectedMethod: {
+        // Estilo que cambia cuando el método está seleccionado
+        backgroundColor: '#4CAF50', // Color de fondo verde cuando se selecciona
+        borderColor: '#388E3C', // Color del borde cuando se selecciona
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "rgba(0, 0, 0, 0.5)", // Fondo oscuro
+    },
+    modalContent: {
+        width: "80%",
+        height: "80%",
+        backgroundColor: "white",
+        borderRadius: 10,
+        padding: 20,
+    },
+    closeButton: {
+        alignItems: "flex-end",
+    },
+    closeText: {
+        fontSize: 18,
+        color: "#FF6F61",
     },
 });

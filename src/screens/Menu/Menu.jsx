@@ -41,24 +41,11 @@ export function Menu({ navigation }) {
   }, []);
 
   const salir = async () => {
-    await removeSpecificItems(); // Limpiar datos del usuario en AsyncStorage
+    //await removeSpecificItems(); // Limpiar datos del usuario en AsyncStorage
     logout(); // Ejecutamos el logout del contexto
   };
 
-  const removeSpecificItems = async () => {
-    try {
-      // List of keys to remove
-      const keysToRemove = ["userId", "userInfo", "userName", "userToken"];
-      
-      // Loop through the keys and remove each item
-      for (let key of keysToRemove) {
-        await AsyncStorage.removeItem(key);
-      }
-    } catch (error) {
-      console.error('Error removing items from AsyncStorage:', error);
-    }
-  };
-
+ 
   return (
     <View style={styles.container}>
       <Image
@@ -66,7 +53,7 @@ export function Menu({ navigation }) {
         style={[styles.image, { width: 150, height: 60, marginBottom: 20 }]}
         resizeMode="contain"
       />
-      <Text style={styles.title}>Versión: 2.2.1.0</Text>
+      <Text style={styles.title}>Versión: </Text>
 
       <View style={styles.cardContainer}>
         {/* Condicional para mostrar "Cobranza" si permisosMenu incluye el valor 1 */}

@@ -1,0 +1,1 @@
+export * from './DetalleCombosViewVertical'; // Importa y exporta el componente DetalleCombosViewVertical

@@ -5,8 +5,9 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import Fontisto from '@expo/vector-icons/Fontisto';
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
-
+//https://icons.expo.fyi/Index
 import Octicons from '@expo/vector-icons/Octicons';
 export const CircleInfoIcon = (props) => {
   return <FontAwesome5 name="info-circle" size={props.size} color={props.color} />;
@@ -57,6 +58,10 @@ export const UserBlack = (props) => {
 
 export const Book = (props) => {
   return <FontAwesome6 name="contact-book" size={props.size} color={props.color} />
+};
+
+export const Bank = (props) => {
+  return <FontAwesome name="bank" size={props.size} color={props.color} />
 };
 
 export const PendingActions = (props) => {
@@ -136,6 +141,14 @@ export const Trash = (props) => {
 }
 
 export const XCircle = (props) => {
-  return <Octicons name="x-circle" size={24} color="black" />
+  return <Octicons name="x-circle" size={props.size} color={props.color}  />
+}
+
+export  const shoppingSearch = (props) =>{
+  return <MaterialCommunityIcons name="shopping-search" size={props.size} color={props.color} />
+}
+
+export  const shoppingSale = (props) =>{
+  return <Fontisto name="shopping-sale" size={props.size} color={props.color} />
 }
 

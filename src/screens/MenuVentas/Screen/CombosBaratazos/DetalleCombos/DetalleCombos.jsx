@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, ActivityIndicator, TouchableOpacity, StyleSheet, FlatList, ScrollView, Image } from "react-native";
+import { View, Text, ActivityIndicator, TouchableOpacity, StyleSheet, FlatList, ScrollView, Image, Modal } from "react-native";
 import axios from "axios";
 import { APIURL } from "../../../../../config/apiconfig";
 import { styles } from "./DetalleCombos.style";
 import LogoCobranza from '../../../../../../assets/PontyDollar.png';
+import { DetalleCombosView } from '../../../../../components';
+import {DetalleCombosViewVertical} from '../../../../../components';
 export const DetalleCombos = ({ route }) => {
     const { item, bodega } = route.params; // Recibe la información del artículo desde la ruta
     const [impuesto, setImpuesto] = useState(0);
@@ -11,6 +13,9 @@ export const DetalleCombos = ({ route }) => {
     const [data, setData] = useState([]);
     const [error, setError] = useState(null);
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
+    const [selectedMethod, setSelectedMethod] = useState(null); // Estado para el método seleccionado
+    const [modalVisible, setModalVisible] = useState(false); // Estado para controlar la visibilidad del modal
+
 
     // Función para consumir la API
     const fetchData = async () => {
@@ -51,22 +56,32 @@ export const DetalleCombos = ({ route }) => {
         return parseFloat(value).toFixed(2);
     };
 
+    const handleViewModal = () => {
+        setModalVisible(true); // Abre el modal
+    };
+
+    const closeModal = () => {
+        setModalVisible(false); // Cierra el modal
+    };
     // Sumar los totales de cada forma de pago
     const getTotalSum = () => {
         let totalContado = 0;
         let totalTarjeta = 0;
         let totalCredito = 0;
+        let totalTCSI = 0;
 
         data.forEach((item) => {
             totalContado += item.Contado;
             totalTarjeta += item.Tarjeta;
             totalCredito += item.Credito;
+            totalTCSI += item.TCSI;
         });
-
-        totalContado = totalContado ? totalContado + (totalContado * impuesto) / 100 : 0;
-        totalTarjeta = totalTarjeta ? totalTarjeta + (totalTarjeta * impuesto) / 100 : 0;
-        totalCredito = totalCredito ? totalCredito + (totalCredito * impuesto) / 100 : 0;
-        return { totalContado, totalTarjeta, totalCredito };
+        console.log(totalCredito);
+        totalContado = totalContado ? totalContado  : 0;
+        totalTarjeta = totalTarjeta ? totalTarjeta  : 0;
+        totalCredito = totalCredito ? totalCredito  : 0;
+        totalTCSI = totalTCSI ? totalTCSI  : 0;
+        return { totalContado, totalTarjeta, totalCredito, totalTCSI };
     };
 
     // Si hay error, mostrar mensaje de error
@@ -75,7 +90,7 @@ export const DetalleCombos = ({ route }) => {
     }
 
     // Obtener los totales al final
-    const { totalContado, totalTarjeta, totalCredito } = getTotalSum();
+    const { totalContado, totalTarjeta, totalCredito, totalTCSI } = getTotalSum();
 
     // Función para manejar la selección de forma de pago
     const handlePaymentMethodSelect = (method) => {
@@ -84,7 +99,6 @@ export const DetalleCombos = ({ route }) => {
 
     return (
         <View style={styles.container}>
-            {/* Tarjeta con los detalles del artículo */}
             <View style={styles.card}>
                 <Text style={styles.itemTitle}>{item.Articulo}</Text>
                 <View style={styles.cardHeader}>
@@ -104,26 +118,32 @@ export const DetalleCombos = ({ route }) => {
                                             ? totalTarjeta
                                             : selectedPaymentMethod === "Credito"
                                                 ? totalCredito
-                                                : 0
+                                                : selectedPaymentMethod === "TCSI"
+                                                    ? totalTCSI
+                                                    : 0
                                 )
                             }
                         </Text>
 
                     </View>
-                    <Image
-                        source={LogoCobranza}
-                        style={styles.image}
-                        resizeMode="contain"
-                    />
+                    <View style={{ flex: 1 }}>
 
-
+                        <ScrollView>
+                            <TouchableOpacity onPress={handleViewModal}>
+                            <DetalleCombosView data={data} />
+                            </TouchableOpacity>
+                        </ScrollView>
+                    </View>
                 </View>
                 <View style={styles.paymentMethods}>
                     {totalContado > 0 && (
                         <TouchableOpacity
                             key="Contado"
                             onPress={() => handlePaymentMethodSelect("Contado")}
-                            style={styles.paymentMethodItem}
+                            style={[
+                                styles.paymentMethodItem,
+                                selectedMethod === "Contado" && styles.selectedMethod // Aplica el estilo si es el seleccionado
+                            ]}
                         >
                             <Text style={styles.paymentMethodText}>Contado</Text>
                         </TouchableOpacity>
@@ -132,7 +152,10 @@ export const DetalleCombos = ({ route }) => {
                         <TouchableOpacity
                             key="Tarjeta"
                             onPress={() => handlePaymentMethodSelect("Tarjeta")}
-                            style={styles.paymentMethodItem}
+                            style={[
+                                styles.paymentMethodItem,
+                                selectedMethod === "Tarjeta" && styles.selectedMethod // Aplica el estilo si es el seleccionado
+                            ]}
                         >
                             <Text style={styles.paymentMethodText}>Tarjeta</Text>
                         </TouchableOpacity>
@@ -141,27 +164,55 @@ export const DetalleCombos = ({ route }) => {
                         <TouchableOpacity
                             key="Credito"
                             onPress={() => handlePaymentMethodSelect("Credito")}
-                            style={styles.paymentMethodItem}
+                            style={[
+                                styles.paymentMethodItem,
+                                selectedMethod === "Credito" && styles.selectedMethod // Aplica el estilo si es el seleccionado
+                            ]}
                         >
                             <Text style={styles.paymentMethodText}>Crédito</Text>
+                        </TouchableOpacity>
+                    )}
+                    {totalTCSI > 0 && (
+                        <TouchableOpacity
+                            key="TCSI"
+                            onPress={() => handlePaymentMethodSelect("TCSI")}
+                            style={[
+                                styles.paymentMethodItem,
+                                selectedMethod === "TCSI" && styles.selectedMethod // Aplica el estilo si es el seleccionado
+                            ]}
+                        >
+                            <Text style={styles.paymentMethodText}>TC Sin Intereses</Text>
                         </TouchableOpacity>
                     )}
                 </View>
 
             </View>
 
-            {/* Lista de formas de pago */}
-
-
-            {/* Tabla de productos */}
+            <Modal
+                visible={modalVisible}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={closeModal}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
+                            <Text style={styles.closeText}>Cerrar</Text>
+                        </TouchableOpacity>
+                        <DetalleCombosViewVertical data={data} /> 
+                    </View>
+                </View>
+            </Modal>
             <ScrollView horizontal contentContainerStyle={{ flexGrow: 1 }}>
                 <View style={styles.table}>
                     {/* Cabeceras de la tabla */}
                     <View style={styles.tableRow}>
                         <Text style={[styles.tableHeader, styles.tableHeaderCode]}>Código</Text>
-                        <Text style={styles.tableHeader}>Contado</Text>
-                        <Text style={styles.tableHeader}>Tarjeta</Text>
-                        <Text style={styles.tableHeader}>Crédito</Text>
+                        {totalContado > 0 && <Text style={styles.tableHeader}>Contado</Text>}
+                        {totalTarjeta > 0 && <Text style={styles.tableHeader}>Tarjeta</Text>}
+                        {totalCredito > 0 && <Text style={styles.tableHeader}>Crédito</Text>}
+                        {totalTCSI > 0 && <Text style={styles.tableHeader}>TCSI</Text>}
+
                     </View>
                     {/* Filas de la tabla */}
                     <FlatList
@@ -171,21 +222,24 @@ export const DetalleCombos = ({ route }) => {
                             return (
                                 <View style={[styles.tableRow, rowStyle]}>
                                     <Text style={styles.tableCell}>{item.Codigo}</Text>
+                                    {totalContado > 0 && <Text style={styles.tableCellData}>{formatCurrency(item.Contado)}</Text>}
+                                    {totalTarjeta > 0 && <Text style={styles.tableCellData}>{formatCurrency(item.Tarjeta)}</Text>}
+                                    {totalCredito > 0 && <Text style={styles.tableCellData}>{formatCurrency(item.Credito)}</Text>}
+                                    {totalTCSI > 0 && <Text style={styles.tableCellData}>{formatCurrency(item.TCSI)}</Text>}
 
-                                    <Text style={styles.tableCellData}>{formatCurrency(item.Contado)}</Text>
-                                    <Text style={styles.tableCellData}>{formatCurrency(item.Tarjeta)}</Text>
-                                    <Text style={styles.tableCellData}>{formatCurrency(item.Credito)}</Text>
+
                                 </View>
                             );
                         }}
                         keyExtractor={(item) => item.Codigo}
                     />
-                    {/* Fila con los totales por forma de pago */}
+
                     <View style={styles.tableRow}>
                         <Text style={styles.tableCell}>Total General</Text>
-                        <Text style={styles.tableCellData}>{formatCurrency(totalContado)}</Text>
-                        <Text style={styles.tableCellData}>{formatCurrency(totalTarjeta)}</Text>
-                        <Text style={styles.tableCellData}>{formatCurrency(totalCredito)}</Text>
+                        {totalContado > 0 && <Text style={styles.tableCellData}>{formatCurrency(totalContado)}</Text>}
+                        {totalTarjeta > 0 && <Text style={styles.tableCellData}>{formatCurrency(totalTarjeta)}</Text>}
+                        {totalCredito > 0 && <Text style={styles.tableCellData}>{formatCurrency(totalCredito)}</Text>}
+                        {totalTCSI > 0 && <Text style={styles.tableCellData}>{formatCurrency(totalTCSI)}</Text>}
                     </View>
                 </View>
             </ScrollView>

@@ -4,26 +4,73 @@ import { View, Text, FlatList, Alert, TouchableOpacity } from 'react-native';
 import axios from "axios";
 import { APIURL } from "../../../../../config/apiconfig";
 import { styles } from "./ViewProductos.Style";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAuth } from '../../../../../navigation/AuthContext'; // Importamos el contexto
+import { handleError } from '../../../../../utils/errorHandler';
 export const ViewProductos = ({ route }) => {
   const { item } = route.params;
   const [productos, setProductos] = useState([]);
   const idCompra = item.idCompra;
   const [loading, setLoading] = useState(true);
   const idMotivo = 0;
+  const { expireToken } = useAuth(); // Usamos el contexto de autenticación
+  const [token, setToken] = useState(null);
+  const [userInfoLoaded, setUserInfoLoaded] = useState(false);  // Para saber si los datos del token ya se han cargado
+  useEffect(() => {
+    // Función para obtener el token desde AsyncStorage
+    const fetchUserInfo = async () => {
+      try {
+        const storedToken = await AsyncStorage.getItem("userToken");
+        setToken(storedToken);
+        console.log("Token:", storedToken);
+      } catch (error) {
+        console.error("Error fetching user info:", error);
+      } finally {
+        setUserInfoLoaded(true);  // Marcamos que ya se cargó el token
+      }
+    };
+ 
+    fetchUserInfo();
+  }, []);  // Se ejecuta solo una vez cuando el componente se monta
+
+  // Solo realiza la llamada a la API cuando el token esté disponible
+  useEffect(() => {
+    if (userInfoLoaded && token) {
+      fetchData();  // Llamamos a fetchData cuando el token esté disponible
+    }
+  }, [userInfoLoaded, token]);  // Dependencias: se ejecuta cuando el token esté listo
+
 
   const fetchData = async () => {
     setLoading(true);
     try {
       const url = APIURL.getProducto();
+      const headers = {
+        "Authorization": `Bearer ${token}`,  // Añadimos el token en los headers
+        "Content-Type": "application/json",  // Tipo de contenido
+      };
       const response = await axios.get(url, {
         params: { idCompra, idMotivo },
+        headers,
       });
 
       const fetchedData = response.data;
       setProductos(fetchedData);
     } catch (error) {
-      console.error("Error fetching data:", error);
-      Alert.alert("Error", "Hubo un problema al cargar los productos.");
+      // Manejo de errores detallado
+      if (error.response) {
+        // Si la respuesta contiene un error (status code)
+        const { status } = error.response;
+        handleError(error, expireToken); 
+      } else if (error.request) {
+        // Si la solicitud fue hecha pero no hubo respuesta
+        console.error("Error en la solicitud: no se recibió respuesta del servidor", error.request);
+        Alert.alert("Error", "No se recibió respuesta del servidor.");
+      } else {
+        // Si hubo un problema al configurar la solicitud
+        console.error("Error en la configuración de la solicitud", error.message);
+        Alert.alert("Error", "Hubo un problema en la configuración de la solicitud.");
+      }
     } finally {
       setLoading(false);
     }

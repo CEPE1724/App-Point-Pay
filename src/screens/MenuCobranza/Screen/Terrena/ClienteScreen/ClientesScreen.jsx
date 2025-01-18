@@ -136,6 +136,7 @@ export function ClientesScreen(props) {
 
     navigation.navigate(targetScreen, { item, tipo });
   };
+  
 
   // Calculate totals for client status
   const totalPendiente =

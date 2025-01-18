@@ -20,7 +20,6 @@ export function RegistroStack() {
         component={RegistroScreen}
         options={{ title: "Clientes" }}
       />
-
       <Stack.Screen
         name={screen.registro.insertCall}
         component={InsertScreen}

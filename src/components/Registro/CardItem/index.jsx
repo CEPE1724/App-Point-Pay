@@ -1,0 +1,1 @@
+export * from './CardItem'; // Exporta el componente CardItem

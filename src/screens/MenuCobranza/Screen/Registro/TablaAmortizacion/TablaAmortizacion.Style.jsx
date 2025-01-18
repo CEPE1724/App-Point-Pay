@@ -6,12 +6,25 @@ export const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#f1f1f1',
   },
+  
   header: {
     fontSize: 10,
     fontWeight: 'bold',
     textAlign: 'left',
     marginBottom: 10,
     color: '#333',
+  },
+  button : {
+    backgroundColor: '#aac088',
+    top: 10,
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 10,
+    height: 40,
+    width: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    
   },
   headerRow: {
     flexDirection: 'row', // Esto asegura que los encabezados de las columnas se alineen horizontalmente

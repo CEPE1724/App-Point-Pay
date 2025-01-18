@@ -7,14 +7,27 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Fontisto from '@expo/vector-icons/Fontisto';
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
+import Entypo from '@expo/vector-icons/Entypo';
 //https://icons.expo.fyi/Index
 import Octicons from '@expo/vector-icons/Octicons';
 export const CircleInfoIcon = (props) => {
   return <FontAwesome5 name="info-circle" size={props.size} color={props.color} />;
 };
 
+export const Info = (props) => {
+  return <Entypo name="info" size={props.size} color={props.color} />;
+};
+
 export const Plus = (props) => {
   return <FontAwesome5 name="plus" size={props.size} color={props.color} />;
+};
+
+export const Wifi = (props) => {
+  return <FontAwesome5 name="wifi" size={props.size} color={props.color} />;
+};
+
+export const WifiOff = (props) => {
+  return <MaterialIcons name="wifi-off" size={props.size} color={props.color} />;
 };
 
 export const Storage = (props) => {
@@ -29,8 +42,20 @@ export const Exit = (props) => {
   return <MaterialCommunityIcons name="exit-run" size={props.size} color={props.color} />;
 }
 
+export const Cell = (props) => {
+  return <MaterialCommunityIcons name="cellphone-wireless" size={props.size} color={props.color} />;
+}
+
+export const GPS = (props) => {
+  return <MaterialCommunityIcons name="crosshairs-gps" size={props.size} color={props.color} />;
+}
+
 export const Dashboard = (props) => {
   return <MaterialCommunityIcons name="view-dashboard" size={props.size} color={props.color} />;
+}
+
+export const AccountCash = (props) => {
+  return <MaterialCommunityIcons name="account-cash" size={props.size} color={props.color} />;
 }
 
 export const Cash = (props) => {
@@ -43,6 +68,10 @@ export const People = (props) => {
 
 export const Upload = (props) => {
   return <FontAwesome6 name="upload" size={props.size} color={props.color} />
+};
+
+export const ViewPhoto = (props) => {
+  return <FontAwesome6 name="users-viewfinder" size={props.size} color={props.color} />
 };
 
 export const CheckCircle = (props) => {

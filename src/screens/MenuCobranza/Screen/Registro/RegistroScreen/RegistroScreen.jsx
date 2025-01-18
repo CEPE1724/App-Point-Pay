@@ -78,8 +78,7 @@ export function RegistroScreen({ navigation }) {
   
       // Asegúrate de que la respuesta esté en el formato esperado
       const [fetchedData, total] = response.data;
-      console.log("Fetched Data:", fetchedData);
-      console.log("Total Records:", total);
+
   
       // Actualiza los datos con la respuesta obtenida
       setData((prevData) => (page === 1 ? fetchedData : [...prevData, ...fetchedData]));
@@ -128,7 +127,7 @@ export function RegistroScreen({ navigation }) {
 
 
   const handleCardPress = (item) => {
-    navigation.navigate(screen.registro.insertCall, { item });
+    navigation.navigate(screen.registro.insertCall, { item, Tipo: 0 });
   };
   useEffect(() => {
     if (userInfoLoaded) {

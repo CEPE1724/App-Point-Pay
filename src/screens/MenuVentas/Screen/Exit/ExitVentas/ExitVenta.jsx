@@ -1,96 +1,63 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Platform, BackHandler } from 'react-native';
-import { Button, Title, Paragraph } from 'react-native-paper';  // Usamos react-native-paper
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Para AsyncStorage
-import Modal from 'react-native-modal'; // Librería para el modal
-import { XCircle } from '../../../../../Icons'; // Importa los iconos necesarios
-import { styles } from "./ExitVenta.Style"; // Verifica la ruta
-import { screen } from '../../../../../utils/screenName'; // Importa la configuración de las pantallas
-import { refresh } from '@react-native-community/netinfo';
-import { CommonActions } from '@react-navigation/native';
-import { useAuth } from '../../../../../navigation/AuthContext'; // Importamos el contexto
-
-
+import { Button, Title, Paragraph } from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Modal from 'react-native-modal';
+import { XCircle } from '../../../../../Icons';
+import { useAuth } from '../../../../../navigation/AuthContext'; // Asegúrate de que esta ruta sea correcta
+import { styles } from './ExitVenta.Style';
 
 export function ExitVenta({ navigation }) {
-  // Estado para almacenar la información del usuario
-  const { logout } = useAuth(); // Usamos el contexto de autenticación
   const [userInfo, setUserInfo] = useState(null);
-  const [isModalVisible, setIsModalVisible] = useState(false); // Estado para mostrar el modal
-  const [isLoggingOut, setIsLoggingOut] = useState(false); // Estado para verificar si el cierre de sesión está en proceso
+  const [sEmpresa, setSEmpresa] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [sCom_Rango, setSCom_Rango] = useState(null);
+  const [sCom_CargosDeVentas, setSCom_CargosDeVentas] = useState(null);
 
-  // Cargar datos del AsyncStorage
   useEffect(() => {
     const loadUserData = async () => {
       try {
-        // Obtener datos del AsyncStorage
         const storedUserInfo = await AsyncStorage.getItem("userInfo");
-        if (storedUserInfo) {
-          setUserInfo(JSON.parse(storedUserInfo)); // Establecer los datos de usuario en el estado
-        }
+        const storedEmpresa = await AsyncStorage.getItem("Empresa");
+        const storedCom_Rango = await AsyncStorage.getItem("Com_Rango");
+        const storedCom_CargosDeVentas = await AsyncStorage.getItem("Com_CargosDeVentas");
+
+        if (storedUserInfo) setUserInfo(JSON.parse(storedUserInfo));
+        if (storedEmpresa) setSEmpresa(JSON.parse(storedEmpresa));
+        if (storedCom_Rango) setSCom_Rango(storedCom_Rango);
+        if (storedCom_CargosDeVentas) setSCom_CargosDeVentas(storedCom_CargosDeVentas);
       } catch (error) {
         console.error("Error al obtener los datos de AsyncStorage", error);
       }
     };
-
     loadUserData();
   }, []);
 
-  // Función para cerrar sesión
-  const handleLogout = () => {
-    setIsModalVisible(true); // Mostrar el modal para confirmar el cierre de sesión
+  const handleLogout = () => setIsModalVisible(true);
 
-  };
-
-  // Función para confirmar el cierre de sesión
   const confirmLogout = () => {
-    setIsLoggingOut(true); // Indicate that the logout process is ongoing
-    setIsModalVisible(false); // Hide the modal after confirming
+    setIsLoggingOut(true);
+    setIsModalVisible(false);
     removeSpecificItems();
-    logout(); // Ejecutamos el logout del contexto
-   
-
+    navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
   };
 
   const removeSpecificItems = async () => {
     try {
-      // List of keys to remove
       const keysToRemove = ["userId", "userInfo", "userName", "userToken"];
-
-      // Loop through the keys and remove each item
-      for (let key of keysToRemove) {
-        await AsyncStorage.removeItem(key);
-      }
-
-      // Optionally, log the remaining keys to confirm removal
-      const remainingKeys = await AsyncStorage.getAllKeys();
-
+      for (let key of keysToRemove) await AsyncStorage.removeItem(key);
     } catch (error) {
       console.error('Error removing items from AsyncStorage:', error);
     }
   };
 
-  // Función para cancelar el cierre de sesión
-  const cancelLogout = () => {
-    setIsModalVisible(false); // Ocultar el modal si el usuario cancela
-  };
+  const cancelLogout = () => setIsModalVisible(false);
 
-  // Función para salir de la aplicación
   const handleExit = () => {
-
-    navigation.reset({
-      index: 0, // Start from the first screen in the stack
-      routes: [{ name: 'MenuTabs' }], // Navigate directly to 'Cobranza'
-    });
-    // Esto cerrará la aplicación
-    //if (Platform.OS === 'ios') {
-    //  BackHandler.exitApp();
-    // } else {
-    //   BackHandler.exitApp();
-    // }
+    navigation.reset({ index: 0, routes: [{ name: 'MenuTabs' }] });
   };
 
-  // Verifica si los datos de usuario están disponibles antes de renderizar
   if (!userInfo) {
     return (
       <View style={styles.container}>
@@ -99,79 +66,41 @@ export function ExitVenta({ navigation }) {
     );
   }
 
-  // Obtener nombre del usuario desde los datos
   const userName = userInfo.ingresoCobrador?.nombre || "Nombre del Usuario";
-
-  // Extraer la primera letra del primer nombre
   const firstLetter = userName.charAt(0).toUpperCase();
 
   return (
     <View style={styles.container}>
-      {/* Círculo con la primera letra del nombre */}
       <View style={styles.circle}>
         <Text style={styles.circleText}>{firstLetter}</Text>
       </View>
-
-      {/* Título con el nombre del usuario */}
+      <Title style={styles.userTitle}>{userInfo.Nombre || ""}</Title>
+      <Text style={styles.userName}>{sEmpresa === 1 ? 'POINT' : 'CREDISOLUCIONES'}</Text>
+      <Text style={styles.userName}>{sCom_CargosDeVentas}/ {sCom_Rango}</Text>
       <Title style={styles.userName}>{userName}</Title>
-
-      {/* Descripción adicional */}
       <Paragraph style={styles.userDescription}>
-        Aquí puedes gestionar tu cuenta, cerrar sesión o ir al Menù Principal.
+        Aquí puedes gestionar tu cuenta, cerrar sesión o ir al Menú Principal.
       </Paragraph>
-
-      {/* Botones con react-native-paper */}
       <View style={styles.buttonContainer}>
-        <Button
-          mode="contained"
-          onPress={handleExit}
-          style={styles.logoutButton}
-          icon="logout"
-        >
-          Menù Principal
+        <Button mode="contained" onPress={handleExit} style={styles.exitButton} icon="exit-to-app">
+          Menú Principal
         </Button>
-
-        {/*  <Button mode="outlined" onPress={handleLogout} style={styles.exitButton} icon="exit-to-app" >  Salir </Button> */}
-         </View>
-
-      {/* Modal para confirmar cierre de sesión */}
-      <Modal
-        isVisible={isModalVisible}
-        onBackdropPress={cancelLogout} // Cerrar el modal si el usuario hace clic fuera del modal
-        onBackButtonPress={cancelLogout} // Cerrar el modal si el usuario presiona el botón de retroceso
-        style={styles.modal}
-      >
+      </View>
+      <Modal isVisible={isModalVisible} onBackdropPress={cancelLogout} onBackButtonPress={cancelLogout} style={styles.modal}>
         <View style={styles.modalContent}>
-          {/* Primer View: X en la parte superior */}
           <View style={styles.modalHeader}>
-            <Button
-              mode="text"
-              onPress={cancelLogout}
-              style={styles.modalCloseButton}
-            >
+            <Button mode="text" onPress={cancelLogout} style={styles.modalCloseButton}>
               <XCircle size={30} color="#333" />
             </Button>
           </View>
-
-          {/* Segundo View: Mensaje de confirmación */}
           <View style={styles.modalBody}>
-            <Paragraph style={styles.modalTitle}>Cerrando sesiòn</Paragraph>
-            <Paragraph >
-              ¿Estás seguro que deseas salir de tu sesiòn de POINTPAY?
-            </Paragraph>
+            <Paragraph style={styles.modalTitle}>Cerrando sesión</Paragraph>
+            <Paragraph>¿Estás seguro que deseas salir de tu sesión de POINTPAY?</Paragraph>
           </View>
-
-          {/* Tercer View: Botones de confirmación y cancelación */}
           <View style={styles.modalFooter}>
-            <Button
-              mode="contained"
-              onPress={confirmLogout}
-              style={styles.modalConfirmButton}
-              loading={isLoggingOut} // Mostrar cargando mientras se realiza el cierre
-            >
+            <Button mode="contained" onPress={confirmLogout} style={styles.modalConfirmButton} loading={isLoggingOut}>
               Cerrar sesión
             </Button>
-
           </View>
         </View>
       </Modal>

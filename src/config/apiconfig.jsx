@@ -1,9 +1,9 @@
 
  
-const API_BASE_URL = "http://192.168.2.167:3035/cobranza/api/v1/point/";
-const SOCKET_BASE_URL = "http://192.168.2.167:3035"; 
-//const API_BASE_URL = "http://179.49.21.45:3025/cobranza/api/v1/point/";
-//const SOCKET_BASE_URL = "http://179.49.21.45:3025";
+//const API_BASE_URL = "http://192.168.56.1:3015/cobranza/api/v1/point/";
+//const SOCKET_BASE_URL = "http://192.168.56.1:3015"; 
+const API_BASE_URL = "http://179.49.21.45:3025/cobranza/api/v1/point/";
+const SOCKET_BASE_URL = "http://179.49.21.45:3025";
 export const APIURL = {
    
     senLogin: () => `${API_BASE_URL}login`,
@@ -54,4 +54,6 @@ export const APIURL = {
     getValDispositivoImei : () => `${API_BASE_URL}DispositivosAPP/ValEmai`,
     getTelefono : () => `${API_BASE_URL}Cre_GCTelefono/all`,
     SaveTelefono : () => `${API_BASE_URL}Cre_GCTelefono/add`,
+    listTablaPago: () => `${API_BASE_URL}Inventario/V1/ListaPagos`,
+    validaComporbante : () => `${API_BASE_URL}Inventario/V1/ValidaComprobante`,
 };

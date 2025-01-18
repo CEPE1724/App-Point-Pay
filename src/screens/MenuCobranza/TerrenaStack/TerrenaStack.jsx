@@ -2,6 +2,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { ClientesScreen } from "../Screen";
 import { VerificacionCliente } from  "../Screen";
 import { VerificacionClienteSearch } from "../Screen";
+import { GoogleMaps } from "../Screen";
 
 
 import { screen } from "../../../utils";
@@ -30,6 +31,11 @@ export function TerrenaStack()  {
         name={screen.terreno.search}
         component={VerificacionClienteSearch}
         options={{ title: "Verificación Cliente" }}
+      />
+      <Stack.Screen
+        name={screen.terreno.maps}
+        component={GoogleMaps}
+        options={{ title: "Google Maps" }}
       />
     
     </Stack.Navigator>

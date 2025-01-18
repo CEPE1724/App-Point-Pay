@@ -49,4 +49,10 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 20,
   },
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 5,
+    color: "#2066a4",
+  },
 });

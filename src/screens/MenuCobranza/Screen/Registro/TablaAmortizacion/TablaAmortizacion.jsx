@@ -6,16 +6,21 @@ import { styles } from "./TablaAmortizacion.Style";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from '../../../../../navigation/AuthContext'; // Importamos el contexto
 import { handleError } from '../../../../../utils/errorHandler';
+import { AccountCash } from '../../../../../Icons';
+import { PagosTDAmortizacion } from '../../../../../components'; // Asegúrate de que la ruta es correcta
 export const TablaAmortizacion = ({ route }) => {
     const { item } = route.params;
     const idCompra = item.idCompra;
     const [productos, setProductos] = useState([]);
     const [valores, setValores] = useState({});
+    const [listaValores, setListaValores] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedId, setSelectedId] = useState(null);
     const [token, setToken] = useState(null);
     const [userInfoLoaded, setUserInfoLoaded] = useState(false);  // Para saber si los datos del token ya se han cargado
     const { expireToken } = useAuth(); // Usamos el contexto de autenticación
+    const [modalVisible, setModalVisible] = useState(false);
+    const [NumeroCuota, setNumeroCuota] = useState(0);
     useEffect(() => {
         // Función para obtener el token desde AsyncStorage
         const fetchUserInfo = async () => {
@@ -44,7 +49,6 @@ export const TablaAmortizacion = ({ route }) => {
         setLoading(true);
         try {
             const url = APIURL.getViewTablaAmortizacion();
-            console.log("URL:", token);
             const headers = {
                 "Authorization": `Bearer ${token}`,  // Añadimos el token en los headers
                 "Content-Type": "application/json",  // Tipo de contenido
@@ -59,9 +63,9 @@ export const TablaAmortizacion = ({ route }) => {
             // Si la respuesta es exitosa
             const fetchedData = response.data;
             setProductos(fetchedData);
-
+           console.log("Data fetched:", productos);
         } catch (error) {
-            handleError(error, expireToken); 
+            handleError(error, expireToken);
         } finally {
             setLoading(false);
         }
@@ -82,7 +86,7 @@ export const TablaAmortizacion = ({ route }) => {
             const fetchedData = response.data;
             setValores(fetchedData[0] || {});
         } catch (error) {
-            handleError(error, expireToken); 
+            handleError(error, expireToken);
         } finally {
             setLoading(false);
         }
@@ -93,21 +97,24 @@ export const TablaAmortizacion = ({ route }) => {
         fetchDataValores();
     }, [idCompra]);
 
-    const handleRowPress = (id) => {
+    const handleRowPress = (id, NumeroCuota) => {
         setSelectedId(id);
+        fetchDataListValores(id);
+        setNumeroCuota(NumeroCuota);
+        setModalVisible(true);
     };
 
     const SearchSaldoVencido = (productos) => {
         let SaldoVencido = 0;
-    
+
         // Obtenemos la fecha actual
         const today = new Date();
-    
+
         // Iteramos sobre los productos y sumamos el saldo de los vencidos
         productos.forEach((item) => {
             // Convertimos la fecha de vencimiento a un objeto Date
             const venceDate = new Date(item.Vence);
-    
+
             // Si la fecha actual es mayor que la fecha de vencimiento y el saldo es mayor a 0
             if (today > venceDate && item.Saldo > 0) {
                 // Sumamos el saldo vencido
@@ -116,24 +123,43 @@ export const TablaAmortizacion = ({ route }) => {
         });
         return SaldoVencido.toFixed(2);
     };
+
     useEffect(() => {
         if (productos.length > 0) {
             const saldoVencido = SearchSaldoVencido(productos);
-            console.log("Saldo Vencido:", saldoVencido);
             setValores((prevValores) => ({
                 ...prevValores,
                 SaldoVencido: saldoVencido,
             }));
         }
     }, [productos]);  // Se ejecuta cada vez que productos cambian
-    
-    
+
+    const fetchDataListValores = async (id) => {
+        setLoading(true);
+        try {
+            const url = APIURL.listTablaPago();
+            console.log("URL valores:", id);
+            const response = await axios.get(url, { params: { idCre_TablaDeAmortizacion: id } }
+            );
+            console.log("Data fetched:", response.data);
+            const fetchedData = response.data;
+            setListaValores(response.data|| {});
+        } catch (error) {
+            handleError(error, expireToken);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+
+
     const renderItem = ({ item }) => {
         const isSelected = item.idCre_TablaDeAmortizacion === selectedId;
         return (
             <TouchableOpacity
                 style={[styles.row, { backgroundColor: isSelected ? '#e9d192' : '#fff' }]}
-                onPress={() => handleRowPress(item.idCre_TablaDeAmortizacion)}
+                onPress={() => handleRowPress(item.idCre_TablaDeAmortizacion, item.NumeroCuota )}
             >
                 <Text style={[styles.cell, { color: item.Estado === 2 ? '#0000ff' : item.Estado === 0 ? '#00c000' : '#ff0000' }]}>
                     {item.NumeroCuota}
@@ -172,7 +198,7 @@ export const TablaAmortizacion = ({ route }) => {
             </View>
         );
     }
-
+    console.log("productos", productos.NumeroCuota);
     return (
         <View style={styles.container}>
             <View style={styles.headerRowView}>
@@ -229,6 +255,16 @@ export const TablaAmortizacion = ({ route }) => {
                 keyExtractor={(item) => item.idCre_TablaDeAmortizacion.toString()}
                 contentContainerStyle={styles.tableContainer}
             />
+            <PagosTDAmortizacion
+                visible={modalVisible}
+                onClose={() => setModalVisible(false)}
+                data={listaValores}
+                cliente = {item.Cliente}
+                Cedula = {item.Cedula}
+                Numero_Documento = {item.Numero_Documento}
+                NumeroCuota = {NumeroCuota}               
+            />
         </View>
+
     );
 };

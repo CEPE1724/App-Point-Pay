@@ -17,14 +17,16 @@ export const HandleSave = async ({
   submittedDataRecojo,
   setLoading,
   token,
+  expireToken,
+  Tipo
 }) => {
-  const { expireToken } = useAuth(); // Usamos el contexto de autenticación
   setLoading(true);
   const urlGoogle = APIURL.putGoogle();
   let IdCbo_GestionesDeCobranzas = 0;
 
   try {
     // Guardar Gestiones de Cobranzas
+    data.Tipo = Tipo;
     IdCbo_GestionesDeCobranzas = await saveGestionesDeCobranzas(data, token);
 
     // Procesar recojo si es necesario
@@ -66,7 +68,18 @@ export const HandleSave = async ({
       msg += `\nNúmero de Comprobante:\n${voucher}`;
     }
     alert(msg); // Mensaje de éxito
-    navigation.navigate(screen.registro.tab, { screen: screen.registro.inicio, params: { refresh: true }, }); // Navegar a la pantalla de inicio
+    console.log("Datos guardados correctamente edison", Tipo);
+    if (Tipo === 0) {
+      navigation.reset({
+        index: 0, // Esto hace que la pantalla de destino sea la primera en el stack
+        routes: [{ name: screen.registro.tab, params: { screen: screen.registro.inicio, params: { refresh: true } } }],
+      });
+    } else {
+      navigation.reset({
+        index: 0, // Esto hace que la pantalla de destino sea la primera en el stack
+        routes: [{ name: screen.gestionDiaria.tab, params: { screen: screen.gestionDiaria.inicio, params: { refresh: true } } }],
+      });
+    }
 
   } catch (error) {
     handleError(error, expireToken); // Usamos el manejador de errores global
@@ -120,6 +133,7 @@ const uploadImages = async (images, urlGoogle, idCompra, userInfo, token) => {
 
 // Función para guardar Gestiones de Cobranzas
 const saveGestionesDeCobranzas = async (data, token) => {
+  console.log("data", data);
   const url = APIURL.postCbo_GestionesDeCobranzas();
   try {
     const response = await axios.post(url, { ...data }, {
@@ -272,6 +286,7 @@ const saveAnticiposAPP = async (
   item,
   token
 ) => {
+  console.log("summitDataTransfer", userInfo);
   const dataTransfer = {
     idCompra: parseInt(idCompra, 10),
     idCobrador: parseInt(userInfo.ingresoCobrador, 10),

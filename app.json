@@ -21,7 +21,8 @@
           "NSAllowsArbitraryLoads": true
         },
         "NSCameraUsageDescription": "La aplicación necesita acceder a la cámara para tomar fotos.",
-        "NSPhotoLibraryUsageDescription": "La aplicación necesita acceder a tu galería de fotos."
+        "NSPhotoLibraryUsageDescription": "La aplicación necesita acceder a tu galería de fotos.",
+        "googleMapsApiKey": "AIzaSyDSFUJHYlz1cpaWs2EIkelXeMaUY0YqWag&libraries=places&callback=initMap"
       }
     },
     "android": {
@@ -37,7 +38,10 @@
         "CAMERA",
         "READ_EXTERNAL_STORAGE"
       ],
-      "package": "com.cepe1724.AppPointPay"
+      "package": "com.cepe1724.AppPointPay",
+      "extra": {
+        "googleMapsApiKey": "AIzaSyDSFUJHYlz1cpaWs2EIkelXeMaUY0YqWag"
+      }
     },
     "web": {
       "favicon": "./assets/IconApp.png"
@@ -49,6 +53,23 @@
         {
           "android": {
             "usesCleartextTraffic": true
+          }
+        }
+      ],
+      [
+        "expo-sqlite", 
+        {
+          "enableFTS": true,  
+          "useSQLCipher": true,  
+          "android": {
+            "enableFTS": false,  
+            "useSQLCipher": false  
+          },
+          "ios": {
+            "customBuildFlags": [
+              "-DSQLITE_ENABLE_DBSTAT_VTAB=1",
+              "-DSQLITE_ENABLE_SNAPSHOT=1"
+            ]  
           }
         }
       ]

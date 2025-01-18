@@ -14,11 +14,15 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import point from "../../../assets/Point.png";
 import logo from "../../../assets/PontyDollar.png";
 import { styles } from "./Login.Style";
+import { useDb } from '../../database/db';
+import { addItemAsync, getItemsAsync, updateItemAsync } from '../../database';
 
 export default function Login({ navigation }) {
   const { width, height } = Dimensions.get("window");
   const [idTipoPersona, setIdTipoPersona] = useState(null);
-
+    const { db, initializeDb } = useDb();
+    const [dbDispositivos, setDbDispositivos] = useState([]);
+    
   // useEffect para cargar y mostrar los datos de AsyncStorage al iniciar
   useEffect(() => {
     const fetchAsyncStorageData = async () => {
@@ -38,6 +42,10 @@ export default function Login({ navigation }) {
         } else {
           console.log("No se encontró 'userData' en AsyncStorage.");
         }
+        const items = await getItemsAsync(db);
+        setDbDispositivos(items); // Guardar los dispositivos en el estado
+        console.log("Datos de la base de datos:", items);
+
       } catch (error) {
         console.error("Error al obtener datos de AsyncStorage", error);
       }
@@ -81,6 +89,7 @@ export default function Login({ navigation }) {
             ]}
             resizeMode="contain"
           />
+          <Text style={styles.title}>{dbDispositivos[0]?.Alias}</Text>
           <Image
             source={logo}
             style={[

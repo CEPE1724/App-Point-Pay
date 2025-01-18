@@ -23,15 +23,17 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AlertComponent } from "../../../../../components";
 import { ConfirmationModal } from "../../../../../components";
 import { LoadingIndicator } from "../../../../../components";
+import { CardItem } from "../../../../../components";
 import { HandleSave } from "./HandleSave"; // Asegúrate de importar la función handleGuardar
 import { UserBlack } from "../../../../../Icons"
 import { useAuth } from '../../../../../navigation/AuthContext';
 import { handleError } from '../../../../../utils/errorHandler';
-
+import { Cell, CalendarToday } from "../../../../../Icons";
 import { shoppingSearch } from '../../../../../Icons';
 export function InsertScreen({ route, navigation }) {
   const [isModalVisibleCont, setIsModalVisibleCont] = useState(false); // Controla la visibilidad del modal
-  const { item } = route.params;
+  const { item, Tipo } = route.params;
+  console.log("item", Tipo);
   const [items, setItems] = useState([]);
   const [selectedValue, setSelectedValue] = useState("");
   const [contactTypes, setContactTypes] = useState([]);
@@ -57,12 +59,14 @@ export function InsertScreen({ route, navigation }) {
   const [alertMessage, setAlertMessage] = useState("");
   const [alertIcon, setAlertIcon] = useState(""); // Estado para el ícono
   const [alertColor, setAlertColor] = useState(""); // Estado para el color del mensaje
+  const [mensajeComporbante, setMensajeComporbante] = useState("");
   const [summitDataTransfer, setSummitDataTransfer] = useState({
     comprobante: "",
     images: [],
     number: 0,
     selectedBanco: null,
   });
+  const formattedDate = new Date(item.Fecha_Factura).toISOString().split('T')[0];
   const [loading, setLoading] = useState(false);
   const [dataGestion, setDataGestion] = useState([]);
   const [modalVisibleOk, setModalVisibleOk] = useState(false);
@@ -112,7 +116,7 @@ export function InsertScreen({ route, navigation }) {
     navigation.navigate(screen.registro.TablaAmortizacion, { item });
   };
 
-   const handleOpenModal = (cliente) => {
+  const handleOpenModal = (cliente) => {
     setSelectedItem(cliente);
     setIsModalVisible(true);
   };
@@ -123,7 +127,7 @@ export function InsertScreen({ route, navigation }) {
   };
 
   const handleViewCel = () => {
-  
+
     setIsModalVisibleCont(true);
   };
 
@@ -135,7 +139,6 @@ export function InsertScreen({ route, navigation }) {
       }
 
       try {
-        console.log("token", token);
         const response = await axios.get(APIURL.Cbo_EstadosGestion(), {
           headers: {
             "Authorization": `Bearer ${token}`,
@@ -277,30 +280,56 @@ export function InsertScreen({ route, navigation }) {
     setImages(images.filter((image) => image !== uri));
   };
 
-  const onAccept = () => {
-    // Validar campos y manejar datos
-    if (selectedTipoPago === 2) {
-      if (!selectedBanco) {
-        alert("Por favor, complete todos los campos.");
-        return;
-      }
-    }
-
+  // Función principal de aceptación
+  const onAccept = async () => {
+    // Validación común para todos los tipos de pago
     if (!comprobante || !number || images.length === 0) {
       alert("Por favor, complete todos los campos.");
       return;
     }
-    /// mnadar parametrso aqui te quedaste
-    // Aquí puedes enviar los datos al servidor
+
+    // Validación específica para tipo de pago 2
+    if (selectedTipoPago === 2 && !selectedBanco) {
+      alert("Por favor, complete todos los campos.");
+      return;
+    }
+
+    // Validación del comprobante de acuerdo al tipo de pago
+    const tipoComprobante = selectedTipoPago === 2 ? 2 : 1;
+    const banco = selectedTipoPago === 2 ? selectedBanco : 0;
+
+    // Validar el comprobante
+    const mensaje = await ValidaComprobante(comprobante, banco, tipoComprobante);
+    if (mensaje.length > 0) {
+      alert(mensaje);
+      return;
+    }
+
+    // Preparar los datos para el envío
     const newData = {
-      IdBanco: parseInt(selectedBanco, 10),
+      IdBanco: selectedTipoPago === 2 ? parseInt(selectedBanco, 10) : 0,
       NumeroDeposito: comprobante,
       Abono: parseFloat(number),
       images: images,
     };
 
+    // Actualizar estado y cerrar modal
     setSummitDataTransfer(newData);
     setModalVisible(false);
+  };
+
+  // Función de validación del comprobante
+  const ValidaComprobante = async (comprobante, selectedBanco, tipo) => {
+    try {
+      const url = APIURL.validaComporbante();
+      const response = await axios.get(url, {
+        params: { Numero: comprobante, Banco: selectedBanco, tipo }
+      });
+      return response.data[0].Mensaje; // Retornar el mensaje para mostrarlo en la UI
+    } catch (error) {
+      console.error("Error al validar el comprobante:", error);
+      return "Ocurrió un error al validar el comprobante.";
+    }
   };
 
   const handleSave = () => {
@@ -450,6 +479,8 @@ export function InsertScreen({ route, navigation }) {
       submittedDataRecojo,
       setLoading, // Pasar setLoading como argumento
       token,
+      expireToken,
+      Tipo: Tipo,
     });
   };
 
@@ -463,82 +494,13 @@ export function InsertScreen({ route, navigation }) {
       style={styles.container}
       contentContainerStyle={{ paddingBottom: 20 }}
     >
-      <View style={styles.card}>
-        <View style={styles.detailsContainer}>
-          <View style={styles.row}>
-            <UserBlack size={24} color="#333" style={styles.icon} />
-            <Text style={styles.value}>{item.Cliente}</Text>
-          </View>
-          <View style={styles.row}>
-            <Icon
-              name="drivers-license-o"
-              size={24}
-              color="#333"
-              style={styles.icon}
-            />
-            <Text style={styles.value}>{item.Cedula}</Text>
-          </View>
-          <View style={styles.row}>
-            <Icon
-              name="file-text-o"
-              size={24}
-              color="#333"
-              style={styles.icon}
-            />
-            <Text style={styles.value}>{item.Numero_Documento}</Text>
-          </View>
-          <View style={styles.buttonsContainer}>
-          <TouchableOpacity onPress={handleViewAmortizacion} style={styles.buttonAmortizacion}>
-            <View style={styles.rowPro}>
-              <Icon name="bank" size={24} color="#fff" />
-              <Text style={styles.valueProAmo}>Tabla</Text>
-              <Text style={styles.valueProAmo}>Amortización</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleViewCel} style={styles.buttonAmortizacion}>
-            <View style={styles.rowPro}>
-              <Icon name="volume-control-phone" size={24} color="#fff" />
-              <Text style={styles.valueProAmo}>Contactos</Text>
-            </View>
-          </TouchableOpacity>
-          </View>
-
-          <View style={styles.buttonsContainer}>
-
-            <TouchableOpacity onPress={handleButtonPress} style={styles.button}>
-              <View style={styles.rowPro}>
-                <Icon name="shopping-cart" size={24} color="#fff" />
-                <Text style={styles.valuePro}>Productos</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleViewGestiones} style={styles.buttonGestiones}>
-              <View style={styles.rowPro}>
-                <Icon name="file-text-o" size={24} color="#fff" />
-                <Text style={styles.valueProAmo}>Gestiones</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.rowProyect}>
-            <Text style={styles.textProyect}>
-              ${item.Valor_Cobrar_Proyectado.toFixed(2)}
-            </Text>
-            <Text
-              style={[
-                styles.textProyect,
-                {
-                  color: getColorForValue(
-                    item.Valor_Cobrar_Proyectado,
-                    item.Valor_Cobrado
-                  ),
-                },
-              ]}
-            >
-              ${item.Valor_Cobrado.toFixed(2)}
-            </Text>
-          </View>
-        </View>
-      </View>
+     <CardItem 
+        item={item} 
+        handleViewAmortizacion={handleViewAmortizacion} 
+        handleViewCel={handleViewCel} 
+        handleButtonPress={handleButtonPress} 
+        handleViewGestiones={handleViewGestiones} 
+      />
 
       {/* Primer Picker para estados */}
       <View style={styles.pickerContainer}>
@@ -702,7 +664,7 @@ export function InsertScreen({ route, navigation }) {
           </View>
         </View>
       ) : null}
-    <Telefono
+      <Telefono
         isVisible={isModalVisibleCont}
         item={item}
         onClose={handleCloseModalCel}
@@ -742,6 +704,6 @@ export function InsertScreen({ route, navigation }) {
         />
       )}
     </ScrollView>
-    
+
   );
 }

@@ -5,15 +5,17 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  Alert
 } from "react-native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { styles } from "./DashBoard.Style"; // Verifica la ruta
 import { APIURL } from "../../../../../config/apiconfig";
-import { Cash, People, Upload, CheckCircle, PendingActions, Done, Refresh, Assessment, PieChart } from "../../../../../Icons";
+import { Cash, People,  Refresh, Assessment, PieChart, Info } from "../../../../../Icons";
 import { screen } from "../../../../../utils/screenName";
 import { useAuth } from '../../../../../navigation/AuthContext'; // Importamos el contexto
 import { handleError } from '../../../../../utils/errorHandler';
+
 export function DashBoard(props) {
   const { navigation } = props;
   const [totalAmount, setTotalAmount] = useState(0); // Cambié el valor inicial a 0
@@ -22,11 +24,12 @@ export function DashBoard(props) {
   const [percentageCollected, setPercentageCollected] = useState(0);
   const [loading, setLoading] = useState(false);
   const { expireToken } = useAuth(); // Usamos el contexto de autenticación
+
   const fetchData = async () => {
     setLoading(true);
     try {
       const userInfo = await AsyncStorage.getItem("userInfo");
-      const token = await AsyncStorage.getItem("userToken"); 
+      const token = await AsyncStorage.getItem("userToken");
       const url = APIURL.postAllCountGestiones();
 
       if (userInfo) {
@@ -97,65 +100,85 @@ export function DashBoard(props) {
     });
   };
 
+  const showAlert = () => {
+    Alert.alert("Información", "Este es un mensaje de información.");
+  };
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
-        <TouchableOpacity onPress={handleNavigate} style={styles.summaryContainer}>
-          <Text style={styles.title}>Resumen de Cobranza</Text>
-          <View style={styles.row}>
-            <View style={styles.card}>
+        <View style={styles.row}>
+          <View style={styles.card}>
+            <Text style={styles.title}>Porcentaje de avance</Text>
+            <View style={styles.cardContent}>
               <View style={styles.iconContainer}>
-                <Cash size={20} color="#fff" />
+                <PieChart size={30} color="#fff" />
               </View>
               <View style={styles.valueContainer}>
-                <Text style={styles.label}>Valor Cobrado</Text>
+                <Text style={styles.summaryValue}>{percentageCollected}%</Text>
+              </View>
+            </View>
+            <View style={styles.iconContainerInfo}>
+            <TouchableOpacity onPress={showAlert}>
+              <Info size={12} color="#fff" />
+            </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.card}>
+            <Text style={styles.title}>Porcentaje Cobrado</Text>
+            <View style={styles.cardContent}>
+              <View style={styles.iconContainer}>
+                <Cash size={30} color="#fff" />
+              </View>
+              <View style={styles.valueContainer}>
                 <Text style={styles.summaryValue}>${totalAmount.toFixed(2)}</Text>
               </View>
             </View>
-            <View style={styles.card}>
+            <View style={styles.iconContainerInfo}>
+              <TouchableOpacity onPress={showAlert}>
+                <Info size={12} color="#fff" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+
+        {/* Segunda fila de recuadros */}
+        <View style={styles.row}>
+          <View style={styles.card}>
+            <Text style={styles.title}>Clientes Asignados</Text>
+            <View style={styles.cardContent}>
+
               <View style={styles.iconContainer}>
                 <People size={20} color="#fff" />
               </View>
               <View style={styles.valueContainer}>
-                <Text style={styles.label}>Clientes</Text>
                 <Text style={styles.summaryValue}>{numberOfClients}</Text>
               </View>
             </View>
           </View>
-          <View style={styles.row}>
-            <View style={styles.card}>
+          <View style={styles.card}>
+            <Text style={styles.title}>Valor Proyectado</Text>
+            <View style={styles.cardContent}>
+
               <View style={styles.iconContainer}>
                 <Assessment size={20} color="#fff" />
               </View>
               <View style={styles.valueContainer}>
-                <Text style={styles.label}>Total Proyectado</Text>
                 <Text style={styles.summaryValue}>${totalProjected.toFixed(2)}</Text>
               </View>
             </View>
-            <View style={styles.card}>
-              <View style={styles.iconContainer}>
-                <PieChart size={20} color="#fff" />
-              </View>
-              <View style={styles.valueContainer}>
-                <Text style={styles.label}>% Cobrado</Text>
-                <Text style={styles.summaryValue}>{percentageCollected}%</Text>
-              </View>
-            </View>
           </View>
-        </TouchableOpacity>
+        </View>
 
+        {/* Barra de progreso */}
         <View style={styles.summaryContainerPorc}>
           <View style={styles.containerCirclePorc}>
             <View style={styles.barContainer}>
               <View
-                style={[
-                  styles.bar,
-                  {
-                    width: `${getBarWidth(totalAmount, totalProjected)}%`, // Calcula el porcentaje de la barra
-                    backgroundColor: getBarColor(totalAmount, totalProjected), // Establece el color según el porcentaje
-                  },
-                ]}
-              >
+                style={[styles.bar, {
+                  width: `${getBarWidth(totalAmount, totalProjected)}%`, // Calcula el porcentaje de la barra
+                  backgroundColor: getBarColor(totalAmount, totalProjected), // Establece el color según el porcentaje
+                }]} >
                 <Text style={styles.barText}>
                   {`${getBarWidth(totalAmount, totalProjected).toFixed(2)}%`}
                 </Text>
@@ -163,7 +186,7 @@ export function DashBoard(props) {
             </View>
 
             <View style={styles.circleContainer}>
-              <View style={[styles.circle, { borderColor: getBarColor(totalAmount, totalProjected) }]} >
+              <View style={[styles.circle, { borderColor: getBarColor(totalAmount, totalProjected) }]}>
                 <Text style={styles.circleText}>
                   {`${getBarWidth(totalAmount, totalProjected).toFixed(2)}%`}
                 </Text>
@@ -171,58 +194,9 @@ export function DashBoard(props) {
             </View>
           </View>
         </View>
-        <View style={styles.summaryContainer}>
-          <Text style={styles.title}>Asignación diaria</Text>
-          <View style={styles.row}>
-            <TouchableOpacity
-              style={[styles.card, styles.clickableCard, styles.pendientesCard]}
-              activeOpacity={0.7}
-            >
-              <View style={styles.iconContainer}>
-                <Upload size={20} color="#fff" />
-              </View>
-              <View style={styles.valueContainer}>
-                <Text style={styles.label}>Importar</Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.card, styles.clickableCard, styles.completadosCard]}
-              activeOpacity={0.7}
-            >
-              <View style={styles.iconContainer}>
-                <CheckCircle size={20} color="#fff" />
-              </View>
-              <View style={styles.valueContainer}>
-                <Text style={styles.label}>Asignación Manual</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-        </View>
-        <TouchableOpacity style={styles.summaryContainer}>
-          <Text style={styles.title}>Verificación Terrena</Text>
-          <View style={styles.row}>
-            <View style={styles.card}>
-              <View style={styles.iconContainer}>
-                <PendingActions size={20} color="#fff" />
-              </View>
-              <View style={styles.valueContainer}>
-                <Text style={styles.label}>Pendientes</Text>
-                <Text style={styles.summaryValue}>10</Text>
-              </View>
-            </View>
-            <View style={styles.card}>
-              <View style={styles.iconContainer}>
-                <Done size={20} color="#fff" />
-              </View>
-              <View style={styles.valueContainer}>
-                <Text style={styles.label}>Completados</Text>
-                <Text style={styles.summaryValue}>5</Text>
-              </View>
-            </View>
-          </View>
-        </TouchableOpacity>
       </ScrollView>
+
+      {/* Botón flotante para actualizar */}
       <TouchableOpacity
         style={styles.fab}
         activeOpacity={0.7}

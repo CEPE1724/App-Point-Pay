@@ -143,7 +143,7 @@ export const styles = StyleSheet.create({
     marginTop: 20,
   },
   iconContainer: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#291CF5",
     padding: 5,
     borderRadius: 5,
     marginLeft: 5,
@@ -153,5 +153,79 @@ export const styles = StyleSheet.create({
     padding: 5,
     borderRadius: 5,
     marginLeft: 5,
+  },
+  iconContainerMaps: {
+    backgroundColor: "#FA6F5C",
+    padding: 5,
+    borderRadius: 5,
+    marginLeft: 5,
+  },
+  iconContainerFoto: {
+    backgroundColor: "#7DABFA",
+    padding: 5,
+    borderRadius: 5,
+    marginLeft: 5,
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Fondo oscuro para el modal
+  },
+  modalContainer: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  modalButton: {
+    fontSize: 16,
+    color: 'blue',
+    textDecorationLine: 'underline',
+  },
+  map: {
+    width: 300,
+    height: 300,
+    borderRadius: 10, // Bordes redondeados para el mapa
+    elevation: 5, // Agregar sombra para darle un efecto de elevación
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",  // Fondo oscuro semitransparente
+  },
+  modalContainer: {
+    width: "90%",
+    height: "50%",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 10,
+    alignItems: "center",
+  },
+  modalImage: {
+    width: "100%",
+    height: 300, // Ajusta el tamaño según sea necesario
+  },
+  closeIcon: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+  },
+  closeButton: {
+    padding: 10,
+    backgroundColor: "#2563eb",
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  closeButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });

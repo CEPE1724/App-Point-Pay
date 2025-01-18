@@ -5,6 +5,7 @@ import { CobranzaStack } from '../CobranzaStack';
 import { RegistroStack } from '../RegistroStack';
 import { ExitCobranzaStack } from '../ExitCobranzaStack';
 import { TerrenaStack } from "../TerrenaStack";
+import {DiariaStack} from "../DiariaStack";
 import { screen } from "../../../utils";
 import { CircleInfoIcon, Home, Book, Terrain, CalendarToday, AccountCircle} from "../../../Icons"; // Verifica que este icono esté importado correctamente
 
@@ -59,7 +60,7 @@ export function CobranzaTabs() {
             />
             <Tab.Screen
                 name={screen.gestionDiaria.tab}
-                component={CobranzaStack}
+                component={DiariaStack}
                 options={{ title: "Gestión Diaria" }}
             />
             <Tab.Screen
@@ -108,6 +109,7 @@ function renderIcon(route, color, size, focused) {
                 size={size}  // Tamaño del icono
                 color={focused ? "#ffffff" : color}  // Color del icono
             />
+        
         </View>
     );
 }

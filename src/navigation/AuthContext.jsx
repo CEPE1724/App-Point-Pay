@@ -3,7 +3,8 @@ import { View, Text } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 import axios from 'axios';  // Importamos axios para manejar solicitudes HTTP
-
+import { useDb } from '../database/db';
+import { addItemAsync, getItemsAsync, updateItemAsync } from '../database';
 // Crear el contexto de autenticación
 const AuthContext = createContext();
 
@@ -78,7 +79,6 @@ export const AuthProvider = ({ children }) => {
   // Función de login
   const login = async (token, userData) => {
     try {
-      console.log("Validando token y datos del usuario...", token, userData);
       if (token && userData) {
         await AsyncStorage.setItem('userToken', token); // Guardar el token en AsyncStorage
         await AsyncStorage.setItem('userInfo', JSON.stringify(userData)); // Guardar los datos del usuario

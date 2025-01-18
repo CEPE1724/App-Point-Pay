@@ -47,20 +47,18 @@ export function MenuTabNavigator() {
             <Tab.Screen
                 name={screen.menu.tab}
                 component={MenuTabStack}
-                options={{ tabBarStyle: { display: 'none' } }} 
+                options={{ tabBarStyle: { display: 'none' } }}
             />
-            
-           
         </Tab.Navigator>
     );
 }
 
 function renderIcon(route, color, size, focused) {
     let IconComponent = CircleInfoIcon; // Solo tienes un ícono en el ejemplo
-    if(route.name === screen.drive.tab) {
-        IconComponent = Dashboard ;
+    if (route.name === screen.drive.tab) {
+        IconComponent = Dashboard;
     }
-    if(route.name === screen.home.tab) {
+    if (route.name === screen.home.tab) {
         IconComponent = Storage;
     }
     return (

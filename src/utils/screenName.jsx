@@ -33,6 +33,7 @@ const terrenoStack = {
     inicio: "Terreno",
     insert: "TerrenoInsert",
     search: "TerrenoSearch",
+    maps : "GoogleMaps",
 }
 
 const gestionDiariaStack = {

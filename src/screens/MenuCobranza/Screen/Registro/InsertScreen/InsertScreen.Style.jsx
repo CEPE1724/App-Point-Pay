@@ -41,9 +41,9 @@ export const styles = StyleSheet.create({
     backgroundColor: '#ff5a5f',
     borderRadius: 8,
     paddingVertical: 10,
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
     alignItems: 'center',
-    marginTop: 12,
+    marginTop: 5,
   },
   buttonAmortizacion : {
     backgroundColor: '#ff8a2f',
@@ -53,13 +53,25 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
   },
+  iconsearch: {
+    position: "absolute",
+    left: 10,
+  },
   buttonGestiones : {
     backgroundColor: 'green',
     borderRadius: 8,
     paddingVertical: 10,
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
     alignItems: 'center',
-    marginTop: 12,
+    marginTop: 5,
+  },
+  buttonReferencias : {
+    backgroundColor: '#007bff',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    alignItems: 'center',
+    marginTop: 5,
   },
   rowPro: {
     flexDirection: 'row',
@@ -256,9 +268,18 @@ export const styles = StyleSheet.create({
   },
   buttonsContainer: {
     flexDirection: "row", // Esto hará que los botones se alineen horizontalmente
-    justifyContent: "space-between", // Esto separa los botones a los extremos del contenedor
+    justifyContent: "space-evenly", // Esto separa los botones a los extremos del contenedor
     alignItems: "center", // Centra los botones verticalmente en el contenedor
-    marginVertical: 20, // Margen vertical entre los botones y otros componentes
+    marginVertical: 1, // Margen vertical entre los botones y otros componentes
     paddingHorizontal: 20, // Relleno horizontal para que no toquen los bordes
+    paddingRight : 10,
+  },
+  textCell: {
+    flex: 1, // This will make the text take up all available space
+    fontSize: 12, // Increased font size for better readability
+    marginBottom: 5,
+    color: "#000000",
+    fontStyle: "italic",
+    fontWeight: "bold",
   },
 });

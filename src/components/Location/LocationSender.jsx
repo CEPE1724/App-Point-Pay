@@ -1,47 +1,55 @@
 import React, { useEffect, useState, useRef } from 'react';
 import * as Location from 'expo-location';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { APIURL } from '../../config/apiconfig';
 import io from 'socket.io-client';
 import NetInfo from '@react-native-community/netinfo';
+import { useDb } from '../../database/db';
+import { addItemAsyncUAPP, getPendingLocations, updateItemAPP, getItemsAsyncUser } from '../../database';
 
 const LocationSender = () => {
-  const [isConnected, setIsConnected] = useState(true);
+  const [isConnected, setIsConnected] = useState(true); // Estado de la conexión de red
   const socketRef = useRef(null);
   const subscriptionRef = useRef(null);
+  const { db } = useDb();
+  const [ICidIngresoCobrador, setICidIngresoCobrador] = useState(null);
+  const [ICCodigo, setICCodigo] = useState(null);
+  const [Nombre, setNombre] = useState(null);
+  const [iTipoPersonal, setITipoPersonal] = useState(null);
+  const [idUsuario, setIdUsuario] = useState(null);
+  const [Empresa, setEmpresa] = useState(null);
 
-  const debounce = (func, wait) => {
-    let timeout;
-    return function executedFunction(...args) {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func(...args), wait);
+  // Obtener datos del usuario desde la base de datos
+  useEffect(() => {
+    const fetchAsyncStorageData = async () => {
+      try {
+        const items = await getItemsAsyncUser(db);  // Obtener datos desde la base de datos
+        if (items.length > 0) {
+          setICidIngresoCobrador(items[0]?.ICidIngresoCobrador);
+          setICCodigo(items[0]?.ICCodigo);
+          setNombre(items[0]?.Nombre);
+          setITipoPersonal(items[0]?.iTipoPersonal);
+          setIdUsuario(items[0]?.idUsuario);
+          setEmpresa(items[0]?.Empresa);
+        }
+      } catch (error) {
+        console.error("Error al obtener los datos de la base de datos:", error);
+      }
     };
-  };
 
-  const sendLocationToApi = async (newLocation) => {
-    // Verifica si el usuario está logueado
-    const storedUserInfo = await AsyncStorage.getItem("userInfo");
-    const userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : {};
-    const idUser = userInfo.ingresoCobrador?.idIngresoCobrador;
-    console.log('ID de usuario:', idUser);
-    if (!idUser || idUser <= 0) {
-      console.log('Usuario no logueado o ID de usuario inválido, no se enviará la ubicación.');
+    fetchAsyncStorageData(); // Ejecutamos la función para cargar los datos
+  }, []);  // Solo ejecuta una vez cuando el componente se monte
+
+  // Función para enviar la ubicación a la API
+  const sendLocationToApi = async (location) => {
+    if (!ICidIngresoCobrador || idUsuario <= 0) {
       return;  // Si el usuario no está logueado, no se envía la ubicación
     }
 
-    if (!newLocation?.coords) {
-      console.error('Datos de ubicación inválidos, no se enviará la ubicación.');
-      return;
-    }
-
     if (!isConnected) {
-      console.log('No hay conexión a Internet, guardando ubicación localmente.');
-      await saveLocationToStorage(newLocation); // Guarda la ubicación localmente si no hay conexión
-      return;
+      return;  // No se hace nada si no hay conexión
     }
-
+   console.log("Enviando ubicación:", location);
     try {
-      console.log('Enviando ubicación:', newLocation);
       const url = APIURL.postUbicacionesAPPlocation();
       const response = await fetch(url, {
         method: 'POST',
@@ -49,68 +57,73 @@ const LocationSender = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          idUser: idUser,
-          latitude: newLocation.coords.latitude,
-          longitude: newLocation.coords.longitude,
+          idUser: idUsuario,
+          latitude: location.latitude,
+          longitude: location.longitude,
         }),
       });
 
       if (!response.ok) {
         throw new Error('Error en la solicitud');
       }
-
-      socketRef.current.emit('newLocation', { idUser, ...newLocation.coords });
+      console.log('Ubicación enviada con éxito:', location);
+      // Actualizamos el estado de la ubicación en SQLite después de enviar con éxito
+      await updateItemAPP(db, location.idUbicacionesAPP); // Marcar la ubicación como enviada
+      // Emitir evento a través del socket
+      socketRef.current.emit('newLocation', { idUsuario, ...location.coords });
     } catch (error) {
       console.error('Error enviando ubicación:', error);
-      await saveLocationToStorage(newLocation);
     }
   };
 
-  const saveLocationToStorage = async (newLocation) => {
-    // Verifica si el usuario está logueado antes de guardar la ubicación
-    const storedUserInfo = await AsyncStorage.getItem("userInfo");
-    const userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : {};
-    const idUser = userInfo.ingresoCobrador?.idIngresoCobrador;
-
-    if (!idUser || idUser <= 0) {
-      console.log('Usuario no logueado, no se guardará la ubicación localmente.');
+  // Función para guardar la ubicación en SQLite
+  const saveLocation = async (newLocation) => {
+    if (!ICidIngresoCobrador || ICidIngresoCobrador <= 0) {
       return; // Solo guarda si el usuario está logueado
     }
 
     try {
-      const storedLocations = await AsyncStorage.getItem('offlineLocations');
-      const locations = storedLocations ? JSON.parse(storedLocations) : [];
-      locations.push({
-        latitude: newLocation.coords.latitude,
-        longitude: newLocation.coords.longitude,
-        timestamp: newLocation.timestamp,
-      });
-      await AsyncStorage.setItem('offlineLocations', JSON.stringify(locations));
-      console.log('Ubicación guardada localmente.');
+      // Guardamos siempre en SQLite (independientemente de la conexión)
+      await addItemAsyncUAPP(
+        db,
+        newLocation.coords.latitude,
+        newLocation.coords.longitude,
+        ICidIngresoCobrador,
+        ICCodigo,
+        Nombre,
+        iTipoPersonal,
+        idUsuario,
+        Empresa
+      );
+      console.log("Ubicación guardada localmente:", newLocation);
     } catch (error) {
-      console.error('Error guardando ubicación:', error);
+      console.error('Error guardando ubicación en SQLite:', error);
+    }
+
+    // Después de guardar, intentamos enviar las ubicaciones pendientes
+    if (isConnected) {
+      await sendPendingLocations();
     }
   };
 
-  const saveLocation = debounce((newLocation) => {
-    console.log('Guardando ubicación:', newLocation);
-    sendLocationToApi(newLocation);
-  }, 3000);
+  // Función para enviar ubicaciones pendientes (ubicaciones no enviadas) desde SQLite
+  const sendPendingLocations = async () => {
+    const pendingLocations = await getPendingLocations(db);  // Obtener las ubicaciones pendientes (sin enviar)
+    if (pendingLocations.length === 0) {
+      console.log('No hay ubicaciones pendientes para enviar.');
+      return;
+    }
 
-  const sendStoredLocations = async () => {
-    const storedLocations = await AsyncStorage.getItem('offlineLocations');
-    if (storedLocations) {
-      const locations = JSON.parse(storedLocations);
-      for (const loc of locations) {
-        await sendLocationToApi(loc).catch(error => console.error('Error enviando ubicación almacenada:', error));
-      }
-      await AsyncStorage.removeItem('offlineLocations');
+    // Intentamos enviar cada ubicación pendiente
+    for (const location of pendingLocations) {
+      await sendLocationToApi(location);
     }
   };
 
+  // Efecto para gestionar la conexión de red y obtener la ubicación
   useEffect(() => {
     const unsubscribeNetInfo = NetInfo.addEventListener(state => {
-      setIsConnected(state.isConnected);
+      setIsConnected(state.isConnected); // Actualizar estado de la conexión de red
     });
 
     const initializeSocket = () => {
@@ -128,22 +141,25 @@ const LocationSender = () => {
         return;
       }
 
+      // Usamos watchPositionAsync para obtener actualizaciones de ubicación
       subscriptionRef.current = await Location.watchPositionAsync(
         {
           accuracy: Location.Accuracy.High,
-          timeInterval: 300000, // 5 minutos
-          distanceInterval: 50, // 50 metros
+          timeInterval: 90000, // Actualización cada 10 segundos
+          distanceInterval: 50, // Actualización cada 10 metros
         },
         (newLocation) => {
-          saveLocation(newLocation);
+          saveLocation(newLocation);  // Guardamos y luego intentamos enviar ubicaciones pendientes
         }
       );
     };
 
     getLocationUpdates();
 
-    // Envía las ubicaciones guardadas si hay alguna en el almacenamiento local
-    sendStoredLocations();
+    // Intentar enviar las ubicaciones pendientes al inicio si hay conexión
+    if (isConnected) {
+      sendPendingLocations();  // Intenta enviar las ubicaciones guardadas localmente
+    }
 
     return () => {
       unsubscribeNetInfo();
@@ -152,7 +168,7 @@ const LocationSender = () => {
       }
       socketRef.current.disconnect();
     };
-  }, [isConnected]);
+  }, [isConnected]);  // Solo vuelve a ejecutarse cuando cambia el estado de conexión
 
   return null; // Este componente no renderiza nada directamente
 };

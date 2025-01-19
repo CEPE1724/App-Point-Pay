@@ -95,7 +95,7 @@ export default function PinInput({ navigation }) {
             if (keys === pin.join('')) {
                 login(items[0]?.KeyDispositivo, items[0]?.usuario); // Utiliza el usuario almacenado
             } else {
-                Alert.alert("Error", "Credenciales incorrectas");
+                Alert.alert("Error", "Credenciales incorrectas!");
             }
         } catch (error) {
             console.error('Error en printAsyncStorageNotConnected', error);

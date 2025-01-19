@@ -14,13 +14,14 @@ import PinConfigurado from "../screens/PinConfigurado/PinConfigurado";
 import LoginPin from "../screens/LoginPin/LoginPin";
 import LocationSender from "../components/Location/LocationSender";
 import { useAuth } from "../navigation/AuthContext"; // Usamos el hook de autenticación
-
+import { useDb } from '../database/db';
+import { getItemsAsync, getItemsAsyncUser } from '../database';
+import { migrateDbIfNeeded } from '../database/migrations';
 // Crear los navegadores de stack y tabs
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function TabNavigator() {
-  console.log("TabNavigator");
   return (
     <>
       <LocationSender />
@@ -47,26 +48,39 @@ function TabNavigator() {
 }
 
 export function AppNavigator() {
-  const { isLoggedIn, login, logout, hasRegistered, setRegistrationStatus } = useAuth(); // Usamos el hook para acceder al estado de autenticación
+  const { isLoggedIn, login, logout, hasRegistered, setRegistrationStatus } = useAuth();  // Obtener los valores del contexto
+  console.log("isLoggedInAA", hasRegistered);
+
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [items, setItems] = useState([]);
+  const [itemsUser, setItemsUser] = useState([]);
+  const { db } = useDb();
 
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
-        const keyData = await AsyncStorage.getItem("userData");
-        if (keyData) {
-          const parsedKeyData = JSON.parse(keyData);
-          if (parsedKeyData.keyDispositivo && parsedKeyData.kEYdATA) {
-            setRegistrationStatus(true); // Si ambos valores son válidos, marcar como registrado
+        console.log("Iniciando migración de la base de datos...");
+        await migrateDbIfNeeded(db); // Asegúrate de que las tablas estén creadas
+        console.log("Migración completada");
+  
+        const fetchedItems = await getItemsAsync(db);
+        const fetchedItemsUser = await getItemsAsyncUser(db);
+        setItems(fetchedItems || []);
+        setItemsUser(fetchedItemsUser || []);
+  
+        if (fetchedItems && fetchedItems.length > 0) {
+          if (fetchedItems[0].KeyDispositivo && fetchedItems[0].kEYdATA) {
+            setRegistrationStatus(true);
           } else {
+            console.log("keyDatafalse", fetchedItems[0].kEYdATA);
             setRegistrationStatus(false);
           }
         } else {
+          console.log("keyDatafalseVida", fetchedItems[0]?.kEYdATA);
           setRegistrationStatus(false);
         }
-
-        const token = await AsyncStorage.getItem("userToken");
-        // El estado `isLoggedIn` se maneja ahora desde el contexto, no hace falta setearlo aquí
+  
+        const token = fetchedItemsUser[0]?.token;
         if (token) {
           login(); // Si hay token, el usuario está logueado
         } else {
@@ -75,16 +89,18 @@ export function AppNavigator() {
       } catch (error) {
         console.error("Error checking login status or fetching AsyncStorage keys:", error);
       } finally {
-        setIsCheckingAuth(false);
+        setIsCheckingAuth(false); // Asegúrate de que esto se ejecuta
       }
     };
+  
     checkLoginStatus();
-  }, [login, logout, setRegistrationStatus]);
-
+  }, [login, logout, setRegistrationStatus, db]);
+  
   if (isCheckingAuth) {
+    console.log("isCheckingAuth", isCheckingAuth);
     return <SplashScreen />;
   }
-
+  console.log("hasregister", hasRegistered);
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {/* Si el dispositivo está registrado, mostramos el flujo de login o la app */}

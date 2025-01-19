@@ -2,27 +2,33 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';  // Para los íconos
 import point from "../../../assets/Point.png";
+import { styles } from './PinConfigurado.Style'; // Importar estilos
 import { useAuth } from "../../navigation/AuthContext"; // Importar el contexto de autenticación
+
 export default function PinConfigurado({ navigation }) {
   const { width, height } = Dimensions.get('window');
-  const { stlogoutEmail } = useAuth(); // Accedemos a la función login desde el contexto
-  // Función que maneja el inicio de sesión (puedes ajustarla según tu lógica)
+  const { setRegistrationStatus } = useAuth(); // Accedemos a la función setRegistrationStatus desde el contexto
+
+  // Función que maneja el inicio de sesión (y el cambio de estado de registro)
   const handleLogin = () => {
-    // Aquí puedes realizar la lógica para iniciar sesión
-    stlogoutEmail(true); // Llamamos a la función de cierre de sesión
+    setRegistrationStatus(true); // Establecemos el estado de registro a true cuando el usuario ha configurado el PIN
+    
+    // Aquí puedes redirigir al usuario después de la configuración del PIN
+    // Por ejemplo, si deseas navegar a la pantalla principal, podrías hacer algo como esto:
+    //navigation.navigate("Main"); // Asegúrate de que "Main" sea el nombre correcto de tu pantalla principal
   };
 
   return (
     <View style={styles.container}>
       <Image
-            source={point}
-            style={[styles.image, { 
-              width: 150, // Ajuste fijo en píxeles
-              height: 60, // Ajuste fijo en píxeles
-              marginBottom: 0 
-            }]} // La mitad del tamaño original
-            resizeMode="contain"
-          />
+        source={point}
+        style={[styles.image, { 
+          width: 150, // Ajuste fijo en píxeles
+          height: 60, // Ajuste fijo en píxeles
+          marginBottom: 0 
+        }]} // La mitad del tamaño original
+        resizeMode="contain"
+      />
       <View style={styles.iconContainer}>
         <Icon name="fingerprint" size={60} color="#00416D" style={styles.cedulaIcon} />
       </View>
@@ -39,49 +45,3 @@ export default function PinConfigurado({ navigation }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F4F4F9',
-    paddingHorizontal: 20,
-  },
-  iconContainer: {
-    alignItems: 'center',
-    marginBottom: 30,
-  },
-  cedulaIcon: {
-    marginTop: 10,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#00416D',
-    marginBottom: 15,
-  },
-  message: {
-    fontSize: 16,
-    color: '#333',
-    textAlign: 'center',
-    marginBottom: 30,
-  },
-  pinText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#00416D',
-  },
-  button: {
-    backgroundColor: '#00416D',
-    paddingVertical: 12,
-    paddingHorizontal: 40,
-    borderRadius: 8,
-    marginTop: 20,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-});

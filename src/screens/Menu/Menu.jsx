@@ -1,51 +1,43 @@
 import { styles } from "./Menu.Style";
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native'; // Importamos useNavigation
-import { Storage, Location, Exit } from '../../Icons';
+import {  Location, Exit } from '../../Icons';
 import LogoCobranza from '../../../assets/PontyDollar.png';
 import LogoVentas from '../../../assets/PointVentas.png';
 import logo from '../../../assets/Point.png';
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { User } from '../../Icons';
-import { useAuth } from '../../navigation/AuthContext'; // Importamos el contexto
+import { useAuth } from '../../navigation/AuthContext'; // Importamos el contexto de autenticación
+import { useDb } from '../../database/db';
+import { getItemsAsyncMenu } from '../../database';
 
 export function Menu({ navigation }) {
   const { logout } = useAuth(); // Usamos el contexto de autenticación
   const [permisosMenu, setPermisosMenu] = useState([]);
+  const { db } = useDb();
+  const [dbMenu, setDbMenu] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Obtener la información del usuario desde AsyncStorage
-        const userInfo = await AsyncStorage.getItem("userInfo");
+        // Obtener la información del menú desde la base de datos
+        const items = await getItemsAsyncMenu(db);
+        console.log('Permisos del menú:', items);
 
-        if (userInfo) {
-          // Convertir la cadena JSON a un objeto JavaScript
-          const parsedUserInfo = JSON.parse(userInfo);
-          
-          // Acceder a permisosMenu dentro del objeto parsedUserInfo
-          console.log("Permisos Menu:", parsedUserInfo.permisosMenu);
-
-          // Guardar permisosMenu en el estado
-          setPermisosMenu(parsedUserInfo.permisosMenu);
-        } else {
-          console.log("No user info found in AsyncStorage");
-        }
+        // Filtramos para obtener solo los valores de 'Menu' relevantes (1 para Cobranza y 2 para Ventas)
+        const menuPermissions = items.map(item => item.Menu);
+        setPermisosMenu(menuPermissions); // Guardar los permisos en el estado
       } catch (error) {
         console.error('Error fetching data from AsyncStorage:', error);
       }
     };
 
     fetchData();
-  }, []);
+  }, [db]);
 
   const salir = async () => {
-    //await removeSpecificItems(); // Limpiar datos del usuario en AsyncStorage
-    logout(); // Ejecutamos el logout del contexto
+    // Ejecuta el logout del contexto
+    logout();
   };
-
- 
   return (
     <View style={styles.container}>
       <Image

@@ -22,7 +22,7 @@ export const addItemAsync = async (db, data, nombre) => {
 
     try {
         // Eliminar regsitros
-        await db.execAsync('DELETE FROM dispositivosapp');
+        await db.runAsync('DELETE FROM dispositivosapp');
         console.log("Registros eliminados correctamente.");
         // Usa 'INSERT OR REPLACE' para insertar o reemplazar un registro si ya existe
         const result = await db.runAsync(

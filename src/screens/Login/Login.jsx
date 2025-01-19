@@ -15,7 +15,7 @@ import point from "../../../assets/Point.png";
 import logo from "../../../assets/PontyDollar.png";
 import { styles } from "./Login.Style";
 import { useDb } from '../../database/db';
-import { addItemAsync, getItemsAsync, updateItemAsync } from '../../database';
+import { getItemsAsync } from '../../database';
 
 export default function Login({ navigation }) {
   const { width, height } = Dimensions.get("window");
@@ -27,21 +27,7 @@ export default function Login({ navigation }) {
   useEffect(() => {
     const fetchAsyncStorageData = async () => {
       try {
-        // Obtener el objeto 'userData' desde AsyncStorage
-        const userDataString = await AsyncStorage.getItem("userData");
-
-        if (userDataString) {
-          // Parsear el objeto 'userData'
-          const userData = JSON.parse(userDataString);
-
-          // Ahora puedes acceder a 'iTipoPersonal' de 'userData'
-          const tipoPersona = userData.iTipoPersonal;
-          setIdTipoPersona(tipoPersona); // Guardamos 'iTipoPersonal' en el estado
-          console.log("iTipoPersonal:", tipoPersona); // Mostrar en consola
-
-        } else {
-          console.log("No se encontró 'userData' en AsyncStorage.");
-        }
+        // Inicializar la base de datos
         const items = await getItemsAsync(db);
         setDbDispositivos(items); // Guardar los dispositivos en el estado
         console.log("Datos de la base de datos:", items);
@@ -102,7 +88,7 @@ export default function Login({ navigation }) {
 
         <View style={styles.buttonContainer}>
           {/* Mostrar ambos botones si idTipoPersona es "1" */}
-          {idTipoPersona === "1" && (
+          { parseInt(dbDispositivos[0]?.iTipoPersonal) === 1 && (
             <>
               <TouchableOpacity
                 style={[styles.cardButton, styles.button]}
@@ -123,7 +109,7 @@ export default function Login({ navigation }) {
           )}
 
           {/* Mostrar solo el botón de PIN si idTipoPersona es "2" */}
-          {idTipoPersona === "2" && (
+          {parseInt(dbDispositivos[0]?.iTipoPersonal) === "2" && (
             <TouchableOpacity
               style={[styles.cardButton, styles.button]}
               onPress={handleButtonPressPin}

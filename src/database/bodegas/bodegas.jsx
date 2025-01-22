@@ -52,6 +52,18 @@
         }
     };
     
+    export const getItemsAsyncBodegaALL = async (db) => {
+
+        try {
+            const query = 'SELECT * FROM Bodegas';
+            const items = await db.getAllAsync(query);
+            return items;
+
+        } catch (error) {
+            console.error("Error al obtener bodegas:", error);
+            return [];
+        }
+    };
     
     
                  

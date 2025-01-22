@@ -167,4 +167,42 @@ export const styles = StyleSheet.create({
   alignItems: 'center', // Alinea verticalmente los elementos en el centro
   flex: 1, // Ocupa todo el espacio disponible
   },
+
+
+  cardRowContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 15,
+  },
+  individualCard: {
+    borderRadius: 15,
+    backgroundColor: '#ffffff',
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 5,
+    marginBottom: 1,
+    flex: 1,
+    marginHorizontal: 5, // Ajuste de espacio entre tarjetas
+    padding: 15,
+    shadowOpacity: 0.2,
+    elevation: 8,
+  },
+  cardContentWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconWrapper: {
+    backgroundColor: '#3b5998',
+    borderRadius: 30,
+    padding: 10,
+    marginRight: 50,
+  },
+  valueWrapper: {
+    flex: 1,
+  },
+  valueText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+
 });

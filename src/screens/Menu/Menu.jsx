@@ -27,7 +27,7 @@ export function Menu({ navigation }) {
         const menuPermissions = items.map(item => item.Menu);
         setPermisosMenu(menuPermissions); // Guardar los permisos en el estado
       } catch (error) {
-        console.error('Error fetching data from AsyncStorage:', error);
+        console.error('Error fetching data from :', error);
       }
     };
 
@@ -45,7 +45,7 @@ export function Menu({ navigation }) {
         style={[styles.image, { width: 150, height: 60, marginBottom: 20 }]}
         resizeMode="contain"
       />
-      <Text style={styles.title}>Versión: 2.3.1.0 </Text>
+      <Text style={styles.title}>Versión: 2.4.1.0 </Text>
 
       <View style={styles.cardContainer}>
         {/* Condicional para mostrar "Cobranza" si permisosMenu incluye el valor 1 */}

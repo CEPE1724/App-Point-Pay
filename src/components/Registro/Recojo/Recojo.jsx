@@ -17,9 +17,10 @@ import { styles } from "./Recojo.Style";
 import { Trash, Upload } from '../../../Icons';
 import Icon from "react-native-vector-icons/FontAwesome";
 import * as ImagePicker from "expo-image-picker";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from '../../../navigation/AuthContext'; // Importamos el contexto
 import { handleError } from '../../../utils/errorHandler'; // Importamos la función para manejar errores
+import { useDb } from '../../../database/db'; // Importa la base de datos
+import { getItemsAsyncUser } from '../../../database';
 export function Recojo({ route, setModalVisibleRecojo, setSubmittedDataRecojo, setSelectedResultado }) {
   const { item } = route.params;
   const [productos, setProductos] = useState([]);
@@ -28,15 +29,14 @@ export function Recojo({ route, setModalVisibleRecojo, setSubmittedDataRecojo, s
   const idMotivo = 0;
   const { expireToken } = useAuth(); // Usamos el contexto de autenticación
   const [token, setToken] = useState(null);
-      const [userInfoLoaded, setUserInfoLoaded] = useState(false);  // Para saber si los datos del token ya se han cargado
+  const { db } = useDb();
+  const [userInfoLoaded, setUserInfoLoaded] = useState(false);  // Para saber si los datos del token ya se han cargado
       useEffect(() => {
-        // Función para obtener el token desde AsyncStorage
         const fetchUserInfo = async () => {
             try {
-                const storedToken = await AsyncStorage.getItem("userToken");
-                setToken(storedToken);
-                console.log("Token:", storedToken);
-            } catch (error) {
+                const Item = await getItemsAsyncUser(db);
+                setToken(Item[0]?.token);
+            } catch (error) { 
                 console.error("Error fetching user info:", error);
             } finally {
                 setUserInfoLoaded(true);  // Marcamos que ya se cargó el token

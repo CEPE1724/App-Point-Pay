@@ -5,7 +5,8 @@ import { styles } from './Calendario.Style'; // Import your styles
 import { APIURL } from "../../../../../config/apiconfig";
 import axios from 'axios';
 import { screen } from "../../../../../utils/screenName";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useDb } from '../../../../../database/db'; // Importa la base de datos
+import { getItemsAsyncUser } from '../../../../../database';
 
 export function Calendario(props) {
   const { navigation } = props;
@@ -14,18 +15,17 @@ export function Calendario(props) {
   const [userInfo, setUserInfo] = useState({ ingresoCobrador: "" });
   const numColumns = 2; // Set your desired number of columns here
   const [token, setToken] = useState(null);
-
+  const { db } = useDb();
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const storedUserInfo = await AsyncStorage.getItem("userInfo");
-        const token = await AsyncStorage.getItem("userToken");
-        setToken(token);
-        if (storedUserInfo) {
-          const user = JSON.parse(storedUserInfo);
+        const Item = await getItemsAsyncUser(db);
+        console.log("Itemcalendario", Item);
+        if (Item) {
+          setToken(Item[0]?.token);
           setUserInfo({
-            ingresoCobrador: userInfo.ingresoCobrador || "",
-            Usuario: user.ingresoCobrador.Codigo || "",
+            ingresoCobrador: Item[0]?.ICidIngresoCobrador || "",
+            Usuario: Item[0]?.ICCodigo || ""
           });
         }
       } catch (error) {
@@ -101,7 +101,7 @@ export function Calendario(props) {
               />
             );
           }}
-          numColumns={numColumns} 
+          numColumns={numColumns}
         />
       )}
 

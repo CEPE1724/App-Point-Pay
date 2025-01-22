@@ -35,7 +35,8 @@ export const addItemAsyncUser = async (db, data, isConnected) => {
                     Com_CargosDeVentas,
                     Com_Rango,
                     NombreApellido,
-                    Empresa
+                    Empresa,
+                    Clave
                 ) VALUES (
                     '${data.token}',
                     ${data.usuario.idUsuario},
@@ -50,10 +51,12 @@ export const addItemAsyncUser = async (db, data, isConnected) => {
                     '${data.usuario.cargosDeVentas || ''}',
                     '${data.usuario.Com_Rango || ''}',
                     '${data.usuario.NombreApellido || ''}',
-                    '${data.usuario.Empresa || ''}'
+                    '${data.usuario.Empresa || ''}',
+                    '${data.usuario.Clave || ''}'
                 );
             `);
             console.log("Usuario agregado correctamente.");
+            console.log("Usuario", data.token);
         } catch (error) {
             console.log("Error addItemAsyncUser", error);
         }

@@ -89,7 +89,7 @@ export default function FormularioRegistro({ navigation }) {
     const hasConsecutiveNumbers = /(\d)\1/.test(inputPin);
     const hasSequentialNumbers = /012|123|234|345|456|567|678|789/.test(inputPin);
     return !hasConsecutiveNumbers && !hasSequentialNumbers;
-  };
+  }; 
 
   // Función para manejar el cambio en el PIN
   const handlePinChange = (inputPin) => {

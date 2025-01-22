@@ -11,11 +11,12 @@ import { styles } from "./ClientesScreen.style";
 import { useNavigation } from "@react-navigation/native";
 import { screen } from "../../../../../utils/screenName";
 import { APIURL } from "../../../../../config/apiconfig";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CardCliente } from "../../../../../components";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useAuth } from "../../../../../navigation/AuthContext";
 import { handleError } from '../../../../../utils/errorHandler';
+import { useDb } from '../../../../../database/db'; // Importa la base de datos
+import { getItemsAsyncUser } from '../../../../../database';
 
 export function ClientesScreen(props) {
   const { navigation } = props;
@@ -28,22 +29,20 @@ export function ClientesScreen(props) {
   const [filtro, setFiltro] = useState("");
   const [countData, setCountData] = useState([]);
   const [token, setToken] = useState(null);
-  const { expireToken } = useAuth(); 
-  // Fetch user info and token from AsyncStorage
+  const { expireToken } = useAuth();
+  const { db } = useDb();
+  // Fetch user info and token from 
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const storedUserInfo = await AsyncStorage.getItem("userInfo");
-        const storedToken = await AsyncStorage.getItem("userToken");
 
-        if (storedUserInfo) {
-          const user = JSON.parse(storedUserInfo);
-          setUserInfo({
-            ingresoCobrador: user.ingresoCobrador.idIngresoCobrador || "",
-          });
+        const Item = await getItemsAsyncUser(db);
+
+        if (Item) {
+          setToken(Item[0]?.token);
+          setUserInfo({ ingresoCobrador: Item[0]?.ICidIngresoCobrador || "" });
           setUserInfoLoaded(true);
         }
-        setToken(storedToken);
       } catch (error) {
         console.error("Error fetching user info:", error);
         setUserInfoLoaded(true);
@@ -122,7 +121,7 @@ export function ClientesScreen(props) {
       console.error("Error en la configuración de la solicitud:", error.message);
     }
   };
-  
+
   // Handle icon press actions based on item and type
   const handleIconPress = (item, tipo) => {
     const targetScreen =
@@ -131,12 +130,12 @@ export function ClientesScreen(props) {
           ? screen.terreno.insert
           : screen.terreno.search
         : item.idTerrenaGestionTrabajo === 0
-        ? screen.terreno.insert
-        : screen.terreno.search;
+          ? screen.terreno.insert
+          : screen.terreno.search;
 
     navigation.navigate(targetScreen, { item, tipo });
   };
-  
+
 
   // Calculate totals for client status
   const totalPendiente =

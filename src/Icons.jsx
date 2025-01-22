@@ -7,6 +7,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Fontisto from '@expo/vector-icons/Fontisto';
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
+
 import Entypo from '@expo/vector-icons/Entypo';
 //https://icons.expo.fyi/Index
 import Octicons from '@expo/vector-icons/Octicons';
@@ -179,5 +180,21 @@ export  const shoppingSearch = (props) =>{
 
 export  const shoppingSale = (props) =>{
   return <Fontisto name="shopping-sale" size={props.size} color={props.color} />
+}
+
+export  const Doorclose = (props) =>{
+  return <FontAwesome5 name="door-closed" size={props.size} color={props.color} />
+}
+
+export  const Dooropen = (props) =>{
+  return <FontAwesome5 name="door-open" size={props.size} color={props.color} />
+}
+
+export  const Almuerzo = (props) =>{
+  return <MaterialCommunityIcons name="silverware-fork-knife" size={props.size} color={props.color} />
+}
+
+export  const ExitAlmuerzo = (props) =>{
+  return <MaterialCommunityIcons name="silverware-variant" size={props.size} color={props.color} />
 }
 

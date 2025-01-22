@@ -20,6 +20,13 @@ import logo from "../../../assets/PontyDollar.png";
 import { APIURL } from "../../config/apiconfig";
 import { styles } from "./LoginScreen.Style";
 import { useAuth } from "../../navigation/AuthContext"; // Importar el contexto de autenticación
+import NetInfo from '@react-native-community/netinfo'; // Importa NetInfo
+import { useDb } from '../../database/db';
+import {
+  addItemAsyncUser, addItemAsyncBodega, addItemAsyncMenu, getItemsAsync,
+  ListadoEstadoGestion, ListadoResultadoGestion, ListadoEstadoTipoContacto, ListadoCuenta
+} from '../../database';
+import { Wifi, WifiOff } from '../../Icons';
 
 export default function LoginScreen({ navigation }) {
   const { login } = useAuth(); // Accedemos a la función login desde el contexto
@@ -34,48 +41,38 @@ export default function LoginScreen({ navigation }) {
   const { width, height } = Dimensions.get("window");
   const [idTipoPersona, setIdTipoPersona] = useState(null);
   const [keyDispositivo, setKeyDispositivo] = useState(null);
-
+  const [isConnected, setIsConnected] = useState(false);
+  const [items, setItems] = useState([]);
+  const { db, initializeDb } = useDb();
   // useEffect para imprimir los datos de AsyncStorage al cargar el componente
+
   useEffect(() => {
-    const printAsyncStorage = async () => {
+    const initDb = async () => {
+      await initializeDb();
+    };
+    initDb();
+  }, [initializeDb]);
+
+  useEffect(() => {
+    const fetchItems = async () => {
       try {
-        const keys = await AsyncStorage.getAllKeys();  // Obtener todas las claves de AsyncStorage
-        const result = await AsyncStorage.multiGet(keys);  // Obtener los valores asociados a esas claves
-
-        result.forEach(([key, value]) => {
-          console.log(`Clave: ${key}, Valor: ${value}`);
-
-          if (key === "userToken" || key === "userInfo" || key === "userName" || key === "userId" || key === "userBodega" || key === "userPermiso") {
-            console.log(`Dato de ${key}:`, value);
-          }
-
-          // Si existe el 'userData' almacenado
-          if (key === "userData" && value) {
-            const parsedValue = JSON.parse(value);
-            console.log("Datos completos del usuario:", parsedValue);
-            // Aquí puedes acceder a las propiedades de 'userData' si las necesitas
-            setIdTipoPersona(parsedValue.Empresa);
-            setKeyDispositivo(parsedValue.keyDispositivo);
-            console.log("keyDispositivo:", parsedValue.Empresa);
-          }
-        });
+        const fetchedItems = await getItemsAsync(db);
+        setItems(fetchedItems);
       } catch (error) {
-        console.error("Error al obtener datos de AsyncStorage:", error);
+        console.error('Error fetching items:', error);
       }
     };
-
-    printAsyncStorage();
-  }, []); // Se ejecuta una sola vez cuando se monta el componente
-
-  // useEffect para detectar cuando el valor de idTipoPersona cambia
+    fetchItems();
+  }, []); // Se ejecuta solo una vez al montar el componente
   useEffect(() => {
-    if (idTipoPersona !== null) {
-      console.log("KeyBuild:", idTipoPersona);  // Se captura el valor de idTipoPersona después de que cambia
-    }
-    if (keyDispositivo !== null) {
-      console.log("keyDispositivo:", keyDispositivo);  // Se captura el valor de keyDispositivo después de que cambia
-    }
-  }, [idTipoPersona, keyDispositivo]); // Se ejecuta cada vez que idTipoPersona o keyDispositivo cambian
+    const unsubscribe = NetInfo.addEventListener(state => {
+      setIsConnected(state.isConnected);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   const handleEmailChange = (text) => {
     setEmail(text);
@@ -103,7 +100,75 @@ export default function LoginScreen({ navigation }) {
       setShowPasswordFields(true);
       animateOpacity();
     } else {
-      await loginUser();
+      await handlePinComplete();
+    }
+  };
+
+  const handlePinComplete = () => {
+    setIsLoading(true);
+    if (!isConnected) {
+      //printAsyncStorageNotConnected();
+      return;
+    }
+
+    // Si hay conexión, proceder a validar con el servidor
+    if (!items || items.length === 0) {
+      Alert.alert("Error", "No se encontraron datos en el dispositivo.");
+      setIsLoading(false);
+      return;
+    }
+
+    printAsyncStorage();
+  };
+  const printAsyncStorageNotConnected = async () => {
+    try {
+      console.log('items', items);
+      const clave = items[0]?.Clave;
+      const keys = items[0]?.kEYdATA;
+      if (keys === clave) {
+        login(items[0]?.KeyDispositivo, items[0]?.usuario); // Utiliza el usuario almacenado
+      } else {
+        Alert.alert("Error", "Credenciales incorrectas!");
+      }
+    } catch (error) {
+      console.error('Error en printAsyncStorageNotConnected', error);
+      setIsLoading(false);
+    }
+  };
+
+  const printAsyncStorage = async () => {
+    try {
+      if (items.length === 0) {
+        Alert.alert("Error", "No se encontraron datos .");
+        setIsLoading(false);
+        return;
+      }
+      console.log('items', email, password, keyDispositivo);
+      const url = APIURL.senLoginV1();
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre: email, clave: password, keyDispositivo: items[0]?.KeyDispositivo, KeyBuild: 1 }),
+      });
+
+      const data = await response.json();
+      if (data.estado === "success") {
+        await addItemAsyncUser(db, data, isConnected);
+        await addItemAsyncBodega(db, data, isConnected);
+        await addItemAsyncMenu(db, data, isConnected);
+        await ListadoEstadoGestion(db, data, isConnected);
+        await ListadoResultadoGestion(db, data, isConnected);
+        await ListadoEstadoTipoContacto(db, data, isConnected);
+        await ListadoCuenta(db, data, isConnected);
+        login(data.token, data.usuario); // Almacenar el token y los datos del usuario
+      } else {
+        Alert.alert("Error", data.message || "Credenciales incorrectas");
+      }
+    } catch (error) {
+      Alert.alert("Error", "Hubo un problema al iniciar sesión. Inténtalo de nuevo.");
+      console.error('Error al hacer login con PIN', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -115,57 +180,8 @@ export default function LoginScreen({ navigation }) {
     }).start();
   };
 
-  const loginUser = async () => {
-    if (!email || !password) {
-      Alert.alert("Error", "Por favor ingresa tus credenciales.");
-      return;
-    }
-    if(!idTipoPersona || !keyDispositivo) {
-      Alert.alert("Error", "No se ha podido obtener el KeyBuild o el keyDispositivo.");
-      return
-    }
-    setIsLoading(true);
 
-    try {
-      const url = APIURL.senLoginV1();
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nombre: email, clave: password, keyDispositivo: keyDispositivo, KeyBuild: idTipoPersona }),
-      });
 
-      const data = await response.json();
-      console.log("Inicio de sesión exitoso:", data);
-
-      if (data.estado === "success") {
-        await storeUserData(data); // Guardar datos en AsyncStorage
-        console.log("Datos del usuario guardados con éxito", data);
-        login(); // Llamar a la función login del contexto para actualizar el estado global
-      } else {
-        Alert.alert("Error", data.message || "Credenciales incorrectas");
-      }
-    } catch (error) {
-      Alert.alert("Error", "Hubo un problema al iniciar sesión. Inténtalo de nuevo.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const storeUserData = async (data) => {
-    try {
-      // Guardamos el token y los detalles del usuario en AsyncStorage
-      await AsyncStorage.setItem("userToken", data.token);
-      await AsyncStorage.setItem("userInfo", JSON.stringify(data.usuario));
-      await AsyncStorage.setItem("userName", data.usuario.Nombre);
-      await AsyncStorage.setItem("userId", String(data.usuario.idUsuario));
-      await AsyncStorage.setItem("userBodega", JSON.stringify(data.usuario.bodegas));  // Guardamos bodegas como JSON
-      await AsyncStorage.setItem("userPermiso", JSON.stringify(data.usuario.permisosMenu));  // Guardamos permisosMenu como JSON
-
-      console.log("Datos del usuario guardados con éxito");
-    } catch (error) {
-      console.error("Error al guardar datos en AsyncStorage:", error);
-    }
-  };
 
   const handleBack = () => {
     console.log("Going back...");
@@ -250,7 +266,7 @@ export default function LoginScreen({ navigation }) {
           <Text style={styles.buttonTextBack}>Regresar</Text>
         </TouchableOpacity>
 
-        <Text style={styles.version}>Versión: 2.3.1.0</Text>
+        <Text style={styles.version}>Versión: 2.4.1.0</Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );

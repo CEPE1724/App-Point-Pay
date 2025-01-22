@@ -6,7 +6,7 @@ export const migrateDbIfNeeded = async (db) => {
     let { user_version: currentDbVersion } = result;
     console.log("Versión actual de la base de datos:", currentDbVersion);
     console.log("Versión de la base de datos esperada:", DataVersion);
-    
+
     // Si la base de datos está en una versión no válida o es la primera vez, inicia la migración
     if (currentDbVersion === undefined || currentDbVersion === 0) {
       //console.log("Iniciando migración para la versión 1...");
@@ -47,7 +47,8 @@ export const migrateDbIfNeeded = async (db) => {
           Com_CargosDeVentas TEXT NOT NULL DEFAULT '',
           Com_Rango TEXT NOT NULL DEFAULT '',
           NombreApellido TEXT NOT NULL DEFAULT '',
-          UsuarioActivo INTEGER NOT NULL DEFAULT 0
+          UsuarioActivo INTEGER NOT NULL DEFAULT 0,
+          Clave TEXT NOT NULL DEFAULT ''
         );
       `);
 
@@ -90,14 +91,70 @@ export const migrateDbIfNeeded = async (db) => {
         );
       `);
 
+      await db.execAsync(`
+        CREATE TABLE IF NOT EXISTS DashboardMetrics (
+           id INTEGER PRIMARY KEY AUTOINCREMENT,
+           ICidIngresoCobrador INTEGER NOT NULL,
+           totalAmount FLOAT DEFAULT 0,  
+           numberOfClients INTEGER DEFAULT 0,  
+           totalProjected FLOAT DEFAULT 0, 
+           percentageCollected FLOAT DEFAULT 0  );
+      `);
+
+      await db.execAsync(`
+        CREATE TABLE IF NOT EXISTS AccionesUbicaciones (
+    idAccion INTEGER PRIMARY KEY AUTOINCREMENT,  
+    tipoAccion TEXT NOT NULL,                    
+    latitude FLOAT NOT NULL,                     
+    longitude FLOAT NOT NULL,                     
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, 
+    enviado INTEGER DEFAULT 0 ,
+    ICidIngresoCobrador INTEGER DEFAULT 0,
+    Empresa INTEGER DEFAULT 0                    
+);
+`);
+      await db.execAsync(`
+  CREATE TABLE IF NOT EXISTS EstadoGestion (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, 
+  idEstadoGestion INTEGER NOT NULL,
+  Estado TEXT NOT NULL
+);
+
+`);
+
+      await db.execAsync(`
+  CREATE TABLE IF NOT EXISTS EstadoTipoContacto (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, 
+    idCbo_EstadosTipocontacto INTEGER NOT NULL,
+    idCbo_EstadoGestion INTEGER NOT NULL,
+    Estado TEXT NOT NULL
+);
+`);
+
+      await db.execAsync(`
+  CREATE TABLE IF NOT EXISTS ResultadoGestion (
+   id INTEGER PRIMARY KEY AUTOINCREMENT, 
+    idCbo_ResultadoGestion INTEGER NOT NULL,
+    idCbo_EstadoGestion INTEGER NOT NULL,
+    Resultado TEXT NOT NULL,
+    idCbo_EstadosTipocontacto INTEGER NOT NULL
+);
+`);
+await db.execAsync(`
+  CREATE TABLE IF NOT EXISTS listacuentas (
+   id INTEGER PRIMARY KEY AUTOINCREMENT, 
+    idCuenta INTEGER NOT NULL,
+    Descripcion TEXT NOT NULL
+);
+`);
+
       console.log("Listado de tablas creadas.");
 
       // Actualizar la versión de la base de datos
       await db.execAsync('PRAGMA user_version = 1');
       //console.log("Versión de la base de datos actualizada a 1.");
-    } else {
-      console.log("La base de datos ya está en la versión esperada.");
     }
+
   } catch (error) {
     console.error("Error durante la migración de la base de datos:", error);
   }

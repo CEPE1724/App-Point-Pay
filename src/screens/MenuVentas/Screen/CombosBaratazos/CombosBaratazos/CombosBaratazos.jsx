@@ -3,13 +3,12 @@ import { View, Text, ActivityIndicator, TouchableOpacity, Image, FlatList, TextI
 import axios from "axios";
 import { styles } from "./CombosBaratazos.Style";
 import { APIURL } from "../../../../../config/apiconfig";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Plus, History, Search } from "../../../../../Icons";
+import {  History, Search } from "../../../../../Icons";
 import { Picker } from "@react-native-picker/picker";
-import { ImageModal } from '../../../../../components'; // Importamos el componente ImageModal
-import { RadioButton } from 'react-native-paper';
 import { RadioGroupInv } from '../../../../../components'; // Importamos el componente RadioGroupInv
 import { screen } from "../../../../../utils";
+import { useDb } from '../../../../../database/db'; // Importa la base de datos
+import { getItemsAsyncBodegaALL } from '../../../../../database';
 
 export function CombosBaratazos(props) {
     const { navigation } = props;
@@ -28,7 +27,7 @@ export function CombosBaratazos(props) {
     const [stockFilter, setStockFilter] = useState(2); // Estado para el filtro de stock
     const [comboFilter, setComboFilter] = useState(0); // Estado para el filtro de combo
     const [tipocliente, setTipocliente] = useState(0); // Estado para el tipo de cliente
-
+        const { db } = useDb();
     // Estado para saber si se ha seleccionado una bodega
     const [isBodegaSelected, setIsBodegaSelected] = useState(false); // Inicializado en false
 
@@ -37,43 +36,25 @@ export function CombosBaratazos(props) {
         { value: 2, label: "BARATAZO", icon: "dollar" },
         { value: 1, label: "COMBO", icon: "money" },
     ];
-
-    // Efecto para obtener los datos de bodegas desde AsyncStorage
     useEffect(() => {
         const fetchData = async () => {
-            try {
-                const userInfo = await AsyncStorage.getItem("userInfo");
-
-                if (userInfo) {
-                    const parsedUserInfo = JSON.parse(userInfo);
-                    fetchBodegas(parsedUserInfo);
-                    setSelectedBodega(parsedUserInfo.bodegas[0] || null); // Asignamos el valor de la bodega seleccionada directamente aquí.
+            try {   
+                const iBodega  = await getItemsAsyncBodegaALL(db);
+                if (iBodega) {
+                    setBodegas(iBodega);
+                    setSelectedBodega(iBodega[0]?.Bodega || null); // Asignamos el valor de la bodega seleccionada directamente aquí.
                 } else {
-                    console.log("No user info found in AsyncStorage");
+                    console.log("No user info found ");
                 }
             } catch (error) {
-                console.error("Error fetching data from AsyncStorage:", error);
+                console.error("Error fetching data :", error);
             }
         };
 
         fetchData();
     }, []);
 
-    // Función para obtener las bodegas de la API
-    const fetchBodegas = async (bodegas) => {
-        try {
-            const url = APIURL.getViewListadoProductosBodega();
-            const response = await axios.get(url, {
-                params: {
-                    ids: JSON.stringify(bodegas.bodegas),
-                },
-            });
 
-            setBodegas(response.data);
-        } catch (error) {
-            console.error("Error fetching bodegas:", error);
-        }
-    };
 
     // Función para obtener los productos de la API
     const fetchData = async (page = 1, retries = 3) => {

@@ -7,7 +7,8 @@ import { styles } from './LoginPin.style';
 import { APIURL } from "../../config/apiconfig";
 import NetInfo from '@react-native-community/netinfo'; // Importa NetInfo
 import { useDb } from '../../database/db';
-import { addItemAsyncUser, addItemAsyncBodega, addItemAsyncMenu, getItemsAsync } from '../../database';
+import { addItemAsyncUser, addItemAsyncBodega, addItemAsyncMenu, getItemsAsync,
+     ListadoEstadoGestion, ListadoResultadoGestion, ListadoEstadoTipoContacto, ListadoCuenta } from '../../database';
 import { Wifi, WifiOff } from '../../Icons';
 
 export default function PinInput({ navigation }) {
@@ -72,8 +73,6 @@ export default function PinInput({ navigation }) {
 
     const handlePinComplete = () => {
         setIsLoading(true);
-
-        // Si no hay conexión, usar datos locales (AsyncStorage)
         if (!isConnected) {
             printAsyncStorageNotConnected();
             return;
@@ -106,7 +105,7 @@ export default function PinInput({ navigation }) {
     const printAsyncStorage = async () => {
         try {
             if (items.length === 0) {
-                Alert.alert("Error", "No se encontraron datos en AsyncStorage.");
+                Alert.alert("Error", "No se encontraron datos .");
                 setIsLoading(false);
                 return;
             }
@@ -123,6 +122,10 @@ export default function PinInput({ navigation }) {
                 await addItemAsyncUser(db, data, isConnected);
                 await addItemAsyncBodega(db, data, isConnected);
                 await addItemAsyncMenu(db, data, isConnected);
+                await ListadoEstadoGestion(db, data, isConnected);
+                await ListadoResultadoGestion(db, data, isConnected);
+                await ListadoEstadoTipoContacto(db, data, isConnected);
+                await ListadoCuenta(db, data, isConnected);
                 login(data.token, data.usuario); // Almacenar el token y los datos del usuario
             } else {
                 Alert.alert("Error", data.message || "Credenciales incorrectas");

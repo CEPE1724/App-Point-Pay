@@ -126,7 +126,7 @@ export const AuthProvider = ({ children }) => {
       await UpdateItemAsyncUSer(db, '');  // Limpiar datos del usuario
       await UpdateActivoItemAsyncUSer(db, 0);  // Desactivar el usuario
     } catch (error) {
-      console.error('Error removing items from AsyncStorage:', error);
+      console.error('Error removing items from :', error);
     }
   };
 

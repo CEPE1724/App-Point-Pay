@@ -9,21 +9,28 @@ import {
   ScrollView,
   Platform
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import point from "../../../assets/Point.png";
 import logo from "../../../assets/PontyDollar.png";
 import { styles } from "./Login.Style";
 import { useDb } from '../../database/db';
 import { getItemsAsync } from '../../database';
-
+import NetInfo from '@react-native-community/netinfo'; // Importa NetInfo
 export default function Login({ navigation }) {
   const { width, height } = Dimensions.get("window");
   const [idTipoPersona, setIdTipoPersona] = useState(null);
     const { db, initializeDb } = useDb();
     const [dbDispositivos, setDbDispositivos] = useState([]);
-    
-  // useEffect para cargar y mostrar los datos de AsyncStorage al iniciar
+    const [isConnected, setIsConnected] = useState(false);
+    useEffect(() => {
+      const unsubscribe = NetInfo.addEventListener(state => {
+        setIsConnected(state.isConnected);
+      });
+  
+      return () => {
+        unsubscribe();
+      };
+    }, []);
   useEffect(() => {
     const fetchAsyncStorageData = async () => {
       try {
@@ -33,7 +40,7 @@ export default function Login({ navigation }) {
         console.log("Datos de la base de datos:", items);
 
       } catch (error) {
-        console.error("Error al obtener datos de AsyncStorage", error);
+        console.error("Error al obtener datos ", error);
       }
     };
 
@@ -90,6 +97,7 @@ export default function Login({ navigation }) {
           {/* Mostrar ambos botones si idTipoPersona es "1" */}
           { parseInt(dbDispositivos[0]?.iTipoPersonal) === 1 && (
             <>
+            {isConnected && (
               <TouchableOpacity
                 style={[styles.cardButton, styles.button]}
                 onPress={handleButtonPressLogin}
@@ -97,6 +105,7 @@ export default function Login({ navigation }) {
                 <Icon name="person" size={40} color="#fff" />
                 <Text style={styles.cardButtonText}>Usuario y Contraseña</Text>
               </TouchableOpacity>
+            )}
 
               <TouchableOpacity
                 style={[styles.cardButton, styles.button]}
@@ -109,7 +118,7 @@ export default function Login({ navigation }) {
           )}
 
           {/* Mostrar solo el botón de PIN si idTipoPersona es "2" */}
-          {parseInt(dbDispositivos[0]?.iTipoPersonal) === "2" && (
+          {parseInt(dbDispositivos[0]?.iTipoPersonal) === 2 && (
             <TouchableOpacity
               style={[styles.cardButton, styles.button]}
               onPress={handleButtonPressPin}
@@ -120,7 +129,7 @@ export default function Login({ navigation }) {
           )}
         </View>
 
-        <Text style={styles.version}>Versión: 2.3.1.0</Text>
+        <Text style={styles.version}>Versión: 2.4.1.0</Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );

@@ -3,16 +3,16 @@ import { View, Text, ActivityIndicator, TouchableOpacity, Image, FlatList, TextI
 import axios from "axios";
 import { styles } from "./InventarioScreen.Style";
 import { APIURL } from "../../../../../config/apiconfig";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Plus, History, Search } from "../../../../../Icons";
 import { Picker } from "@react-native-picker/picker";
 import { ImageModal } from '../../../../../components'; // Importamos el componente ImageModal
 import { RadioButton } from 'react-native-paper';
 import { RadioGroupInv } from '../../../../../components'; // Importamos el componente RadioGroupInv
-
+import { useDb } from '../../../../../database/db'; // Importa la base de datos
+import { getItemsAsyncBodegaALL } from '../../../../../database';
 export function InventarioScreen(props) {
   const { navigation } = props;
-  
+
   // Estados para manejar los datos y filtros
   const [data, setData] = useState([]); // Almacena la data de los productos
   const [totalRecords, setTotalRecords] = useState(0); // Número total de productos
@@ -26,27 +26,26 @@ export function InventarioScreen(props) {
   const [selectedItem, setSelectedItem] = useState(null); // Elemento seleccionado para el carrusel
   const [stockFilter, setStockFilter] = useState(1); // Estado para el filtro de stock
   const [tipocliente, setTipocliente] = useState(0); // Estado para el tipo de cliente
-
+  const { db } = useDb();
   // Opciones para el filtro de tipo de cliente
   const options = [
     { value: 1, label: "Con stock", icon: "check" },
     { value: 0, label: "Sin stock", icon: "times" },
   ];
-
-  // Efecto para obtener los datos de bodegas desde AsyncStorage
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const userInfo = await AsyncStorage.getItem("userInfo");
-
-        if (userInfo) {
-          const parsedUserInfo = JSON.parse(userInfo);
-          fetchBodegas(parsedUserInfo);
+        const iBodega = await getItemsAsyncBodegaALL(db);
+        if (iBodega) {
+         // fetchBodegas(parsedUserInfo);
+          setBodegas(iBodega);
+          setSelectedBodega(iBodega[0]?.Bodega || null); // Asignamos el valor de la bodega seleccionada directamente aquí.
         } else {
-          console.log("No user info found in AsyncStorage");
+          console.log("No user info found ");
         }
+
       } catch (error) {
-        console.error("Error fetching data from AsyncStorage:", error);
+        console.error("Error fetching data from:", error);
       }
     };
 
@@ -203,7 +202,7 @@ export function InventarioScreen(props) {
           ListFooterComponent={loadingMore ? <ActivityIndicator size="small" color="#0000ff" /> : null}
           contentContainerStyle={{ padding: 0, margin: 0 }}
           // Establecer la altura máxima visible
-          style={{ maxHeight: 380 }}  
+          style={{ maxHeight: 380 }}
         />
       </View>
 
@@ -218,7 +217,7 @@ export function InventarioScreen(props) {
       )}
 
       {/* Modal de imagen */}
-      <ImageModal isVisible={selectedItem !== null} selectedItem={selectedItem} onClose={() => setSelectedItem(null)} stock = {stockFilter} />
+      <ImageModal isVisible={selectedItem !== null} selectedItem={selectedItem} onClose={() => setSelectedItem(null)} stock={stockFilter} />
     </View>
   );
 }

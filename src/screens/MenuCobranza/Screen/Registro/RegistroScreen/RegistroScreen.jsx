@@ -11,10 +11,11 @@ import axios from "axios";
 import { styles } from "./RegistroScreen.Style"; 
 import { screen } from "../../../../../utils/screenName";
 import { APIURL } from "../../../../../config/apiconfig";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Card } from "../../../../../components";
 import { Plus, History, Search } from "../../../../../Icons";
 import { useAuth } from '../../../../../navigation/AuthContext';
+import { useDb } from '../../../../../database/db'; // Importa la base de datos
+import { getItemsAsyncUser } from '../../../../../database';
 
 
 export function RegistroScreen({ navigation }) {
@@ -30,16 +31,15 @@ export function RegistroScreen({ navigation }) {
   const [filtro, setFiltro] = useState("");
   const [token, setToken] = useState(null);
   const { expireToken } = useAuth(); // Usamos el contexto de autenticación
-  // Fetch User Info from AsyncStorage
+    const { db } = useDb();
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const storedUserInfo = await AsyncStorage.getItem("userInfo");
-        const token = await AsyncStorage.getItem("userToken");
-        setToken(token);
-        if (storedUserInfo) {
-          const user = JSON.parse(storedUserInfo);
-          setUserInfo({ ingresoCobrador: user.ingresoCobrador.idIngresoCobrador || "" });
+        const Item = await getItemsAsyncUser(db);
+
+        if (Item) {
+          setToken(Item[0]?.token);
+          setUserInfo({ ingresoCobrador:  Item[0]?.ICidIngresoCobrador  || "" });
         }
       } catch (error) {
         console.error("Error fetching user info:", error);

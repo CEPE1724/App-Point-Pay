@@ -14,10 +14,11 @@ import axios from "axios";
 import { styles } from "./GestionCalendario.Style"; // Verifica el path
 import { screen } from "../../../../../utils/screenName";
 import { APIURL } from "../../../../../config/apiconfig";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Card } from '../../../../../components'; // Import your DayCard component
 import Icon from "react-native-vector-icons/FontAwesome";
-import { useNavigation } from "@react-navigation/native";
+import { useDb } from '../../../../../database/db'; // Importa la base de datos
+import { getItemsAsyncUser } from '../../../../../database';
+
 export function GestionCalendario( { route, navigation } ) {
     const { day, idcobrador, fullDate } = route.params;
   const [data, setData] = useState([]);
@@ -30,14 +31,14 @@ export function GestionCalendario( { route, navigation } ) {
   const [userInfo, setUserInfo] = useState({ ingresoCobrador: "" });
   const [userInfoLoaded, setUserInfoLoaded] = useState(false); // Track if user info is loaded
   const [filtro, setFiltro] = useState(""); // State for the search filter
+    const { db } = useDb();
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const storedUserInfo = await AsyncStorage.getItem("userInfo");
-        if (storedUserInfo) {
-          const user = JSON.parse(storedUserInfo);
+        const Item = await getItemsAsyncUser(db);
+        if (Item) {
           setUserInfo({
-            ingresoCobrador: user.ingresoCobrador.idIngresoCobrador || "",
+            ingresoCobrador: Item[0]?.ICidIngresoCobrador  || "" || "",
           });
           setUserInfoLoaded(true); // Mark user info as loaded
         }

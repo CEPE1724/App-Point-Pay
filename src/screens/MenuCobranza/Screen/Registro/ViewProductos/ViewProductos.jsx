@@ -4,9 +4,11 @@ import { View, Text, FlatList, Alert, TouchableOpacity } from 'react-native';
 import axios from "axios";
 import { APIURL } from "../../../../../config/apiconfig";
 import { styles } from "./ViewProductos.Style";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from '../../../../../navigation/AuthContext'; // Importamos el contexto
 import { handleError } from '../../../../../utils/errorHandler';
+import { useDb } from '../../../../../database/db'; // Importa la base de datos
+import { getItemsAsyncUser } from '../../../../../database';
+
 export const ViewProductos = ({ route }) => {
   const { item } = route.params;
   const [productos, setProductos] = useState([]);
@@ -16,13 +18,13 @@ export const ViewProductos = ({ route }) => {
   const { expireToken } = useAuth(); // Usamos el contexto de autenticación
   const [token, setToken] = useState(null);
   const [userInfoLoaded, setUserInfoLoaded] = useState(false);  // Para saber si los datos del token ya se han cargado
+   const { db } = useDb();
   useEffect(() => {
-    // Función para obtener el token desde AsyncStorage
+    // Función para obtener el token desde 
     const fetchUserInfo = async () => {
       try {
-        const storedToken = await AsyncStorage.getItem("userToken");
-        setToken(storedToken);
-        console.log("Token:", storedToken);
+       const Item = await getItemsAsyncUser(db);
+        setToken(Item[0]?.token);
       } catch (error) {
         console.error("Error fetching user info:", error);
       } finally {

@@ -19,17 +19,16 @@ import * as ImagePicker from "expo-image-picker";
 import { ComprobanteModal } from "../../../../../components"; // Asegúrate de importar el componente ComprobanteModal
 import { Recojo } from "../../../../../components";
 import { Telefono } from "../../../../../components";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AlertComponent } from "../../../../../components";
 import { ConfirmationModal } from "../../../../../components";
 import { LoadingIndicator } from "../../../../../components";
 import { CardItem } from "../../../../../components";
 import { HandleSave } from "./HandleSave"; // Asegúrate de importar la función handleGuardar
-import { UserBlack } from "../../../../../Icons"
 import { useAuth } from '../../../../../navigation/AuthContext';
 import { handleError } from '../../../../../utils/errorHandler';
-import { Cell, CalendarToday } from "../../../../../Icons";
-import { shoppingSearch } from '../../../../../Icons';
+import { useDb } from '../../../../../database/db'; // Importa la base de datos
+import { getItemsAsyncUser, getListadoEstadoGestion, getListadoEstadoTipoContacto, getListadoResultadoGestion, getlistacuentas } from '../../../../../database';
+ 
 export function InsertScreen({ route, navigation }) {
   const [isModalVisibleCont, setIsModalVisibleCont] = useState(false); // Controla la visibilidad del modal
   const { item, Tipo } = route.params;
@@ -72,18 +71,17 @@ export function InsertScreen({ route, navigation }) {
   const [modalVisibleOk, setModalVisibleOk] = useState(false);
   const [token, setToken] = useState(null);
   const { expireToken } = useAuth();
+  const { db } = useDb();
+
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const storedUserInfo = await AsyncStorage.getItem("userInfo");
-        const token = await AsyncStorage.getItem("userToken");
-        setToken(token);
-        console.log("storedUserInfo cepeda", token);
-        if (storedUserInfo) {
-          const user = JSON.parse(storedUserInfo);
+        const Item = await getItemsAsyncUser(db);
+        if (Item) {
+          setToken(Item[0]?.token);
           setUserInfo({
-            ingresoCobrador: user.ingresoCobrador.idIngresoCobrador || "",
-            Usuario: user.ingresoCobrador.Codigo || "",
+            ingresoCobrador: Item[0]?.ICidIngresoCobrador  || "",
+            Usuario: Item[0]?.ICCodigo || "",
           });
         }
       } catch (error) {
@@ -139,16 +137,10 @@ export function InsertScreen({ route, navigation }) {
       }
 
       try {
-        const response = await axios.get(APIURL.Cbo_EstadosGestion(), {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json",
-            "Cache-Control": "max-age=300, must-revalidate",
-          },
-        });
-
+        const dat = await getListadoEstadoGestion(db);
+        
         // Si la respuesta es exitosa, actualizamos los datos
-        setItems(response.data); // Asumiendo que tu API devuelve un array de elementos
+        setItems(dat); // Asumiendo que tu API devuelve un array de elementos
 
       } catch (error) {
         handleError(error, expireToken); // Usamos el manejador de errores global
@@ -166,14 +158,9 @@ export function InsertScreen({ route, navigation }) {
 
     if (value) {
       try {
-        const response = await axios.get(APIURL.getEstadosTipoContacto(value), {
-          headers: {
-            "Authorization": `Bearer ${token}`, // El token de autorización, si lo tienes disponible
-            "Content-Type": "application/json", // Asegura que los datos sean JSON
-            "Cache-Control": "max-age=300, must-revalidate", // Control de caché (opcional)
-          },
-        });
-        setContactTypes(response.data); // Establece los datos para el segundo Picker
+        const tipoesta = await getListadoEstadoTipoContacto(db, value);
+       
+        setContactTypes(tipoesta); // Establece los datos para el segundo Picker
       } catch (error) {
         handleError(error, expireToken);
       }
@@ -188,15 +175,8 @@ export function InsertScreen({ route, navigation }) {
 
     if (value) {
       try {
-        const response = await axios.get(APIURL.getResultadoGestion(value),
-          {
-            headers: {
-              "Authorization": `Bearer ${token}`, // El token de autorización, si lo tienes disponible
-              "Content-Type": "application/json", // Asegura que los datos sean JSON
-              "Cache-Control": "max-age=300, must-revalidate", // Control de caché (opcional)
-            },
-          });
-        setResultadoGestion(response.data); // Establecer los datos para el tercer Picker
+        const resultado = await getListadoResultadoGestion(db, value);
+        setResultadoGestion(resultado); // Establecer los datos para el tercer Picker
       } catch (error) {
         console.error("Error al obtener resultados de gestión:", error);
       }
@@ -231,15 +211,8 @@ export function InsertScreen({ route, navigation }) {
 
   const fetchBancos = async () => {
     try {
-      const response = await axios.get(APIURL.getBancos(),
-        {
-          headers: {
-            "Authorization": `Bearer ${token}`, // El token de autorización, si lo tienes disponible
-            "Content-Type": "application/json", // Asegura que los datos sean JSON
-            "Cache-Control": "max-age=300, must-revalidate", // Control de caché (opcional)
-          },
-        });
-      setBancos(response.data);
+      const getlistac = await getlistacuentas(db);
+      setBancos(getlistac);
     } catch (error) {
       console.error("Error fetching banks:", error);
     }
@@ -509,12 +482,12 @@ export function InsertScreen({ route, navigation }) {
           onValueChange={handleValueChange}
           style={styles.picker}
         >
-          <Picker.Item label="Seleccione..." value="" />
+          <Picker.Item label="Seleccione...1" value="" />
           {items.map((item) => (
             <Picker.Item
-              key={item.idCbo_EstadoGestion}
+              key={item.idEstadoGestion}
               label={item.Estado}
-              value={item.idCbo_EstadoGestion}
+              value={item.idEstadoGestion}
             />
           ))}
         </Picker>
@@ -528,7 +501,7 @@ export function InsertScreen({ route, navigation }) {
             onValueChange={handleContactTypeChange}
             style={styles.picker}
           >
-            <Picker.Item label="Seleccione..." value="" />
+            <Picker.Item label="Seleccione...2" value="" />
             {contactTypes.map((type) => (
               <Picker.Item
                 key={type.idCbo_EstadosTipocontacto}
@@ -550,7 +523,7 @@ export function InsertScreen({ route, navigation }) {
               onValueChange={handleResultadoChange}
               style={styles.picker}
             >
-              <Picker.Item label="Seleccione..." value="" />
+              <Picker.Item label="Seleccione...3" value="" />
               {resultadoGestion.map((result) => (
                 <Picker.Item
                   key={result.idCbo_ResultadoGestion}

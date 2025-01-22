@@ -3,11 +3,12 @@ import { View, Text, FlatList, Alert, TouchableOpacity, ActivityIndicator } from
 import axios from "axios";
 import { APIURL } from "../../../../../config/apiconfig";
 import { styles } from "./TablaAmortizacion.Style";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from '../../../../../navigation/AuthContext'; // Importamos el contexto
 import { handleError } from '../../../../../utils/errorHandler';
-import { AccountCash } from '../../../../../Icons';
 import { PagosTDAmortizacion } from '../../../../../components'; // Asegúrate de que la ruta es correcta
+import { useDb } from '../../../../../database/db'; // Importa la base de datos
+import { getItemsAsyncUser } from '../../../../../database';
+
 export const TablaAmortizacion = ({ route }) => {
     const { item } = route.params;
     const idCompra = item.idCompra;
@@ -21,13 +22,15 @@ export const TablaAmortizacion = ({ route }) => {
     const { expireToken } = useAuth(); // Usamos el contexto de autenticación
     const [modalVisible, setModalVisible] = useState(false);
     const [NumeroCuota, setNumeroCuota] = useState(0);
+    const { db } = useDb();
     useEffect(() => {
-        // Función para obtener el token desde AsyncStorage
+        // Función para obtener el token desde 
         const fetchUserInfo = async () => {
             try {
-                const storedToken = await AsyncStorage.getItem("userToken");
-                setToken(storedToken);
-                console.log("Token:", storedToken);
+                const Item = await getItemsAsyncUser(db);
+                if (Item) {
+                    setToken(Item[0]?.token);
+                }
             } catch (error) {
                 console.error("Error fetching user info:", error);
             } finally {
@@ -63,7 +66,7 @@ export const TablaAmortizacion = ({ route }) => {
             // Si la respuesta es exitosa
             const fetchedData = response.data;
             setProductos(fetchedData);
-           console.log("Data fetched:", productos);
+            console.log("Data fetched:", productos);
         } catch (error) {
             handleError(error, expireToken);
         } finally {
@@ -143,7 +146,7 @@ export const TablaAmortizacion = ({ route }) => {
             );
             console.log("Data fetched:", response.data);
             const fetchedData = response.data;
-            setListaValores(response.data|| {});
+            setListaValores(response.data || {});
         } catch (error) {
             handleError(error, expireToken);
         } finally {
@@ -159,7 +162,7 @@ export const TablaAmortizacion = ({ route }) => {
         return (
             <TouchableOpacity
                 style={[styles.row, { backgroundColor: isSelected ? '#e9d192' : '#fff' }]}
-                onPress={() => handleRowPress(item.idCre_TablaDeAmortizacion, item.NumeroCuota )}
+                onPress={() => handleRowPress(item.idCre_TablaDeAmortizacion, item.NumeroCuota)}
             >
                 <Text style={[styles.cell, { color: item.Estado === 2 ? '#0000ff' : item.Estado === 0 ? '#00c000' : '#ff0000' }]}>
                     {item.NumeroCuota}
@@ -259,10 +262,10 @@ export const TablaAmortizacion = ({ route }) => {
                 visible={modalVisible}
                 onClose={() => setModalVisible(false)}
                 data={listaValores}
-                cliente = {item.Cliente}
-                Cedula = {item.Cedula}
-                Numero_Documento = {item.Numero_Documento}
-                NumeroCuota = {NumeroCuota}               
+                cliente={item.Cliente}
+                Cedula={item.Cedula}
+                Numero_Documento={item.Numero_Documento}
+                NumeroCuota={NumeroCuota}
             />
         </View>
 

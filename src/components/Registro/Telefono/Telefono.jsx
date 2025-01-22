@@ -3,9 +3,10 @@ import { Modal, View, TouchableOpacity, Text, TextInput, FlatList, ActivityIndic
 import { styles } from './Telefono.Style'; // Asegúrate de tener el archivo de estilos disponible
 import axios from 'axios'; // Asegúrate de tener axios instalado
 import { APIURL } from "../../../config/apiconfig"; // Asegúrate de que el endpoint esté correctamente configurado
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from '../../../navigation/AuthContext'; // Importamos el contexto de autenticación
 import { handleError } from '../../../utils/errorHandler'; // Importamos la función de manejo de errores
+import { useDb } from '../../../database/db'; // Importamos la base de datos
+import { getItemsAsyncUser } from '../../../database';
 export function Telefono({ isVisible, item, onClose }) {
     const [contactos, setContactos] = useState([]); // Para almacenar los contactos
     const [telefono, setTelefono] = useState(''); // Para almacenar el número de teléfono
@@ -14,28 +15,26 @@ export function Telefono({ isVisible, item, onClose }) {
     const [isSaving, setIsSaving] = useState(false); // Para el estado de guardado
     const { expireToken } = useAuth(); // Usamos el contexto de autenticación
     const [token, setToken] = useState(null);
-    const [userInfoLoaded, setUserInfoLoaded] = useState(false);  // Para saber si los datos del token ya se han cargado
-    // Obtener el token desde AsyncStorage
+    const { db } = useDb();
     useEffect(() => {
         const fetchUserInfo = async () => {
-            const storedToken = await AsyncStorage.getItem("userToken");
-            if (storedToken) {
-                setToken(storedToken);
+            const Item = await getItemsAsyncUser(db);
+            if (Item) {
+                setToken(Item[0]?.token);
             } else {
-                // Maneja el caso cuando no haya token
                 console.error("No se encontró el token.");
             }
         };
         fetchUserInfo();
     }, []);
-    
+
     // Este `useEffect` solo se ejecutará cuando el `token` y `item` estén disponibles
     useEffect(() => {
         if (token && item) {  // Verificamos que ambos estén disponibles
             fetchContactos();  // Solo llamamos a fetchContactos si ya tenemos el token y el item
         }
     }, [token, item]);  // Dependencias: solo se ejecuta cuando token y item cambian
-    
+
     // Función para obtener los contactos desde la API
     const fetchContactos = async () => {
         setIsLoading(true);
@@ -61,7 +60,7 @@ export function Telefono({ isVisible, item, onClose }) {
 
             }
         } catch (error) {
-             handleError(error, expireToken); // Usamos el manejador de errores global
+            handleError(error, expireToken); // Usamos el manejador de errores global
             setContactos([]); // En caso de error, vaciamos los contactos
         } finally {
             setIsLoading(false); // Terminamos el estado de carga

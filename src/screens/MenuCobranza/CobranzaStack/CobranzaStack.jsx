@@ -33,7 +33,7 @@ export function CobranzaStack() {
               {isConnected ? (
                 <Wifi size={20} color="white" /> // Verde brillante para conexión activa
               ) : (
-                <Wifi size={20} color="white" /> // Verde brillante para conexión activa
+                <WifiOff size={20} color="white" /> // Verde brillante para conexión activa
               )}
             </TouchableOpacity>
           ),

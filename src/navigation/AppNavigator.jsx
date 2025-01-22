@@ -7,7 +7,6 @@ import Login from "../screens/Login/Login";
 import { MenuTabNavigator } from "../../src/navigation/MenuTabNavigator";
 import { CobranzaTabs } from "../screens/MenuCobranza/CobranzaTabs/CobranzaTabs";
 import { VentasTabs } from "../screens/MenuVentas/VentasTabs/VentasTabs";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LocationTracker } from "../components/Location/Location";
 import ResgistroDispositivo from "../screens/ResgistroDispositivo/ResgistroDispositivo";
 import PinConfigurado from "../screens/PinConfigurado/PinConfigurado";
@@ -87,7 +86,7 @@ export function AppNavigator() {
           logout(); // Si no hay token, el usuario no está logueado
         }
       } catch (error) {
-        console.error("Error checking login status or fetching AsyncStorage keys:", error);
+        console.error("Error checking login status or fetching  keys:", error);
       } finally {
         setIsCheckingAuth(false); // Asegúrate de que esto se ejecuta
       }

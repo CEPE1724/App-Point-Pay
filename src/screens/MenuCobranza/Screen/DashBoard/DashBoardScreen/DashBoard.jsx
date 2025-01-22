@@ -8,37 +8,87 @@ import {
   Alert
 } from "react-native";
 import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { styles } from "./DashBoard.Style"; // Verifica la ruta
 import { APIURL } from "../../../../../config/apiconfig";
-import { Cash, People,  Refresh, Assessment, PieChart, Info } from "../../../../../Icons";
-import { screen } from "../../../../../utils/screenName";
+import { ConfirmDialog } from "../../../../../components";
+import { Cash, People, Refresh, Assessment, PieChart, Info, Doorclose, Dooropen, Almuerzo, ExitAlmuerzo } from "../../../../../Icons";
 import { useAuth } from '../../../../../navigation/AuthContext'; // Importamos el contexto
 import { handleError } from '../../../../../utils/errorHandler';
-
+import { useDb } from '../../../../../database/db'; // Importa la base de datos
+import { getItemsAsyncUser, addItemAsyncDSbMetr, getItemsAsyncDSbMetr, UpdateAllDSbMetr, addItemAsyncACUbic, getPendingACUbic, getTipoAccion } from '../../../../../database';
+import { useNetworkStatus } from "../../../../../utils/NetworkProvider"; // Usamos el contexto de red
+import * as Location from 'expo-location';
 export function DashBoard(props) {
   const { navigation } = props;
-  const [totalAmount, setTotalAmount] = useState(0); // Cambié el valor inicial a 0
+  const [totalAmount, setTotalAmount] = useState(0);
   const [numberOfClients, setNumberOfClients] = useState(0);
   const [totalProjected, setTotalProjected] = useState(0);
   const [percentageCollected, setPercentageCollected] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [sdata, setSdata] = useState([]);
   const { expireToken } = useAuth(); // Usamos el contexto de autenticación
+  const { db } = useDb();
+  const isConnected = useNetworkStatus(); // Obtenemos el estado de la conexión
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [tipoAccion, setTipoAccion] = useState("Ingreso de Cobrador");
+  const [isTrabajoIngreso, setIsTrabajoIngreso] = useState(0);
+  const [isTrabajoSalida, setIsTrabajoSalida] = useState(0);
+  const [isAlmuerzoInicio, setIsAlmuerzoInicio] = useState(0);
+  const [isAlmuerzoFin, setIsAlmuerzoFin] = useState(0);
+  const handleConfirm = () => {
+    console.log("Acción confirmada: Guardar datos");
+    InsertaddItemAsyncACUbic(tipoAccion);
+    setIsModalVisible(false);
+  };
 
-  const fetchData = async () => {
+  const handleCancel = () => {
+    console.log("Acción cancelada");
+    setIsModalVisible(false);
+  };
+
+  useEffect(() => {
+    const checkAcciones = async () => {
+      // Consultamos si ya existen acciones registradas en la base de datos
+      const acciones = ["Ingreso al Trabajo", "Salida del Trabajo", "Inicio del Almuerzo", "Fin del Almuerzo"];
+      for (let accion of acciones) {
+        const Stipo = await getTipoAccion(db, accion);
+        if (Stipo && Stipo.length > 0) {
+          switch (accion) {
+            case "Ingreso al Trabajo":
+              setIsTrabajoIngreso(1);
+              break;
+            case "Salida del Trabajo":
+              setIsTrabajoSalida(1);
+              break;
+            case "Inicio del Almuerzo":
+              setIsAlmuerzoInicio(1);
+              break;
+            case "Fin del Almuerzo":
+              setIsAlmuerzoFin(1);
+              break;
+            default:
+              break;
+          }
+        }
+      }
+    };
+
+    checkAcciones();
+  }, [db]);
+
+  // Función para consumir la API y actualizar la base de datos local
+  const fetchDataFromAPI = async () => {
     setLoading(true);
     try {
-      const userInfo = await AsyncStorage.getItem("userInfo");
-      const token = await AsyncStorage.getItem("userToken");
+      const Item = await getItemsAsyncUser(db);
+      const token = Item[0]?.token;
       const url = APIURL.postAllCountGestiones();
 
-      if (userInfo) {
-        const { ingresoCobrador } = JSON.parse(userInfo);
-        const idIngresoCobrador = ingresoCobrador.idIngresoCobrador;
-
+      if (Item && Item[0]?.ICidIngresoCobrador && token) {
+        setSdata(Item);
         const response = await axios.post(
           url,
-          { idCobrador: idIngresoCobrador },
+          { idCobrador: Item[0]?.ICidIngresoCobrador },
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -49,19 +99,32 @@ export function DashBoard(props) {
 
         // Asignación segura de valores, controlando null, cero y valores negativos
         const { totalProjected, totalCollected, count } = response.data;
-
         const formattedTotalCollected = totalCollected && totalCollected > 0 ? totalCollected : 0;
         const totalCount = count && count > 0 ? count : 0;
-
         const formattedTotalProjected = totalProjected && totalProjected > 0 ? totalProjected : 0;
-
-        const percentage =
-          formattedTotalProjected > 0 ? (formattedTotalCollected / formattedTotalProjected) * 100 : 0;
+        const percentage = formattedTotalProjected > 0 ? (formattedTotalCollected / formattedTotalProjected) * 100 : 0;
 
         setTotalAmount(formattedTotalCollected);
         setNumberOfClients(totalCount);
         setTotalProjected(formattedTotalProjected);
         setPercentageCollected(percentage.toFixed(2));
+
+        // Actualizamos la base de datos local con los nuevos valores
+        const itemToInsert = {
+          ICidIngresoCobrador: Item[0]?.ICidIngresoCobrador,
+          totalAmount: formattedTotalCollected,
+          numberOfClients: totalCount,
+          totalProjected: formattedTotalProjected,
+          percentageCollected: percentage.toFixed(2),
+        };
+
+        // Si hay datos previos, los actualizamos
+        const localData = await getItemsAsyncDSbMetr(db);
+        if (localData && localData.length > 0) {
+          await UpdateAllDSbMetr(db, itemToInsert); // Actualizamos la tabla local
+        } else {
+          await addItemAsyncDSbMetr(db, itemToInsert); // Si no hay datos previos, insertamos nuevos
+        }
       }
     } catch (error) {
       handleError(error, expireToken); // Usamos el manejador de errores global
@@ -70,9 +133,29 @@ export function DashBoard(props) {
     }
   };
 
+  // Validar si hay datos locales disponibles
+  const valDataLocal = async () => {
+    const ItemDSbMetr = await getItemsAsyncDSbMetr(db);
+    if (ItemDSbMetr && ItemDSbMetr.length > 0) {
+      const { ICidIngresoCobrador, totalAmount, numberOfClients, totalProjected, percentageCollected } = ItemDSbMetr[0];
+      setTotalAmount(totalAmount);
+      setNumberOfClients(numberOfClients);
+      setTotalProjected(totalProjected);
+      setPercentageCollected(percentageCollected);
+    } else {
+      // Si no hay datos locales, se consume la API
+      if (isConnected) {
+        fetchDataFromAPI();
+      } else {
+        Alert.alert("Sin conexión", "No hay conexión a Internet. Mostrando datos anteriores.");
+      }
+    }
+  };
+
   useEffect(() => {
-    fetchData();
-  }, []);
+    // Verifica si hay datos en la base local al inicio
+    valDataLocal();
+  }, [isConnected]);
 
   const getBarColor = (totalAmount, totalProjected) => {
     const percentage = totalProjected > 0 ? (totalAmount / totalProjected) * 100 : 0;
@@ -90,19 +173,68 @@ export function DashBoard(props) {
     return 0; // Si no hay un valor proyectado, retorna 0
   };
 
-  const handleNavigate = () => {
-    gotoRegistro();
-  };
-
-  const gotoRegistro = () => {
-    navigation.navigate(screen.registro.tab, {
-      screen: screen.registro.inicio,
-    });
-  };
-
   const showAlert = () => {
     Alert.alert("Información", "Este es un mensaje de información.");
   };
+
+
+  const InsertaddItemAsyncACUbic = async (tipoAccion) => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        console.log("Permiso de ubicación denegado.");
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync({});
+      const { latitude, longitude } = location.coords;
+      const Item = await getItemsAsyncUser(db);
+      if (!Item || !Item[0]?.ICidIngresoCobrador || !Item[0]?.Empresa) {
+        console.log("Datos de cobrador o empresa no disponibles.");
+        return;
+      }
+
+      await addItemAsyncACUbic(
+        db,
+        tipoAccion,
+        latitude,
+        longitude,
+        Item[0]?.ICidIngresoCobrador,
+        Item[0]?.Empresa
+      );
+
+      console.log("Ubicación insertada correctamente en la base de datos.");
+      sendPendingLocations();
+
+    } catch (error) {
+      console.log("Error al insertar ubicación en la base de datos:", error);
+    }
+  };
+
+  const sendPendingLocations = async () => {
+    const pendingLocations = await getPendingACUbic(db);
+    if (pendingLocations.length === 0) {
+      console.log('No hay ubicaciones pendientes para enviar.');
+      return;
+    }
+
+    for (const location of pendingLocations) {
+      console.log("Enviando ubicación pendiente:", location);
+    }
+  }
+
+  const handleTipoAccion = async (tipoAccion) => {
+     const Stipo = await getTipoAccion(db, tipoAccion);
+    if (Stipo && Stipo.length > 0) {
+      console.log (Stipo);
+      console.log("Ya existe una acción de este tipo para hoy.");
+      return;
+    }
+    setTipoAccion(tipoAccion);
+    setIsModalVisible(true);
+  }
+
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
@@ -118,9 +250,9 @@ export function DashBoard(props) {
               </View>
             </View>
             <View style={styles.iconContainerInfo}>
-            <TouchableOpacity onPress={showAlert}>
-              <Info size={12} color="#fff" />
-            </TouchableOpacity>
+              <TouchableOpacity onPress={showAlert}>
+                <Info size={12} color="#fff" />
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -147,7 +279,6 @@ export function DashBoard(props) {
           <View style={styles.card}>
             <Text style={styles.title}>Clientes Asignados</Text>
             <View style={styles.cardContent}>
-
               <View style={styles.iconContainer}>
                 <People size={20} color="#fff" />
               </View>
@@ -157,9 +288,8 @@ export function DashBoard(props) {
             </View>
           </View>
           <View style={styles.card}>
-            <Text style={styles.title}>Valor Proyectado</Text>
+            <Text style={styles.title}>Valor Proyectado kk</Text>
             <View style={styles.cardContent}>
-
               <View style={styles.iconContainer}>
                 <Assessment size={20} color="#fff" />
               </View>
@@ -176,8 +306,8 @@ export function DashBoard(props) {
             <View style={styles.barContainer}>
               <View
                 style={[styles.bar, {
-                  width: `${getBarWidth(totalAmount, totalProjected)}%`, // Calcula el porcentaje de la barra
-                  backgroundColor: getBarColor(totalAmount, totalProjected), // Establece el color según el porcentaje
+                  width: `${getBarWidth(totalAmount, totalProjected)}%`,
+                  backgroundColor: getBarColor(totalAmount, totalProjected),
                 }]} >
                 <Text style={styles.barText}>
                   {`${getBarWidth(totalAmount, totalProjected).toFixed(2)}%`}
@@ -194,21 +324,118 @@ export function DashBoard(props) {
             </View>
           </View>
         </View>
+
+        <View style={styles.cardRowContainer}>
+          <View style={styles.individualCard}>
+            <View style={styles.cardContentWrapper}>
+              <TouchableOpacity onPress={() => handleTipoAccion('Ingreso al Trabajo')}
+                disabled={isTrabajoIngreso === 1}
+                >
+                <View style={styles.iconWrapper}>
+                  <Dooropen size={20} color= {isTrabajoIngreso === 1 ? "red" : "#fff"} />
+                </View>
+                <View style={styles.valueWrapper}>
+                  <Text style={styles.valueText}>Ingreso al Trabajo</Text>
+                </View>
+              </TouchableOpacity>
+              <View style={styles.iconContainerInfo}>
+                <TouchableOpacity onPress={showAlert}>
+                  <Info size={5} color={isTrabajoIngreso === 1 ? "green" : "#fff"} />
+               
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+          <View style={styles.individualCard}>
+            <View style={styles.cardContentWrapper}>
+              <TouchableOpacity onPress={() => handleTipoAccion('Salida del Trabajo')}
+                disabled={isTrabajoSalida === 1}
+                >
+                <View style={styles.iconWrapper}>
+                  <Doorclose size={20} color={isTrabajoSalida === 1 ? "red" : "#fff"} />
+                </View>
+                <View style={styles.valueWrapper}>
+                  <Text style={styles.valueText}>Salida del Trabajo</Text>
+                </View>
+              </TouchableOpacity>
+              <View style={styles.iconContainerInfo}>
+                <TouchableOpacity onPress={showAlert}>
+                  <Info size={5} color={isTrabajoSalida === 1 ? "green" : "#fff"} />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.cardRowContainer}>
+          <View style={styles.individualCard}>
+            <View style={styles.cardContentWrapper}>
+              <TouchableOpacity onPress={() => handleTipoAccion('Inicio del Almuerzo')}
+                disabled={isAlmuerzoInicio === 1}
+                >
+                <View style={styles.iconWrapper}>
+                  <Almuerzo size={20} color= {isAlmuerzoInicio === 1 ? "red" : "#fff"} />
+                </View>
+                <View style={styles.valueWrapper}>
+                  <Text style={styles.valueText}>Inicio del Almuerzo</Text>
+                </View>
+              </TouchableOpacity>
+              <View style={styles.iconContainerInfo}>
+                <TouchableOpacity onPress={showAlert}>
+                <Info size={5} color={isAlmuerzoInicio === 1 ? "green" : "#fff"} />
+               
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+          <View style={styles.individualCard}>
+
+            <View style={styles.cardContentWrapper}>
+              <TouchableOpacity onPress={() => handleTipoAccion('Fin del Almuerzo')}
+                disabled={isAlmuerzoFin === 1}
+                >
+                <View style={styles.iconWrapper}>
+                  <ExitAlmuerzo size={20} color= {isAlmuerzoFin === 1 ? "red" : "#fff"} />
+                </View>
+                <View style={styles.valueWrapper}>
+                  <Text style={styles.valueText}>Fin del Almuerzo</Text>
+                </View>
+              </TouchableOpacity>
+              <View style={styles.iconContainerInfo}>
+                <TouchableOpacity onPress={showAlert}>
+                <Info size={5} color={isAlmuerzoFin === 1 ? "green" : "#fff"} />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </View>
+
+
+
       </ScrollView>
 
       {/* Botón flotante para actualizar */}
-      <TouchableOpacity
-        style={styles.fab}
-        activeOpacity={0.7}
-        disabled={loading}
-        onPress={fetchData}
-      >
-        {loading ? (
-          <ActivityIndicator size="small" color="#fff" />
-        ) : (
-          <Refresh size={20} color="#fff" />
-        )}
-      </TouchableOpacity>
+      {isConnected && (
+        <TouchableOpacity
+          style={styles.fab}
+          activeOpacity={0.7}
+          disabled={loading}
+          onPress={fetchDataFromAPI}
+        >
+          {loading ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Refresh size={20} color="#fff" />
+          )}
+        </TouchableOpacity>
+      )}
+
+      <ConfirmDialog
+        visible={isModalVisible}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+        tipoAccion={tipoAccion}
+      />
     </View>
   );
 }

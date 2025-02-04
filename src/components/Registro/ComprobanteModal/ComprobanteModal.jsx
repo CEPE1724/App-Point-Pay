@@ -29,7 +29,6 @@ export function ComprobanteModal({
   setSelectedTipoPago,
   selectedTipoPago
 }) {
-  console.log(selectedTipoPago);
   return (
     <Modal
       animationType="slide"

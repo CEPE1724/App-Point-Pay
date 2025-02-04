@@ -40,10 +40,7 @@ export function InventarioScreen(props) {
          // fetchBodegas(parsedUserInfo);
           setBodegas(iBodega);
           setSelectedBodega(iBodega[0]?.Bodega || null); // Asignamos el valor de la bodega seleccionada directamente aquí.
-        } else {
-          console.log("No user info found ");
-        }
-
+        } 
       } catch (error) {
         console.error("Error fetching data from:", error);
       }

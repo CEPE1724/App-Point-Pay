@@ -5,19 +5,18 @@ import {
   ScrollView,
   ActivityIndicator,
   TouchableOpacity,
-  TextInput,
+  TextInput, ToastAndroid
 } from "react-native";
 import axios from "axios";
-import { styles } from "./RegistroScreen.Style"; 
+import { styles } from "./RegistroScreen.Style";
 import { screen } from "../../../../../utils/screenName";
 import { APIURL } from "../../../../../config/apiconfig";
 import { Card } from "../../../../../components";
 import { Plus, History, Search } from "../../../../../Icons";
 import { useAuth } from '../../../../../navigation/AuthContext';
 import { useDb } from '../../../../../database/db'; // Importa la base de datos
-import { getItemsAsyncUser } from '../../../../../database';
-
-
+import { getItemsAsyncUser, getallCbo_Gestorcobranza, getTipoAccioncount } from '../../../../../database';
+import Toast from 'react-native-toast-message';
 export function RegistroScreen({ navigation }) {
   const [data, setData] = useState([]);
   const [totalRecords, setTotalRecords] = useState(0);
@@ -30,16 +29,18 @@ export function RegistroScreen({ navigation }) {
   const [userInfoLoaded, setUserInfoLoaded] = useState(false);
   const [filtro, setFiltro] = useState("");
   const [token, setToken] = useState(null);
-  const { expireToken } = useAuth(); // Usamos el contexto de autenticación
-    const { db } = useDb();
+  const [dataItem, setDataItem] = useState([]);
+  const { expireToken, updateNotificationCount } = useAuth(); // Usamos el contexto de autenticación
+  const { db } = useDb();
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
         const Item = await getItemsAsyncUser(db);
-
+        //const data = await getallCbo_Gestorcobranza(db);
         if (Item) {
           setToken(Item[0]?.token);
-          setUserInfo({ ingresoCobrador:  Item[0]?.ICidIngresoCobrador  || "" });
+          setUserInfo({ ingresoCobrador: Item[0]?.ICidIngresoCobrador || "" });
+          setDataItem(Item[0]);
         }
       } catch (error) {
         console.error("Error fetching user info:", error);
@@ -54,45 +55,28 @@ export function RegistroScreen({ navigation }) {
   const fetchData = async (page = 1) => {
     // Verifica que los datos del usuario y el estado de carga sean correctos antes de hacer la solicitud
     if (!userInfoLoaded || loading || (page > 1 && data.length >= totalRecords)) return;
-  
+
     setLoading(true);
     try {
-      const { ingresoCobrador } = userInfo;  // Extrae el ingresoCobrador del objeto userInfo
-      const url = APIURL.getAllcliente();  // Asegúrate de que la URL sea la correcta
-      console.log("URL", url);
-  
-      // Enviar la solicitud con los parámetros y headers
-      const response = await axios.get(url, {
-        params: {
-          idCobrador: ingresoCobrador,
-          filtro,
-          page,
-          limit
-        },
-        headers: {
-          "Cache-Control": "max-age=300, must-revalidate",  // Cache por 5 minutos
-          "Authorization": `Bearer ${token}`,  // Token de autorización
-          "Content-Type": "application/json",  // Tipo de contenido JSON
-        }
-      });
-  
-      // Asegúrate de que la respuesta esté en el formato esperado
-      const [fetchedData, total] = response.data;
+      // Obtén los datos desde la base de datos en lugar de hacer la solicitud a la API
+      const dataFromDb = await getallCbo_Gestorcobranza(db, filtro);  // Aquí usas tu función que obtiene los datos desde la base de datos
 
-  
-      // Actualiza los datos con la respuesta obtenida
-      setData((prevData) => (page === 1 ? fetchedData : [...prevData, ...fetchedData]));
-      setTotalRecords(total);
-  
+
+      // Actualiza los datos con los datos obtenidos de la base de datos
+      const total = dataFromDb.length;  // Puedes actualizar el total de registros según la cantidad de registros obtenidos de la base de datos
+      setData((prevData) => (page === 1 ? dataFromDb : [...prevData, ...dataFromDb]));
+      setTotalRecords(total);  // Actualiza el total de registros con el tamaño de los datos obtenidos
+
       // Termina el proceso de carga
       setLoading(false);
       setLoadingMore(false);
-  
+
     } catch (error) {
       handleError(error); // Ahora solo maneja el error sin reintentos
     }
   };
-  
+
+
   // Handle Errors without retry logic
   const handleError = (error) => {
     if (error.response) {
@@ -101,7 +85,7 @@ export function RegistroScreen({ navigation }) {
       if (status === 401) {
         expireToken(); // Realiza el logout si el token es inválido
       } else if (status === 403) {
-          expireToken(); // Realiza el logout si no tienes permiso
+        expireToken(); // Realiza el logout si no tienes permiso
       } else {
         console.error("Error desconocido:", error.response.data);
       }
@@ -116,7 +100,7 @@ export function RegistroScreen({ navigation }) {
     setLoading(false);
     setLoadingMore(false);
   };
-  
+
 
   const handleLoadMore = () => {
     if (!loadingMore && data.length < totalRecords) {
@@ -126,9 +110,33 @@ export function RegistroScreen({ navigation }) {
   };
 
 
-  const handleCardPress = (item) => {
+  const handleCardPress = async (item) => {
+    const Counttipo = await getTipoAccioncount(db, "ENTRADA CLIENTE", item.idCompra);
+    if (Counttipo === 0) {
+      Toast.show({
+        type: 'info',
+        position: 'top', // Cambiar la posición a la parte superior
+        text1: '¡Información!',
+        text2: `${item.Cliente} no registra ENTRADA.😞`, 
+        text3: 'Por favor, registre la ENTRADA del cliente antes de continuar.',
+        visibilityTime: 4000,
+        autoHide: true
+      });
+      return;
+    }
     navigation.navigate(screen.registro.insertCall, { item, Tipo: 0 });
   };
+
+  const showToast = (title, message) => {
+    ToastAndroid.showWithGravityAndOffset(
+      `${title}: ${message}`,
+      ToastAndroid.LONG,
+      ToastAndroid.BOTTOM,
+      25,
+      50
+    );
+  };
+
   useEffect(() => {
     if (userInfoLoaded) {
       fetchData(currentPage);
@@ -168,6 +176,9 @@ export function RegistroScreen({ navigation }) {
               onPressIn={() => setPressedCardIndex(index)}
               onPressOut={() => setPressedCardIndex(null)}
               pressedCardIndex={pressedCardIndex}
+              db={db}
+              dataItem={dataItem}
+              updateNotificationCount={updateNotificationCount}
             />
           ))}
         </View>

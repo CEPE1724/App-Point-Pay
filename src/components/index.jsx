@@ -5,4 +5,5 @@ export * from './Ventas';
 export * from './Inventario';
 export * from './CombosBaratazos';
 export * from './GestionDiaria';
+export * from './HeaderRight';
 

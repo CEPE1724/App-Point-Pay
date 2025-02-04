@@ -20,7 +20,6 @@ export function Calendario(props) {
     const fetchUserInfo = async () => {
       try {
         const Item = await getItemsAsyncUser(db);
-        console.log("Itemcalendario", Item);
         if (Item) {
           setToken(Item[0]?.token);
           setUserInfo({
@@ -78,7 +77,6 @@ export function Calendario(props) {
     let idcobrador = userInfo.ingresoCobrador;
     navigation.navigate(screen.gestionDiaria.diaria, { day, idcobrador, fullDate });
   };
-  console.log(data);
   return (
     <View style={styles.container}>
       {loading ? (

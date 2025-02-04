@@ -17,7 +17,7 @@ import { APIURL } from "../../../../../config/apiconfig";
 import { Card } from '../../../../../components'; // Import your DayCard component
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useDb } from '../../../../../database/db'; // Importa la base de datos
-import { getItemsAsyncUser } from '../../../../../database';
+import { getItemsAsyncUser, getTipoAccioncount } from '../../../../../database';
 
 export function GestionCalendario( { route, navigation } ) {
     const { day, idcobrador, fullDate } = route.params;
@@ -75,7 +75,7 @@ export function GestionCalendario( { route, navigation } ) {
             },
         });
         
-        console.log("Data fetched:", response.data);
+
 
         // Ajustar la desestructuración
         const fetchedData = response.data.registros;
@@ -123,7 +123,8 @@ export function GestionCalendario( { route, navigation } ) {
     }
   };
 
-  const handleCardPress = (item, index) => {
+  const handleCardPress = async (item, index) => {
+    
     navigation.navigate(screen.registro.tab, { screen: screen.registro.insertCall, params: { item, Tipo: 1 } } );
   };
 

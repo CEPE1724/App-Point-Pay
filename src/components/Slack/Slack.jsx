@@ -29,7 +29,6 @@ export const sendSlackMessage = async (errorDetails) => {
         if (!response.ok) {
             throw new Error('Error al enviar el mensaje a Slack');
         }
-        console.log('Mensaje enviado a Slack');
     } catch (error) {
         console.error('Error:', error);
     }

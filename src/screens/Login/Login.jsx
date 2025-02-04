@@ -37,7 +37,6 @@ export default function Login({ navigation }) {
         // Inicializar la base de datos
         const items = await getItemsAsync(db);
         setDbDispositivos(items); // Guardar los dispositivos en el estado
-        console.log("Datos de la base de datos:", items);
 
       } catch (error) {
         console.error("Error al obtener datos ", error);
@@ -48,7 +47,6 @@ export default function Login({ navigation }) {
   }, []);
 
   const handleButtonPressPin = () => {
-    console.log("Navigating to LoginPin...");
     navigation.reset({
       index: 0,
       routes: [{ name: "LoginPin" }],
@@ -56,7 +54,6 @@ export default function Login({ navigation }) {
   };
 
   const handleButtonPressLogin = () => {
-    console.log("Navigating to LoginScreen...");
     navigation.reset({
       index: 0,
       routes: [{ name: "LoginCredenciales" }],
@@ -82,7 +79,7 @@ export default function Login({ navigation }) {
             ]}
             resizeMode="contain"
           />
-          <Text style={styles.title}>{dbDispositivos[0]?.Alias}</Text>
+          <Text style={styles.aliasTitle}>{dbDispositivos[0]?.Alias}</Text>
           <Image
             source={logo}
             style={[
@@ -129,7 +126,7 @@ export default function Login({ navigation }) {
           )}
         </View>
 
-        <Text style={styles.version}>Versión: 2.4.1.0</Text>
+        <Text style={styles.version}>Versión: 2.4.5.0</Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );

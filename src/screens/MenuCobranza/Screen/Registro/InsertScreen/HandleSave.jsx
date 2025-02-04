@@ -1,10 +1,9 @@
 import axios from "axios";
 import { screen } from "../../../../../utils/screenName";
 import { APIURL } from "../../../../../config/apiconfig";
-import { useAuth } from '../../../../../navigation/AuthContext'; // Importamos el contexto
 import { handleError } from '../../../../../utils/errorHandler';
-
-
+import { getItemsAsyncUser, addItemAsyncACUbicCliente, getALLPendientes } from '../../../../../database';
+import * as Location from 'expo-location';
 // Función principal que maneja el proceso de guardado
 export const HandleSave = async ({
   data,
@@ -18,17 +17,29 @@ export const HandleSave = async ({
   setLoading,
   token,
   expireToken,
-  Tipo
+  Tipo,
+  db,
+  updateNotificationCount,
+  latitude,
+  longitude,
+  Offline
 }) => {
+  console.log("Guardando datos...", summitDataTransfer);
+
   setLoading(true);
   const urlGoogle = APIURL.putGoogle();
   let IdCbo_GestionesDeCobranzas = 0;
 
   try {
     // Guardar Gestiones de Cobranzas
+    console.log("Guardando gestiones de cobranzas...", data);
     data.Tipo = Tipo;
     IdCbo_GestionesDeCobranzas = await saveGestionesDeCobranzas(data, token);
+    console.log("Gestiones de cobranzas guardadas correctamente", summitDataTransfer);
+    //if(IdCbo_GestionesDeCobranzas > 0){
+    await InsertaddItemAsyncACUbic(data, db, selectedTipoPago, updateNotificationCount, latitude, longitude, summitDataTransfer, Offline);
 
+    //}
     // Procesar recojo si es necesario
     if (selectedResultado === 60) {
       await processRecojo(
@@ -68,7 +79,6 @@ export const HandleSave = async ({
       msg += `\nNúmero de Comprobante:\n${voucher}`;
     }
     alert(msg); // Mensaje de éxito
-    console.log("Datos guardados correctamente edison", Tipo);
     if (Tipo === 0) {
       navigation.reset({
         index: 0, // Esto hace que la pantalla de destino sea la primera en el stack
@@ -131,9 +141,49 @@ const uploadImages = async (images, urlGoogle, idCompra, userInfo, token) => {
   return uploadedImageUrls;
 };
 
+const InsertaddItemAsyncACUbic = async (data, db, selectedTipoPago, updateNotificationCount, latitude, longitude, summitDataTransfer, Offline) => {
+  try {
+    const currentDate = new Date();
+    const timestamp = currentDate.toISOString().slice(0, 19).replace('T', ' ');  // Formato 'yyyy-mm-dd hh:mm:ss'
+
+    console.log("bernabe ");
+    const Item = await getItemsAsyncUser(db);
+    if (!Item || !Item[0]?.ICidIngresoCobrador || !Item[0]?.Empresa) {
+
+      return;
+    }
+
+    await addItemAsyncACUbicCliente(
+      db, "GESTIÓN CLIENTE",
+      latitude,
+      longitude,
+      Item[0]?.ICidIngresoCobrador,
+      Item[0]?.Empresa,
+      data.idCompra,
+      data.idCbo_EstadoGestion,
+      data.idCbo_EstadosTipocontacto,
+      data.idCbo_ResultadoGestion,
+      selectedTipoPago || 0,
+      data.FechaPago || '2000-01-01 00:00:00',
+      data.Valor,
+      summitDataTransfer.IdBanco || 0,
+      summitDataTransfer.NumeroDeposito || '',
+      summitDataTransfer.images || '',
+      Offline,
+      timestamp,
+      data.Notas
+    );
+    console.log("Ubicación guardada correctamente");
+    const pendingCount = await getALLPendientes(db);
+    updateNotificationCount(pendingCount);
+  } catch (error) {
+    console.log("Error al insertar ubicación en la base de datos Bernabe:", error);
+  }
+};
+
 // Función para guardar Gestiones de Cobranzas
 const saveGestionesDeCobranzas = async (data, token) => {
-  console.log("data", data);
+
   const url = APIURL.postCbo_GestionesDeCobranzas();
   try {
     const response = await axios.post(url, { ...data }, {
@@ -286,7 +336,7 @@ const saveAnticiposAPP = async (
   item,
   token
 ) => {
-  console.log("summitDataTransfer", userInfo);
+
   const dataTransfer = {
     idCompra: parseInt(idCompra, 10),
     idCobrador: parseInt(userInfo.ingresoCobrador, 10),

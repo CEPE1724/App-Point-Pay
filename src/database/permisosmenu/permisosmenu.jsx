@@ -6,13 +6,12 @@
     `);
     */
     export const addItemAsyncMenu = async (db, data, isConnected) => {
-        console.log("data menu", data.usuario.permisosMenu);
     
         if (isConnected) {
             try {
                 // Elimina todos los registros existentes en la tabla PermisosMenu
                 await db.runAsync('DELETE FROM PermisosMenu');
-                console.log("Registros eliminados correctamente.");
+
             } catch (error) {
                 console.error("Error al eliminar registros de PermisosMenu:", error);
             }
@@ -36,10 +35,7 @@
                                         Menu
                                     ) VALUES (?)`, [menu]);
     
-                                console.log(`Permiso con id ${menu} insertado correctamente.`);
-                            } else {
-                                console.log(`Valor no válido para la inserción: ${menu}`);
-                            }
+                            } 
                         }
                     } else {
                         console.error("No se encontraron permisos válidos para insertar.");
@@ -50,9 +46,7 @@
             } catch (error) {
                 console.error("Error al insertar permisos:", error);
             }
-        } else {
-            console.log("No hay conexión a la base de datos.");
-        }
+        } 
     };
     
     // consulta menu
@@ -61,7 +55,6 @@
         try {
             const query = 'SELECT * FROM PermisosMenu';
             const items = await db.getAllAsync(query);
-            console.log("Items de la base de datos:", items);
             return items;
         }
         catch (error) {

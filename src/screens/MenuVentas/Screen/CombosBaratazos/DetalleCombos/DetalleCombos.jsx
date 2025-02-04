@@ -76,7 +76,6 @@ export const DetalleCombos = ({ route }) => {
             totalCredito += item.Credito;
             totalTCSI += item.TCSI;
         });
-        console.log(totalCredito);
         totalContado = totalContado ? totalContado  : 0;
         totalTarjeta = totalTarjeta ? totalTarjeta  : 0;
         totalCredito = totalCredito ? totalCredito  : 0;

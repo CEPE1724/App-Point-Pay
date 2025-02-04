@@ -21,11 +21,10 @@
                 // Inserta cada bodega en la tabla Bodegas
                 for (let bodega of data.usuario.bodegas) {
                     // Verificar los datos de la bodega antes de la inserción
-                   // console.log("Datos de bodega a insertar:", bodega);
     
                     // Verificar si el campo 'Nombre' está presente y no es vacío
                     if ((bodega.Nombre && bodega.Nombre.trim()) !== '' || (bodega.idBodega && bodega.idBodega > 0)) {
-                       // console.log(`Bodega ${bodega.Nombre} es válida. Procediendo a la inserción.`);
+
     
                         await db.runAsync(`
                             INSERT INTO Bodegas (
@@ -47,9 +46,7 @@
             } catch (error) {
                 console.error("Error al insertar bodegas:", error);
             }
-        } else {
-            console.log("No hay conexión a la base de datos.");
-        }
+        } 
     };
     
     export const getItemsAsyncBodegaALL = async (db) => {

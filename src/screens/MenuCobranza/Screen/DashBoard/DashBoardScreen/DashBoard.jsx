@@ -11,12 +11,13 @@ import axios from "axios";
 import { styles } from "./DashBoard.Style"; // Verifica la ruta
 import { APIURL } from "../../../../../config/apiconfig";
 import { ConfirmDialog } from "../../../../../components";
-import { Cash, People, Refresh, Assessment, PieChart, Info, Doorclose, Dooropen, Almuerzo, ExitAlmuerzo } from "../../../../../Icons";
+import { screen } from "../../../../../utils/screenName";
+import { Cash, People, Refresh, Assessment, PieChart, Info, Doorclose, Dooropen, Almuerzo, ExitAlmuerzo, Right } from "../../../../../Icons";
 import { useAuth } from '../../../../../navigation/AuthContext'; // Importamos el contexto
 import { handleError } from '../../../../../utils/errorHandler';
 import { useDb } from '../../../../../database/db'; // Importa la base de datos
-import { getItemsAsyncUser, addItemAsyncDSbMetr, getItemsAsyncDSbMetr, UpdateAllDSbMetr, addItemAsyncACUbic, getPendingACUbic, getTipoAccion } from '../../../../../database';
-import { useNetworkStatus } from "../../../../../utils/NetworkProvider"; // Usamos el contexto de red
+import { getItemsAsyncUser, addItemAsyncDSbMetr, getItemsAsyncDSbMetr, UpdateAllDSbMetr, addItemAsyncACUbic, getPendingACUbic, getTipoAccion, getALLPendientes,deletePendientes  } from '../../../../../database';
+import { useNetworkStatus } from "../../../../../utils/NetworkProvider"; // Usamos el contexto de #bd252e
 import * as Location from 'expo-location';
 export function DashBoard(props) {
   const { navigation } = props;
@@ -26,7 +27,7 @@ export function DashBoard(props) {
   const [percentageCollected, setPercentageCollected] = useState(0);
   const [loading, setLoading] = useState(false);
   const [sdata, setSdata] = useState([]);
-  const { expireToken } = useAuth(); // Usamos el contexto de autenticación
+  const { expireToken, updateNotificationCount  } = useAuth(); // Usamos el contexto de autenticación
   const { db } = useDb();
   const isConnected = useNetworkStatus(); // Obtenemos el estado de la conexión
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -35,14 +36,35 @@ export function DashBoard(props) {
   const [isTrabajoSalida, setIsTrabajoSalida] = useState(0);
   const [isAlmuerzoInicio, setIsAlmuerzoInicio] = useState(0);
   const [isAlmuerzoFin, setIsAlmuerzoFin] = useState(0);
-  const handleConfirm = () => {
-    console.log("Acción confirmada: Guardar datos");
-    InsertaddItemAsyncACUbic(tipoAccion);
+  //const dele =  deletePendientes(db);
+  const handleConfirm = async () => {
+    // Actualiza el estado para reflejar que la acción se ha confirmado y bloquear el botón
+    if (tipoAccion === 'Ingreso al Trabajo') {
+      setIsTrabajoIngreso(1); // Bloquea el botón y cambia el color a rojo
+    } else if (tipoAccion === 'Salida del Trabajo') {
+      setIsTrabajoSalida(1);
+    } else if (tipoAccion === 'Inicio del Almuerzo') {
+      setIsAlmuerzoInicio(1);
+    } else if (tipoAccion === 'Fin del Almuerzo') {
+      setIsAlmuerzoFin(1);
+    }
+
+    // Cierra el modal después de la confirmación
     setIsModalVisible(false);
+
+    // Llamar a la función para registrar la acción en la base de datos
+    await InsertaddItemAsyncACUbic(tipoAccion);
+
+    // Obtener el nuevo número de pendientes
+
+    const pendingCount = await getALLPendientes(db);
+    
+    // Actualizar el contador de notificaciones en el contexto global
+    updateNotificationCount(pendingCount);
   };
 
   const handleCancel = () => {
-    console.log("Acción cancelada");
+
     setIsModalVisible(false);
   };
 
@@ -74,7 +96,7 @@ export function DashBoard(props) {
     };
 
     checkAcciones();
-  }, [db]);
+  }, [db, isAlmuerzoFin, isAlmuerzoInicio, isTrabajoIngreso, isTrabajoSalida]);
 
   // Función para consumir la API y actualizar la base de datos local
   const fetchDataFromAPI = async () => {
@@ -182,15 +204,15 @@ export function DashBoard(props) {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        console.log("Permiso de ubicación denegado.");
+
         return;
       }
-
+      console.log("InsertaddItemAsyncACUbic", tipoAccion);
       const location = await Location.getCurrentPositionAsync({});
       const { latitude, longitude } = location.coords;
       const Item = await getItemsAsyncUser(db);
       if (!Item || !Item[0]?.ICidIngresoCobrador || !Item[0]?.Empresa) {
-        console.log("Datos de cobrador o empresa no disponibles.");
+  
         return;
       }
 
@@ -203,37 +225,39 @@ export function DashBoard(props) {
         Item[0]?.Empresa
       );
 
-      console.log("Ubicación insertada correctamente en la base de datos.");
       sendPendingLocations();
 
     } catch (error) {
-      console.log("Error al insertar ubicación en la base de datos:", error);
+      console.log("Error al insertar ubicación en la base de datos Edison:", error);
     }
   };
 
   const sendPendingLocations = async () => {
     const pendingLocations = await getPendingACUbic(db);
     if (pendingLocations.length === 0) {
-      console.log('No hay ubicaciones pendientes para enviar.');
       return;
-    }
-
-    for (const location of pendingLocations) {
-      console.log("Enviando ubicación pendiente:", location);
     }
   }
 
   const handleTipoAccion = async (tipoAccion) => {
-     const Stipo = await getTipoAccion(db, tipoAccion);
+    const Stipo = await getTipoAccion(db, tipoAccion);
+    console.log("Stipo", Stipo);
     if (Stipo && Stipo.length > 0) {
-      console.log (Stipo);
-      console.log("Ya existe una acción de este tipo para hoy.");
       return;
     }
     setTipoAccion(tipoAccion);
     setIsModalVisible(true);
   }
 
+  const handleNavigate = () => {
+    gotoRegistro();
+  };
+
+  const gotoRegistro = () => {
+    navigation.navigate(screen.registro.tab, {
+      screen: screen.registro.inicio,
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -276,6 +300,7 @@ export function DashBoard(props) {
 
         {/* Segunda fila de recuadros */}
         <View style={styles.row}>
+          <TouchableOpacity onPress={handleNavigate}>
           <View style={styles.card}>
             <Text style={styles.title}>Clientes Asignados</Text>
             <View style={styles.cardContent}>
@@ -285,10 +310,12 @@ export function DashBoard(props) {
               <View style={styles.valueContainer}>
                 <Text style={styles.summaryValue}>{numberOfClients}</Text>
               </View>
+              <Right size={30} color="#b4b4b4" />
             </View>
           </View>
+        </TouchableOpacity>
           <View style={styles.card}>
-            <Text style={styles.title}>Valor Proyectado kk</Text>
+            <Text style={styles.title}>Valor Proyectado</Text>
             <View style={styles.cardContent}>
               <View style={styles.iconContainer}>
                 <Assessment size={20} color="#fff" />
@@ -330,9 +357,9 @@ export function DashBoard(props) {
             <View style={styles.cardContentWrapper}>
               <TouchableOpacity onPress={() => handleTipoAccion('Ingreso al Trabajo')}
                 disabled={isTrabajoIngreso === 1}
-                >
+              >
                 <View style={styles.iconWrapper}>
-                  <Dooropen size={20} color= {isTrabajoIngreso === 1 ? "red" : "#fff"} />
+                  <Dooropen size={20} color={isTrabajoIngreso === 1 ? "#bd252e" : "#fff"} />
                 </View>
                 <View style={styles.valueWrapper}>
                   <Text style={styles.valueText}>Ingreso al Trabajo</Text>
@@ -341,18 +368,63 @@ export function DashBoard(props) {
               <View style={styles.iconContainerInfo}>
                 <TouchableOpacity onPress={showAlert}>
                   <Info size={5} color={isTrabajoIngreso === 1 ? "green" : "#fff"} />
-               
+
                 </TouchableOpacity>
               </View>
             </View>
           </View>
           <View style={styles.individualCard}>
             <View style={styles.cardContentWrapper}>
+              <TouchableOpacity onPress={() => handleTipoAccion('Inicio del Almuerzo')}
+                disabled={isAlmuerzoInicio === 1}
+              >
+                <View style={styles.iconWrapper}>
+                  <Almuerzo size={20} color={isAlmuerzoInicio === 1 ? "#bd252e" : "#fff"} />
+                </View>
+                <View style={styles.valueWrapper}>
+                  <Text style={styles.valueText}>Inicio del Almuerzo</Text>
+                </View>
+              </TouchableOpacity>
+              <View style={styles.iconContainerInfo}>
+                <TouchableOpacity onPress={showAlert}>
+                  <Info size={5} color={isAlmuerzoInicio === 1 ? "green" : "#fff"} />
+
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.cardRowContainer}>
+          <View style={styles.individualCard}>
+
+            <View style={styles.cardContentWrapper}>
+              <TouchableOpacity onPress={() => handleTipoAccion('Fin del Almuerzo')}
+                disabled={isAlmuerzoFin === 1}
+              >
+                <View style={styles.iconWrapper}>
+                  <ExitAlmuerzo size={20} color={isAlmuerzoFin === 1 ? "#bd252e" : "#fff"} />
+                </View>
+                <View style={styles.valueWrapper}>
+                  <Text style={styles.valueText}>Fin del Almuerzo</Text>
+                </View>
+              </TouchableOpacity>
+              <View style={styles.iconContainerInfo}>
+                <TouchableOpacity onPress={showAlert}>
+                  <Info size={5} color={isAlmuerzoFin === 1 ? "green" : "#fff"} />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.individualCard}>
+
+            <View style={styles.cardContentWrapper}>
               <TouchableOpacity onPress={() => handleTipoAccion('Salida del Trabajo')}
                 disabled={isTrabajoSalida === 1}
-                >
+              >
                 <View style={styles.iconWrapper}>
-                  <Doorclose size={20} color={isTrabajoSalida === 1 ? "red" : "#fff"} />
+                  <Doorclose size={20} color={isTrabajoSalida === 1 ? "#bd252e" : "#fff"} />
                 </View>
                 <View style={styles.valueWrapper}>
                   <Text style={styles.valueText}>Salida del Trabajo</Text>
@@ -366,52 +438,6 @@ export function DashBoard(props) {
             </View>
           </View>
         </View>
-
-        <View style={styles.cardRowContainer}>
-          <View style={styles.individualCard}>
-            <View style={styles.cardContentWrapper}>
-              <TouchableOpacity onPress={() => handleTipoAccion('Inicio del Almuerzo')}
-                disabled={isAlmuerzoInicio === 1}
-                >
-                <View style={styles.iconWrapper}>
-                  <Almuerzo size={20} color= {isAlmuerzoInicio === 1 ? "red" : "#fff"} />
-                </View>
-                <View style={styles.valueWrapper}>
-                  <Text style={styles.valueText}>Inicio del Almuerzo</Text>
-                </View>
-              </TouchableOpacity>
-              <View style={styles.iconContainerInfo}>
-                <TouchableOpacity onPress={showAlert}>
-                <Info size={5} color={isAlmuerzoInicio === 1 ? "green" : "#fff"} />
-               
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-          <View style={styles.individualCard}>
-
-            <View style={styles.cardContentWrapper}>
-              <TouchableOpacity onPress={() => handleTipoAccion('Fin del Almuerzo')}
-                disabled={isAlmuerzoFin === 1}
-                >
-                <View style={styles.iconWrapper}>
-                  <ExitAlmuerzo size={20} color= {isAlmuerzoFin === 1 ? "red" : "#fff"} />
-                </View>
-                <View style={styles.valueWrapper}>
-                  <Text style={styles.valueText}>Fin del Almuerzo</Text>
-                </View>
-              </TouchableOpacity>
-              <View style={styles.iconContainerInfo}>
-                <TouchableOpacity onPress={showAlert}>
-                <Info size={5} color={isAlmuerzoFin === 1 ? "green" : "#fff"} />
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </View>
-
-
-
       </ScrollView>
 
       {/* Botón flotante para actualizar */}

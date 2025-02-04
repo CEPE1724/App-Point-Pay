@@ -48,7 +48,7 @@ function TabNavigator() {
 
 export function AppNavigator() {
   const { isLoggedIn, login, logout, hasRegistered, setRegistrationStatus } = useAuth();  // Obtener los valores del contexto
-  console.log("isLoggedInAA", hasRegistered);
+
 
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [items, setItems] = useState([]);
@@ -58,9 +58,9 @@ export function AppNavigator() {
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
-        console.log("Iniciando migración de la base de datos...");
+
         await migrateDbIfNeeded(db); // Asegúrate de que las tablas estén creadas
-        console.log("Migración completada");
+
   
         const fetchedItems = await getItemsAsync(db);
         const fetchedItemsUser = await getItemsAsyncUser(db);
@@ -71,11 +71,9 @@ export function AppNavigator() {
           if (fetchedItems[0].KeyDispositivo && fetchedItems[0].kEYdATA) {
             setRegistrationStatus(true);
           } else {
-            console.log("keyDatafalse", fetchedItems[0].kEYdATA);
             setRegistrationStatus(false);
           }
         } else {
-          console.log("keyDatafalseVida", fetchedItems[0]?.kEYdATA);
           setRegistrationStatus(false);
         }
   
@@ -96,10 +94,8 @@ export function AppNavigator() {
   }, [login, logout, setRegistrationStatus, db]);
   
   if (isCheckingAuth) {
-    console.log("isCheckingAuth", isCheckingAuth);
     return <SplashScreen />;
   }
-  console.log("hasregister", hasRegistered);
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {/* Si el dispositivo está registrado, mostramos el flujo de login o la app */}

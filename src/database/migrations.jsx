@@ -4,18 +4,15 @@ export const migrateDbIfNeeded = async (db) => {
     const DataVersion = 1;  // Establecer la versión esperada de la base de datos
     const result = await db.getFirstAsync('PRAGMA user_version');
     let { user_version: currentDbVersion } = result;
-    console.log("Versión actual de la base de datos:", currentDbVersion);
-    console.log("Versión de la base de datos esperada:", DataVersion);
 
     // Si la base de datos está en una versión no válida o es la primera vez, inicia la migración
     if (currentDbVersion === undefined || currentDbVersion === 0) {
-      //console.log("Iniciando migración para la versión 1...");
+
 
       // Cambiar el modo de la base de datos para Write-Ahead Logging (WAL)
       await db.execAsync('PRAGMA journal_mode = "wal";');
 
       // Crear la tabla 'dispositivosapp' si no existe
-      //console.log("Creando tabla 'dispositivosapp'...");
       await db.execAsync(`
         CREATE TABLE IF NOT EXISTS dispositivosapp (
           idDispositivosApp INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -103,14 +100,14 @@ export const migrateDbIfNeeded = async (db) => {
 
       await db.execAsync(`
         CREATE TABLE IF NOT EXISTS AccionesUbicaciones (
-    idAccion INTEGER PRIMARY KEY AUTOINCREMENT,  
-    tipoAccion TEXT NOT NULL,                    
-    latitude FLOAT NOT NULL,                     
-    longitude FLOAT NOT NULL,                     
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, 
-    enviado INTEGER DEFAULT 0 ,
-    ICidIngresoCobrador INTEGER DEFAULT 0,
-    Empresa INTEGER DEFAULT 0                    
+        idAccion INTEGER PRIMARY KEY AUTOINCREMENT,  
+        tipoAccion TEXT NOT NULL,                    
+        latitude FLOAT NOT NULL,                     
+        longitude FLOAT NOT NULL,                     
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, 
+        enviado INTEGER DEFAULT 0 ,
+        ICidIngresoCobrador INTEGER DEFAULT 0,
+        Empresa INTEGER DEFAULT 0                    
 );
 `);
       await db.execAsync(`
@@ -140,7 +137,7 @@ export const migrateDbIfNeeded = async (db) => {
     idCbo_EstadosTipocontacto INTEGER NOT NULL
 );
 `);
-await db.execAsync(`
+      await db.execAsync(`
   CREATE TABLE IF NOT EXISTS listacuentas (
    id INTEGER PRIMARY KEY AUTOINCREMENT, 
     idCuenta INTEGER NOT NULL,
@@ -148,13 +145,87 @@ await db.execAsync(`
 );
 `);
 
-      console.log("Listado de tablas creadas.");
-
       // Actualizar la versión de la base de datos
       await db.execAsync('PRAGMA user_version = 1');
-      //console.log("Versión de la base de datos actualizada a 1.");
+
     }
 
+    if (currentDbVersion === 1) {
+      await db.execAsync(`
+        CREATE TABLE IF NOT EXISTS Cbo_GestorDeCobranzas (
+          idCobranza INTEGER PRIMARY KEY AUTOINCREMENT,
+          idCbo_GestorDeCobranzas INTEGER DEFAULT 0,
+          idcobrador INTEGER DEFAULT 0,
+          notcobrador INTEGER DEFAULT 0,
+          Valor_Cobrar_Proyectado FLOAT DEFAULT 0,
+          Valor_Cobrado FLOAT DEFAULT 0,
+          Numero_Documento TEXT DEFAULT '',
+          Cedula TEXT DEFAULT '',
+          Cliente TEXT DEFAULT '',
+          idCompra INTEGER DEFAULT 0,
+          idCliente INTEGER DEFAULT 0,
+          Dias_Mora_Proyectado INTEGER DEFAULT 0,
+          Banco TEXT DEFAULT '',
+          Direccion TEXT DEFAULT '',
+          Barrio TEXT DEFAULT '',
+          Telefono TEXT DEFAULT '',
+          Celular TEXT DEFAULT '',
+          Fecha_Factura DATETIME DEFAULT CURRENT_TIMESTAMP,
+          enviado INTEGER DEFAULT 0
+        );
+      `);
+
+
+      await db.execAsync(`
+        ALTER TABLE AccionesUbicaciones ADD COLUMN idCompra INTEGER DEFAULT 0
+      `);
+      await db.execAsync(`
+        ALTER TABLE AccionesUbicaciones ADD COLUMN idCombo1 INTEGER DEFAULT 0
+      `);
+      await db.execAsync(`
+        ALTER TABLE AccionesUbicaciones ADD COLUMN idCombo2 INTEGER DEFAULT 0
+      `);
+      await db.execAsync(`
+        ALTER TABLE AccionesUbicaciones ADD COLUMN idCombo3 INTEGER DEFAULT 0
+      `);
+      await db.execAsync(`
+        ALTER TABLE AccionesUbicaciones ADD COLUMN TipoPago INTEGER DEFAULT 0
+      `);
+      await db.execAsync('PRAGMA user_version = 2');
+    }
+
+    if (currentDbVersion === 2) 
+      {
+        await db.execAsync(`
+          ALTER TABLE AccionesUbicaciones ADD COLUMN Notas TEXT DEFAULT ''
+        `);
+
+        await db.execAsync(`
+          ALTER TABLE AccionesUbicaciones ADD COLUMN Offline INTEGER DEFAULT 0
+        `);
+        
+        await db.execAsync(`
+          ALTER TABLE AccionesUbicaciones ADD COLUMN Valor FLOAT DEFAULT 0
+        `);
+
+        await db.execAsync(`
+          ALTER TABLE AccionesUbicaciones ADD COLUMN FechaPago DATETIME DEFAULT '2000-01-01 00:00:00'
+        `);
+
+        await db.execAsync(`
+          ALTER TABLE AccionesUbicaciones ADD COLUMN IdBanco INTEGER DEFAULT 0
+        `);
+
+        await db.execAsync(`
+          ALTER TABLE AccionesUbicaciones ADD COLUMN NumeroDeposito TEXT DEFAULT ''
+        `);
+
+        await db.execAsync(`
+          ALTER TABLE AccionesUbicaciones ADD COLUMN Url TEXT DEFAULT ''
+        `);
+
+        await db.execAsync('PRAGMA user_version = 3');
+      }
   } catch (error) {
     console.error("Error durante la migración de la base de datos:", error);
   }

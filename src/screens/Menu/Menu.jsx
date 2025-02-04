@@ -21,9 +21,8 @@ export function Menu({ navigation }) {
       try {
         // Obtener la información del menú desde la base de datos
         const items = await getItemsAsyncMenu(db);
-        console.log('Permisos del menú:', items);
 
-        // Filtramos para obtener solo los valores de 'Menu' relevantes (1 para Cobranza y 2 para Ventas)
+       // Filtramos para obtener solo los valores de 'Menu' relevantes (1 para Cobranza y 2 para Ventas)
         const menuPermissions = items.map(item => item.Menu);
         setPermisosMenu(menuPermissions); // Guardar los permisos en el estado
       } catch (error) {
@@ -45,7 +44,7 @@ export function Menu({ navigation }) {
         style={[styles.image, { width: 150, height: 60, marginBottom: 20 }]}
         resizeMode="contain"
       />
-      <Text style={styles.title}>Versión: 2.4.1.0 </Text>
+      <Text style={styles.title}>Versión: 2.4.5.0 </Text>
 
       <View style={styles.cardContainer}>
         {/* Condicional para mostrar "Cobranza" si permisosMenu incluye el valor 1 */}

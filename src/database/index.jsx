@@ -9,3 +9,5 @@ export * from './EstadoGestion';
 export * from './EstadoTipoContacto';
 export * from './ResultadoGestion';
 export * from './listacuentas';
+export * from './Cbo_GestorDeCobranzas';
+export * from './TotalGestiones';

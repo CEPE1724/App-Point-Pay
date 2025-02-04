@@ -66,7 +66,6 @@ export const TablaAmortizacion = ({ route }) => {
             // Si la respuesta es exitosa
             const fetchedData = response.data;
             setProductos(fetchedData);
-            console.log("Data fetched:", productos);
         } catch (error) {
             handleError(error, expireToken);
         } finally {
@@ -78,7 +77,6 @@ export const TablaAmortizacion = ({ route }) => {
         setLoading(true);
         try {
             const url = APIURL.getViewTablaAmortizacionValores();
-            console.log("URL valores:", token);
             const headers = {
                 "Authorization": `Bearer ${token}`,  // Añadimos el token en los headers
                 "Content-Type": "application/json",  // Tipo de contenido
@@ -141,10 +139,10 @@ export const TablaAmortizacion = ({ route }) => {
         setLoading(true);
         try {
             const url = APIURL.listTablaPago();
-            console.log("URL valores:", id);
+
             const response = await axios.get(url, { params: { idCre_TablaDeAmortizacion: id } }
             );
-            console.log("Data fetched:", response.data);
+
             const fetchedData = response.data;
             setListaValores(response.data || {});
         } catch (error) {
@@ -201,7 +199,6 @@ export const TablaAmortizacion = ({ route }) => {
             </View>
         );
     }
-    console.log("productos", productos.NumeroCuota);
     return (
         <View style={styles.container}>
             <View style={styles.headerRowView}>

@@ -283,7 +283,6 @@ export function VerificacionClienteSearch({ route, navigation }) {
       try {
         const response = await axios.get(urlsearch);
         const ubicacion = response.data.ubicaciones[0]; // Asumiendo que solo te interesa el primer elemento
-         console.log(ubicacion);
         if (ubicacion) {
           if (tipo === 2) {
             setState((prevState) => ({

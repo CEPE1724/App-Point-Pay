@@ -780,7 +780,6 @@ export function VerificacionCliente({ route, navigation }) {
 
 
   const saveVerificationDomicilio = async (data, tipoS) => {
-    console.log("Data to savesss:", data);
     const url =
       tipoS === 1
         ? APIURL.postTerrenaGestionDomicilioSave()

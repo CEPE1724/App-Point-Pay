@@ -13,9 +13,10 @@ export const AuthProvider = ({ children }) => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [hasRegistered, setHasRegistered] = useState(false);  // Estado para manejo del registro
+  const [notificationCount, setNotificationCount] = useState(0);
   const { db } = useDb();
-  console.log("hasRegistered  1", hasRegistered);
 
+  
   // Verificación del token y el estado de registro
   useEffect(() => {
     const checkRegistrationStatus = async () => {
@@ -27,7 +28,6 @@ export const AuthProvider = ({ children }) => {
           setHasRegistered(false);  // Si no hay registros, no está registrado
         }
       } catch (error) {
-        console.log("Error al obtener los registros de la base de datos", error);
         setHasRegistered(false);  // Si hay algún error, asumimos que no está registrado
       }
     };
@@ -43,8 +43,7 @@ export const AuthProvider = ({ children }) => {
           const meDataUser = await getItemsAsyncUser(db);
           const bbToken = meDataUser[0]?.token || null;
           const usuarioActivo = meDataUser[0]?.UsuarioActivo || 0;
-          console.log("Menu almacenado:", meDataUser);
-          console.log("UsuarioActivo almacenado:", usuarioActivo);
+
 
           // Si el token es válido y el usuario está activo, logueamos al usuario
           if (bbToken && usuarioActivo === 1) {
@@ -61,9 +60,7 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
           console.log('Error al obtener el token:', error);
         }
-      } else {
-        console.log("El dispositivo no está registrado, no se realizarán consultas a la base de datos.");
-      }
+      } 
       setLoading(false);
     };
 
@@ -80,6 +77,11 @@ export const AuthProvider = ({ children }) => {
       return true;  // Si no se puede decodificar el token, lo consideramos expirado
     }
   };
+  const updateNotificationCount = (count) => {
+    console.log('updateNotificationCount:', count);
+    setNotificationCount(count);
+  };
+
 
   // Mostrar un mensaje de error cuando estamos offline
   const showToast = (title, message) => {
@@ -108,7 +110,6 @@ export const AuthProvider = ({ children }) => {
 
   // Función de logout
   const logout = async () => {
-    console.log("Realizando logout...");
     setIsLoggedIn(false);
     setToken(null);
     setUserData(null);
@@ -132,7 +133,6 @@ export const AuthProvider = ({ children }) => {
 
   // Manejo de la expiración del token
   const expireToken = async () => {
-    console.log("Token expirado. Realizando logout...");
     showToast('¡Sesión expirada!', 'Por favor, vuelve a iniciar sesión.');
     logout();
   };
@@ -151,6 +151,8 @@ export const AuthProvider = ({ children }) => {
       loading,
       hasRegistered, // Estado de registro
       setRegistrationStatus, // Función para actualizar el estado de registro
+      notificationCount,
+      updateNotificationCount,
     }}>
       {loading ? <View><Text>Loading...</Text></View> : children}
     </AuthContext.Provider>

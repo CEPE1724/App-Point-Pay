@@ -18,7 +18,6 @@ export const addItemAsyncUser = async (db, data, isConnected) => {
 
     if (isConnected) {
         await db.runAsync('DELETE FROM Usuario');
-        console.log("Registros eliminados correctamente.");
         try {
             await db.runAsync(`
                 INSERT INTO Usuario (
@@ -55,8 +54,6 @@ export const addItemAsyncUser = async (db, data, isConnected) => {
                     '${data.usuario.Clave || ''}'
                 );
             `);
-            console.log("Usuario agregado correctamente.");
-            console.log("Usuario", data.token);
         } catch (error) {
             console.log("Error addItemAsyncUser", error);
         }
@@ -77,7 +74,7 @@ export const UpdateItemAsyncUSer = async (db, token) => {
                 SET
                     token = '${token}'
             `);
-        console.log("Usuario actualizado correctamente.");
+
     } catch (error) {
         console.log("Error UpdateItemAsyncUSer", error);
     }
@@ -91,7 +88,6 @@ export const UpdateActivoItemAsyncUSer = async (db, UsuarioActivo) => {
                 SET
                     UsuarioActivo = ${UsuarioActivo}
             `);
-        console.log("Usuario Activado o desactivado");
     } catch (error) {
         console.log("Error UpdateItemAsyncUSer", error);
     }

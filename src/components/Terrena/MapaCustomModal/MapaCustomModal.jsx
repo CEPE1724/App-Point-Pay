@@ -86,8 +86,7 @@ export function MapaCustomModal({ visible, onClose, onLocationSelect }) {
                 .openPopup();
   
               // Actualizar la información de la ubicación
-              console.log('Latitud:', lat, 'Longitud:', lng);
-  
+             
               // Realizar geocodificación inversa para obtener la dirección
               window.ReactNativeWebView.postMessage(JSON.stringify({ lat, lng }));
             });

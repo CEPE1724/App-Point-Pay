@@ -3,9 +3,9 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'; 
 import { styles } from './CardItem.Style'; 
 import { Cell, CalendarToday, UserBlack } from "../../../Icons"; 
-
+import { useNetworkStatus } from "../../../utils/NetworkProvider";
 export function CardItem({ item, handleViewAmortizacion, handleViewCel, handleButtonPress, handleViewGestiones }) {
-  
+   const isConnected = useNetworkStatus(); // Estado de la conexión
   const formattedDate = new Date(item.Fecha_Factura).toISOString().split('T')[0];
 
   const getColorForValue = (valorProyectado, valorCobrado) => {
@@ -47,6 +47,7 @@ export function CardItem({ item, handleViewAmortizacion, handleViewCel, handleBu
         </View>
 
         {/* Botones de Acción */}
+        { isConnected && (
         <View style={styles.buttonsContainer}>
           <View style={styles.buttonRow}>
             <TouchableOpacity onPress={handleViewAmortizacion} style={styles.buttonAmortizacion}>
@@ -64,8 +65,10 @@ export function CardItem({ item, handleViewAmortizacion, handleViewCel, handleBu
             </TouchableOpacity>
           </View>
         </View>
-
+        )}
+      
         {/* Botones de Acciones Adicionales */}
+        { isConnected && (
         <View style={styles.buttonsContainer}>
           <View style={styles.buttonRow}>
             <TouchableOpacity onPress={handleViewGestiones} style={styles.buttonGestiones}>
@@ -82,9 +85,11 @@ export function CardItem({ item, handleViewAmortizacion, handleViewCel, handleBu
               </View>
             </TouchableOpacity>
           </View>
-        </View>
+        </View> 
+        )}
 
         {/* Botón Productos */}
+        { isConnected && (
         <View style={styles.buttonsContainer}>
           <TouchableOpacity onPress={handleButtonPress} style={styles.buttonProductos}>
             <View style={styles.rowPro}>
@@ -93,6 +98,7 @@ export function CardItem({ item, handleViewAmortizacion, handleViewCel, handleBu
             </View>
           </TouchableOpacity>
         </View>
+        )}
 
         {/* Valores Proyectados y Cobrado */}
         <View style={styles.rowProyect}>

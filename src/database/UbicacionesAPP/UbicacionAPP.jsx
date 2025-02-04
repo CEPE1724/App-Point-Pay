@@ -32,7 +32,6 @@ export const addItemAsyncUAPP = async (db, latitude, longitude, ICidIngresoCobra
                 '${getLocalDateTime()}'
             );
         `);
-        console.log("Ubicación agregada correctamente.");
     } catch (error) {
         console.log("Error al agregar ubicación en la base de datos:", error);
     }
@@ -60,14 +59,11 @@ const getLocalDateTime = () => {
 
 export const updateItemAPP = async (db, idUbicacionesAPP) => {
     try {
-        console.log("Actualizando ubicación...");
-        console.log("idUbicacionesAPP:", idUbicacionesAPP);
         await db.runAsync(`
             UPDATE UbicacionesAPP
             SET enviado = 1
             WHERE idUbicacionesAPP = ${idUbicacionesAPP}
         `);
-        console.log("Ubicación actualizada correctamente.");
     } catch (error) {
         console.error("Error al actualizar la ubicación:", error);
     }

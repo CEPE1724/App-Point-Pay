@@ -110,7 +110,6 @@ export function ClientesScreen(props) {
   // Handle errors from API responses
   const handleApiError = (error) => {
     if (error.response) {
-      console.log("Error en la respuesta:");
       // Si existe una respuesta (aunque sea con un error)
       handleError(error, expireToken);
     } else if (error.request) {

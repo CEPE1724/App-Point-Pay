@@ -9,13 +9,10 @@ export const ListadoResultadoGestion = async (db, data, isConnected) => {
         try {
             // Inserta cada bodega en la tabla Bodegas
             for (let bodega of data.usuario.ResultadoGestion) {
-                // Verificar los datos de la bodega antes de la inserción
-               // console.log("Datos de bodega a insertar:", bodega);
 
                 // Verificar si el campo 'Nombre' está presente y no es vacío
                 if ( (bodega.idCbo_ResultadoGestion && bodega.idCbo_ResultadoGestion > 0)) {
-                   // console.log(`Bodega ${bodega.Nombre} es válida. Procediendo a la inserción.`);
-                  
+                
                     await db.runAsync(`
                         INSERT INTO ResultadoGestion (
                             idCbo_ResultadoGestion, idCbo_EstadoGestion, Resultado, idCbo_EstadosTipocontacto

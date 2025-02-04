@@ -122,7 +122,6 @@ export default function LoginScreen({ navigation }) {
   };
   const printAsyncStorageNotConnected = async () => {
     try {
-      console.log('items', items);
       const clave = items[0]?.Clave;
       const keys = items[0]?.kEYdATA;
       if (keys === clave) {
@@ -143,7 +142,6 @@ export default function LoginScreen({ navigation }) {
         setIsLoading(false);
         return;
       }
-      console.log('items', email, password, keyDispositivo);
       const url = APIURL.senLoginV1();
       const response = await fetch(url, {
         method: "POST",
@@ -184,7 +182,6 @@ export default function LoginScreen({ navigation }) {
 
 
   const handleBack = () => {
-    console.log("Going back...");
     navigation.navigate("Login"); // Navegar a la pantalla de bienvenida
   };
 
@@ -266,7 +263,7 @@ export default function LoginScreen({ navigation }) {
           <Text style={styles.buttonTextBack}>Regresar</Text>
         </TouchableOpacity>
 
-        <Text style={styles.version}>Versión: 2.4.1.0</Text>
+        <Text style={styles.version}>Versión: 2.4.5.0</Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );

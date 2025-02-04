@@ -43,9 +43,7 @@ export function CombosBaratazos(props) {
                 if (iBodega) {
                     setBodegas(iBodega);
                     setSelectedBodega(iBodega[0]?.Bodega || null); // Asignamos el valor de la bodega seleccionada directamente aquí.
-                } else {
-                    console.log("No user info found ");
-                }
+                } 
             } catch (error) {
                 console.error("Error fetching data :", error);
             }
@@ -117,8 +115,6 @@ export function CombosBaratazos(props) {
         if (isBodegaSelected) {
             bodega = selectedBodega.Bodega;
         }
-        console.log("Bodega seleccionada:", bodega);
-
         navigation.navigate(screen.menuVentas.detallecombos, { item, bodega: bodega });
     };
 

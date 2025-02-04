@@ -61,6 +61,14 @@ export const styles = StyleSheet.create({
     fontStyle: "italic",
     fontWeight: "bold",
   },
+  textDoor : {
+    flex: 1, // This will make the text take up all available space
+    fontSize: 8, // Increased font size for better readability
+    marginBottom: 5,
+    color: "#000000",
+    fontStyle: "italic",
+    fontWeight: "bold",
+  },
   textProyect: {
     flex: 1, // This will make the text take up all available space
     fontSize: 12, // Increased font size for better readability
@@ -152,5 +160,45 @@ export const styles = StyleSheet.create({
   iconNoData: {
     textAlign: "center",
     marginTop: 20,
+  },
+  buttonDoor: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    marginTop: 10,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 8,
+    width: '90%',
+    maxWidth: 400,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    marginBottom: 10,
+  },
+  map: {
+    width: '100%',
+    height: 300,
+    marginBottom: 20,
+  },
+  confirmButton: {
+    backgroundColor: '#4CAF50',
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  cancelButton: {
+    backgroundColor: '#f44336',
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 10,
   },
 });

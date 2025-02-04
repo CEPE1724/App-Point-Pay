@@ -55,4 +55,13 @@ export const styles = StyleSheet.create({
     marginBottom: 5,
     color: "#2066a4",
   },
+   aliasTitle : {
+    fontSize: 24, // Aumento del tamaño de la fuente
+    fontWeight: "normal", // Menos peso para hacerlo más liviano
+    marginBottom: 10, // Aumento del margen inferior
+    color: "#003366", // Un color diferente (tono más oscuro de azul)
+    fontStyle: "italic", // Añadido estilo en cursiva
+    
+  }
+  
 });

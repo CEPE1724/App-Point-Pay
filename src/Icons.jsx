@@ -7,7 +7,8 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Fontisto from '@expo/vector-icons/Fontisto';
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
-
+import AntDesign from '@expo/vector-icons/AntDesign';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import Entypo from '@expo/vector-icons/Entypo';
 //https://icons.expo.fyi/Index
 import Octicons from '@expo/vector-icons/Octicons';
@@ -198,3 +199,22 @@ export  const ExitAlmuerzo = (props) =>{
   return <MaterialCommunityIcons name="silverware-variant" size={props.size} color={props.color} />
 }
 
+export  const Right = (props) =>{
+  return <AntDesign name="right" size={props.size} color={props.color} />
+}
+
+export  const AddDrive = (props) =>{
+  return <MaterialIcons name="add-to-drive" size={props.size} color={props.color} />
+}
+
+export  const CloudUp = (props) =>{
+  return <FontAwesome5 name="cloud-upload-alt" size={props.size} color={props.color} />
+}
+
+export  const DoorEnter = (props) =>{
+  return <Ionicons name="enter-outline" size={props.size} color={props.color} />
+}
+
+export  const DoorExit = (props) =>{
+  return <Ionicons name="enter-sharp" size={props.size} color={props.color} />
+}

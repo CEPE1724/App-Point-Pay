@@ -17,7 +17,6 @@ export function CardCliente({
   const [showMap, setShowMap] = useState(false);
   const [showPhoto, setShowPhoto] = useState(false); // Estado para mostrar el modal de imagen
 
-  console.log("item", item);
   // Función para manejar el clic en el ícono del GPS
 
   const [coordinates, setCoordinates] = useState({

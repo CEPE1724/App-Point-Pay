@@ -5,7 +5,6 @@ import { styles } from './PagosTDAmortizacion.Style';
 
 export function PagosTDAmortizacion({ visible, onClose, data, cliente, Cedula, Numero_Documento, NumeroCuota }) {
   if (!data || data.length === 0) return null;
-  console.log(data);
   return (
     <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
       <View style={styles.modalBackground}>

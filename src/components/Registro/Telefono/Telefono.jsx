@@ -42,7 +42,6 @@ export function Telefono({ isVisible, item, onClose }) {
             "Authorization": `Bearer ${token}`,  // Añadimos el token en los headers
             "Content-Type": "application/json",  // Tipo de contenido
         };
-        console.log('Headers:', token);
         try {
             const response = await axios.get(APIURL.getTelefono(), {
                 params: { idCliente: item.idCliente }, // Enviamos el idCliente
@@ -107,7 +106,6 @@ export function Telefono({ isVisible, item, onClose }) {
         };
 
         try {
-            console.log('Headers:', token);
             const headers = {
                 "Authorization": `Bearer ${token}`,  // Añadimos el token en los headers
                 "Content-Type": "application/json",  // Tipo de contenido

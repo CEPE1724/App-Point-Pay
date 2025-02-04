@@ -1,15 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import * as Location from 'expo-location';
 import { APIURL } from '../../config/apiconfig';
-import io from 'socket.io-client';
 import NetInfo from '@react-native-community/netinfo';
 import { useDb } from '../../database/db';
 import { addItemAsyncUAPP, getPendingLocations, updateItemAPP, getItemsAsyncUser } from '../../database';
 
 const LocationSender = () => {
   const [isConnected, setIsConnected] = useState(true); // Estado de la conexión de red
-  const socketRef = useRef(null);
-  const subscriptionRef = useRef(null);
+  const subscriptionRef = useRef(null);  // Solo se usará para la suscripción a la ubicación
   const { db } = useDb();
   const [ICidIngresoCobrador, setICidIngresoCobrador] = useState(null);
   const [ICCodigo, setICCodigo] = useState(null);
@@ -17,6 +15,7 @@ const LocationSender = () => {
   const [iTipoPersonal, setITipoPersonal] = useState(null);
   const [idUsuario, setIdUsuario] = useState(null);
   const [Empresa, setEmpresa] = useState(null);
+  const [timestamp, setTimestamp] = useState(null);
 
   // Obtener datos del usuario desde la base de datos
   useEffect(() => {
@@ -30,6 +29,7 @@ const LocationSender = () => {
           setITipoPersonal(items[0]?.iTipoPersonal);
           setIdUsuario(items[0]?.idUsuario);
           setEmpresa(items[0]?.Empresa);
+          setTimestamp(items[0]?.timestamp);
         }
       } catch (error) {
         console.error("Error al obtener los datos de la base de datos:", error);
@@ -48,7 +48,6 @@ const LocationSender = () => {
     if (!isConnected) {
       return;  // No se hace nada si no hay conexión
     }
-   console.log("Enviando ubicación:", location);
     try {
       const url = APIURL.postUbicacionesAPPlocation();
       const response = await fetch(url, {
@@ -60,17 +59,20 @@ const LocationSender = () => {
           idUser: idUsuario,
           latitude: location.latitude,
           longitude: location.longitude,
+          ICidIngresoCobrador,
+          ICCodigo,
+          Nombre,
+          iTipoPersonal,
+          idUsuario,
+          Empresa,
+          timestamp
         }),
       });
-
       if (!response.ok) {
         throw new Error('Error en la solicitud');
       }
-      console.log('Ubicación enviada con éxito:', location);
       // Actualizamos el estado de la ubicación en SQLite después de enviar con éxito
       await updateItemAPP(db, location.idUbicacionesAPP); // Marcar la ubicación como enviada
-      // Emitir evento a través del socket
-      socketRef.current.emit('newLocation', { idUsuario, ...location.coords });
     } catch (error) {
       console.error('Error enviando ubicación:', error);
     }
@@ -95,7 +97,6 @@ const LocationSender = () => {
         idUsuario,
         Empresa
       );
-      console.log("Ubicación guardada localmente:", newLocation);
     } catch (error) {
       console.error('Error guardando ubicación en SQLite:', error);
     }
@@ -110,7 +111,6 @@ const LocationSender = () => {
   const sendPendingLocations = async () => {
     const pendingLocations = await getPendingLocations(db);  // Obtener las ubicaciones pendientes (sin enviar)
     if (pendingLocations.length === 0) {
-      console.log('No hay ubicaciones pendientes para enviar.');
       return;
     }
 
@@ -126,14 +126,6 @@ const LocationSender = () => {
       setIsConnected(state.isConnected); // Actualizar estado de la conexión de red
     });
 
-    const initializeSocket = () => {
-      socketRef.current = io(APIURL.socketEndpoint());
-      socketRef.current.on('connect', () => console.log('Conectado al servidor de sockets'));
-      socketRef.current.on('connect_error', (error) => console.error('Error de conexión de socket:', error));
-    };
-
-    initializeSocket();
-
     const getLocationUpdates = async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
@@ -144,9 +136,9 @@ const LocationSender = () => {
       // Usamos watchPositionAsync para obtener actualizaciones de ubicación
       subscriptionRef.current = await Location.watchPositionAsync(
         {
-          accuracy: Location.Accuracy.High,
-          timeInterval: 90000, // Actualización cada 10 segundos
-          distanceInterval: 50, // Actualización cada 10 metros
+          accuracy: Location.Accuracy.Balanced,  // Usamos una precisión equilibrada
+          timeInterval: 60,  // Actualización cada 60 segundos
+          distanceInterval: 1,  // Actualización cada 100 metros
         },
         (newLocation) => {
           saveLocation(newLocation);  // Guardamos y luego intentamos enviar ubicaciones pendientes
@@ -166,7 +158,6 @@ const LocationSender = () => {
       if (subscriptionRef.current) {
         subscriptionRef.current.remove();
       }
-      socketRef.current.disconnect();
     };
   }, [isConnected]);  // Solo vuelve a ejecutarse cuando cambia el estado de conexión
 

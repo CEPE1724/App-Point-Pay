@@ -13,6 +13,7 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import { styles } from "./InsertScreen.Style"; // Asegúrate de que la ruta es correcta
 import { screen } from "../../../../../utils/screenName";
 import { APIURL } from "../../../../../config/apiconfig";
+import * as Location from 'expo-location';
 import axios from "axios";
 import { Picker } from "@react-native-picker/picker";
 import * as ImagePicker from "expo-image-picker";
@@ -24,15 +25,17 @@ import { ConfirmationModal } from "../../../../../components";
 import { LoadingIndicator } from "../../../../../components";
 import { CardItem } from "../../../../../components";
 import { HandleSave } from "./HandleSave"; // Asegúrate de importar la función handleGuardar
+import {HandleSaveNotConnect} from "./HandleSaveNotConnect";
+
 import { useAuth } from '../../../../../navigation/AuthContext';
 import { handleError } from '../../../../../utils/errorHandler';
 import { useDb } from '../../../../../database/db'; // Importa la base de datos
-import { getItemsAsyncUser, getListadoEstadoGestion, getListadoEstadoTipoContacto, getListadoResultadoGestion, getlistacuentas } from '../../../../../database';
- 
+
+import { getItemsAsyncUser, getListadoEstadoGestion, getListadoEstadoTipoContacto, getListadoResultadoGestion, getlistacuentas, addItemAsyncACUbicCliente } from '../../../../../database';
+import { useNetworkStatus } from "../../../../../utils/NetworkProvider";
 export function InsertScreen({ route, navigation }) {
   const [isModalVisibleCont, setIsModalVisibleCont] = useState(false); // Controla la visibilidad del modal
   const { item, Tipo } = route.params;
-  console.log("item", Tipo);
   const [items, setItems] = useState([]);
   const [selectedValue, setSelectedValue] = useState("");
   const [contactTypes, setContactTypes] = useState([]);
@@ -59,6 +62,7 @@ export function InsertScreen({ route, navigation }) {
   const [alertIcon, setAlertIcon] = useState(""); // Estado para el ícono
   const [alertColor, setAlertColor] = useState(""); // Estado para el color del mensaje
   const [mensajeComporbante, setMensajeComporbante] = useState("");
+  const isConnected = useNetworkStatus(); // Estado de la conexión
   const [summitDataTransfer, setSummitDataTransfer] = useState({
     comprobante: "",
     images: [],
@@ -70,9 +74,9 @@ export function InsertScreen({ route, navigation }) {
   const [dataGestion, setDataGestion] = useState([]);
   const [modalVisibleOk, setModalVisibleOk] = useState(false);
   const [token, setToken] = useState(null);
-  const { expireToken } = useAuth();
+  const { expireToken, updateNotificationCount } = useAuth();
   const { db } = useDb();
-
+  const [itemdata, setItemdata] = useState([]);
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
@@ -80,9 +84,10 @@ export function InsertScreen({ route, navigation }) {
         if (Item) {
           setToken(Item[0]?.token);
           setUserInfo({
-            ingresoCobrador: Item[0]?.ICidIngresoCobrador  || "",
+            ingresoCobrador: Item[0]?.ICidIngresoCobrador || "",
             Usuario: Item[0]?.ICCodigo || "",
           });
+          setItemdata(Item[0]);
         }
       } catch (error) {
         console.error("Error fetching user info:", error);
@@ -132,13 +137,12 @@ export function InsertScreen({ route, navigation }) {
   useEffect(() => {
     const fetchData = async () => {
       if (!token) {
-        console.log("Token no disponible.");
         return; // No hace la solicitud si no hay token
       }
 
       try {
         const dat = await getListadoEstadoGestion(db);
-        
+
         // Si la respuesta es exitosa, actualizamos los datos
         setItems(dat); // Asumiendo que tu API devuelve un array de elementos
 
@@ -159,7 +163,7 @@ export function InsertScreen({ route, navigation }) {
     if (value) {
       try {
         const tipoesta = await getListadoEstadoTipoContacto(db, value);
-       
+
         setContactTypes(tipoesta); // Establece los datos para el segundo Picker
       } catch (error) {
         handleError(error, expireToken);
@@ -272,11 +276,13 @@ export function InsertScreen({ route, navigation }) {
     const banco = selectedTipoPago === 2 ? selectedBanco : 0;
 
     // Validar el comprobante
+    if(isConnected){
     const mensaje = await ValidaComprobante(comprobante, banco, tipoComprobante);
     if (mensaje.length > 0) {
       alert(mensaje);
       return;
     }
+  }
 
     // Preparar los datos para el envío
     const newData = {
@@ -441,6 +447,46 @@ export function InsertScreen({ route, navigation }) {
 
   const HandleGuardar = async (data, summitDataTransfer) => {
 
+
+     const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          console.error("Permisos de ubicación no concedidos.");
+          return;
+        }
+    
+        // Intentar obtener la ubicación con un timeout
+        const location = await getLocationWithTimeout();
+    
+        if (!location) {
+          console.error("No se pudo obtener la ubicación.");
+          return;
+        }
+    
+    const { latitude, longitude } = location.coords;
+    console.log("edison");
+    if (!isConnected) {
+      await HandleSaveNotConnect ({
+        data,
+        summitDataTransfer,
+        selectedResultado,
+        selectedTipoPago,
+        item,
+        navigation,
+        userInfo,
+        submittedDataRecojo,
+        setLoading, // Pasar setLoading como argumento
+        token,
+        expireToken,
+        Tipo: Tipo,
+        db,
+        updateNotificationCount,
+        latitude,
+        longitude,
+        Offline: 1
+      });
+    }
+    else {
+
     await HandleSave({
       data,
       summitDataTransfer,
@@ -454,7 +500,13 @@ export function InsertScreen({ route, navigation }) {
       token,
       expireToken,
       Tipo: Tipo,
+      db,
+      updateNotificationCount,
+      latitude,
+      longitude,
+      Offline: 0
     });
+  }
   };
 
   const handleTipoPagoChange = (itemValue) => {
@@ -462,17 +514,54 @@ export function InsertScreen({ route, navigation }) {
     // Aquí puedes agregar lógica adicional si es necesario
   };
 
+  const getLocationWithTimeout = async () => {
+      let attempts = 0;
+      const maxAttempts = 3; // Máximo número de intentos
+    
+      const timeout = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    
+      while (attempts < maxAttempts) {
+        try {
+          // Intentamos obtener la ubicación
+          const location = await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.High, // Usar alta precisión
+            timeInterval: 5000, // Intentar obtener la ubicación en menos de 5 segundos
+            distanceInterval: 10, // Minimizar el movimiento para mayor precisión
+          });
+    
+          if (location && location.coords) {
+            return location; // Si obtenemos la ubicación, la retornamos
+          }
+        } catch (error) {
+          console.error("Error al obtener la ubicación en el intento " + (attempts + 1), error);
+        }
+    
+        // Esperamos 3 segundos antes de intentar de nuevo
+        attempts++;
+        if (attempts < maxAttempts) {
+          console.log(`Reintentando obtener la ubicación... (Intento ${attempts + 1}/${maxAttempts})`);
+          await timeout(3000); // Pausa de 3 segundos antes del siguiente intento
+        }
+      }
+    
+      console.error("No se pudo obtener la ubicación después de múltiples intentos.");
+      return null;
+    };
+
   return (
     <ScrollView
       style={styles.container}
       contentContainerStyle={{ paddingBottom: 20 }}
     >
-     <CardItem 
-        item={item} 
-        handleViewAmortizacion={handleViewAmortizacion} 
-        handleViewCel={handleViewCel} 
-        handleButtonPress={handleButtonPress} 
-        handleViewGestiones={handleViewGestiones} 
+      <CardItem
+        item={item}
+        handleViewAmortizacion={handleViewAmortizacion}
+        handleViewCel={handleViewCel}
+        handleButtonPress={handleButtonPress}
+        handleViewGestiones={handleViewGestiones}
+        db={db}
+        itemdata={itemdata}
+        addItemAsyncACUbicCliente={addItemAsyncACUbicCliente}
       />
 
       {/* Primer Picker para estados */}
@@ -637,11 +726,15 @@ export function InsertScreen({ route, navigation }) {
           </View>
         </View>
       ) : null}
-      <Telefono
-        isVisible={isModalVisibleCont}
-        item={item}
-        onClose={handleCloseModalCel}
-      />
+
+
+      {isConnected && (
+        <Telefono
+          isVisible={isModalVisibleCont}
+          item={item}
+          onClose={handleCloseModalCel}
+        />
+      )}
       {selectedResultado ? (
         <View>
           <TextInput

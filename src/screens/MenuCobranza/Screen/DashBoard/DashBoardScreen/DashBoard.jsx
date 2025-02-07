@@ -281,7 +281,7 @@ export function DashBoard(props) {
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.title}>Porcentaje Cobrado</Text>
+            <Text style={styles.title}>Valor Cobrado</Text>
             <View style={styles.cardContent}>
               <View style={styles.iconContainer}>
                 <Cash size={30} color="#fff" />

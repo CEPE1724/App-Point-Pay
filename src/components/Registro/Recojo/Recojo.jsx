@@ -30,28 +30,29 @@ export function Recojo({ route, setModalVisibleRecojo, setSubmittedDataRecojo, s
   const { expireToken } = useAuth(); // Usamos el contexto de autenticación
   const [token, setToken] = useState(null);
   const { db } = useDb();
+  const [numeroComprobnate, setNumeroComprobante] = useState("");
   const [userInfoLoaded, setUserInfoLoaded] = useState(false);  // Para saber si los datos del token ya se han cargado
-      useEffect(() => {
-        const fetchUserInfo = async () => {
-            try {
-                const Item = await getItemsAsyncUser(db);
-                setToken(Item[0]?.token);
-            } catch (error) { 
-                console.error("Error fetching user info:", error);
-            } finally {
-                setUserInfoLoaded(true);  // Marcamos que ya se cargó el token
-            }
-        };
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const Item = await getItemsAsyncUser(db);
+        setToken(Item[0]?.token);
+      } catch (error) {
+        console.error("Error fetching user info:", error);
+      } finally {
+        setUserInfoLoaded(true);  // Marcamos que ya se cargó el token
+      }
+    };
 
-        fetchUserInfo();
-    }, []);  // Se ejecuta solo una vez cuando el componente se monta
+    fetchUserInfo();
+  }, []);  // Se ejecuta solo una vez cuando el componente se monta
 
-    // Solo realiza la llamada a la API cuando el token esté disponible
-    useEffect(() => {
-        if (userInfoLoaded && token) {
-            fetchData();  // Llamamos a fetchData cuando el token esté disponible
-        }
-    }, [userInfoLoaded, token]);  // Dependencias: se ejecuta cuando el token esté listo
+  // Solo realiza la llamada a la API cuando el token esté disponible
+  useEffect(() => {
+    if (userInfoLoaded && token) {
+      fetchData();  // Llamamos a fetchData cuando el token esté disponible
+    }
+  }, [userInfoLoaded, token]);  // Dependencias: se ejecuta cuando el token esté listo
 
 
   const fetchData = async () => {
@@ -185,7 +186,32 @@ export function Recojo({ route, setModalVisibleRecojo, setSubmittedDataRecojo, s
     setModalVisibleRecojo(false);
     setSelectedResultado("");
   };
-  const handleAccept = () => {
+  const ValidaComprobante = async (comprobante) => {
+    try {
+      const url = APIURL.validaComporbanteRecojo();
+      const response = await axios.get(url, {
+        params: { Comprobante: comprobante },
+      });
+      console.log("response", response.data.count);
+      return response.data.count; // Retornar el mensaje para mostrarlo en la UI
+    } catch (error) {
+      console.error("Error al validar el comprobante:", error);
+      return "Ocurrió un error al validar el comprobante.";
+    }
+  };
+
+  const handleAccept = async() => {
+    // verificar si ingreso el comporbante 
+    if (numeroComprobnate === "") {
+      Alert.alert("Info", "Debes ingresar el número de comprobante antes de proceder.");
+      return;
+    }
+    const mensaje = await ValidaComprobante(numeroComprobnate);
+    if (mensaje > 0) {
+      alert("El comprobante ya fue ingresado");
+      return;
+    }
+    // Verificar si hay al menos un producto seleccionado
     const hasSelectedItems = Object.values(selectedProducts).some(selected => selected);
     if (!hasSelectedItems) {
       Alert.alert("Error", "Debes seleccionar al menos un artículo antes de proceder.");
@@ -196,6 +222,7 @@ export function Recojo({ route, setModalVisibleRecojo, setSubmittedDataRecojo, s
         idDetCompra: id,
         observaciones: observations[id] || "",
         imagenes: images[id] || [],
+        comporbanteRecojo: numeroComprobnate,
       }));
       setSubmittedData(dataToSubmit);
       setSubmittedDataRecojo(dataToSubmit);
@@ -288,8 +315,22 @@ export function Recojo({ route, setModalVisibleRecojo, setSubmittedDataRecojo, s
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
 
+  const handleNumberChange = (value) => {
+    setNumeroComprobante(value);
+  };
+
   return (
     <View style={styles.container}>
+      <View style={styles.row}>
+   
+        <TextInput
+          style={styles.input}
+          keyboardType="numeric"
+          value={numeroComprobnate}
+          onChangeText={handleNumberChange}
+          placeholder="Número de Comprobante"
+        />
+      </View>
 
 
       <FlatList

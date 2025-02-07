@@ -228,6 +228,7 @@ const processRecojo = async (
         idDetCompra: parseInt(itemRe.idDetCompra, 10),
         Nota: itemRe.observaciones,
         Imagenes: uploadedImageUrls,
+        Comprobante: itemRe.comporbanteRecojo,
       };
       const urlRecojo = APIURL.postRecojo();
       await axios.post(urlRecojo, dataRecojo, {

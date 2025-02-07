@@ -22,9 +22,10 @@ export const addItemAsyncCbo_Gestorcobranza = async (db, data, isConnected) => {
                     Barrio,
                     Telefono,
                     Celular,
-                    Fecha_Factura
+                    Fecha_Factura,
+                    Laboral
                 ) VALUES (
-                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
                 )`, [
                     data.idCbo_GestorDeCobranzas || null,
                     data.idcobrador || null,
@@ -42,7 +43,8 @@ export const addItemAsyncCbo_Gestorcobranza = async (db, data, isConnected) => {
                     data.Barrio || '',
                     data.Telefono || '',
                     data.Celular || '',
-                    data.Fecha_Factura || new Date().toISOString()
+                    data.Fecha_Factura || new Date().toISOString(),
+                    data.Laboral || ''
                 ]);
         } catch (error) {
             console.error("Error al insertar datos en Cbo_GestorDeCobranzas:", error);
@@ -62,8 +64,12 @@ export const deleteCbo_Gestorcobranza = async (db, isConnected) => {
 }
 
 
-export const getallCbo_Gestorcobranza = async (db, filtro) => {
+export const getallCbo_Gestorcobranza = async (db, filtro, page = 1) => {
     try {
+        // Definir el límite de registros por página
+        const limit = 10; // 10 registros por página
+        const offset = (page - 1) * limit; // Desplazamiento basado en la página
+
         // Construir la consulta base con el filtro común para todos los campos
         let query = `
             SELECT * FROM Cbo_GestorDeCobranzas
@@ -71,10 +77,11 @@ export const getallCbo_Gestorcobranza = async (db, filtro) => {
             OR Cedula LIKE ?
             OR Cliente LIKE ?
             OR Banco LIKE ?
+            LIMIT ? OFFSET ?;
         `;
         
         // Crear un arreglo con el valor del filtro, que se aplica a todos los campos
-        const values = [`%${filtro}%`, `%${filtro}%`, `%${filtro}%`, `%${filtro}%`];
+        const values = [`%${filtro}%`, `%${filtro}%`, `%${filtro}%`, `%${filtro}%`, limit, offset];
 
         // Ejecutar la consulta con los valores
         const items = await db.getAllAsync(query, values);

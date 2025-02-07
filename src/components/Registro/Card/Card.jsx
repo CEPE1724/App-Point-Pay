@@ -233,7 +233,7 @@ export function Card({ item, index, onPress, onPressIn, onPressOut, pressedCardI
     >
       <View style={styles.row}>
         <User size={18} color="black" style={styles.icon} />
-        <Text style={styles.text}> {item.Cedula}</Text>
+        <Text style={styles.text}> {item.Cliente}</Text>
       </View>
       <View style={styles.row}>
         <Bank size={18} color="black" style={styles.icon} />
@@ -272,6 +272,9 @@ export function Card({ item, index, onPress, onPressIn, onPressOut, pressedCardI
       </View>
       <View style={styles.row}>
         <Text style={styles.textDire}> {item.Barrio}/{item.Direccion}</Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.textDire}> {item.Laboral}</Text>
       </View>
       <View style={styles.row}>
         <TouchableOpacity

@@ -35,6 +35,22 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     color: "#6c757d",
   },
+  input: {
+    flex: 1, // Para que el input ocupe todo el espacio disponible
+    borderColor: '#e0e0e0',
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    marginRight: 10, // Espacio entre el input y el calendario
+    fontSize: 16,
+    color: '#333',
+    backgroundColor: '#ffffff',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
   productTitle: {
     fontSize: 16,
     fontWeight: "bold",

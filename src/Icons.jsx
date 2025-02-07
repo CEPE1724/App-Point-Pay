@@ -16,6 +16,9 @@ export const CircleInfoIcon = (props) => {
   return <FontAwesome5 name="info-circle" size={props.size} color={props.color} />;
 };
 
+export const ArrowLeft = (props) => {
+  return <FontAwesome5 name="arrow-left" size={props.size} color={props.color} />;
+};
 export const Info = (props) => {
   return <Entypo name="info" size={props.size} color={props.color} />;
 };
@@ -28,9 +31,13 @@ export const Wifi = (props) => {
   return <FontAwesome5 name="wifi" size={props.size} color={props.color} />;
 };
 
+export const Notification = (props) => {
+  return <MaterialIcons name="notifications-on" size={props.size} color={props.color} />;
+};
+
 export const WifiOff = (props) => {
   return <MaterialIcons name="wifi-off" size={props.size} color={props.color} />;
-};
+}
 
 export const Storage = (props) => {
   return <MaterialIcons name="local-shipping" size={props.size} color={props.color} />;

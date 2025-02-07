@@ -223,7 +223,7 @@ export function InsertScreen({ route, navigation }) {
   };
 
   useEffect(() => {
-    if (selectedResultado === 60) {
+    if (selectedResultado === 60 && isConnected) {
       setModalVisible(false); // Cerrar otro modal
       setModalVisibleRecojo(true); // Abrir modal de recojo
     } else if (selectedResultado !== 61) {
@@ -390,6 +390,7 @@ export function InsertScreen({ route, navigation }) {
       showAlert("La descripción debe tener entre 10 y 500 caracteres.");
       return;
     }
+  
 
     const data = {
       idCbo_GestorDeCobranzas: parseInt(item.idCbo_GestorDeCobranzas, 10),
@@ -405,6 +406,7 @@ export function InsertScreen({ route, navigation }) {
       FechaPago: selectedResultado === 54 ? selectedDate.toISOString() : "2000-01-01",
       Usuario: userInfo.Usuario,
     };
+   
 
     setDataGestion(data);
     setModalVisibleOk(true); // Mostrar el modal de confirmación
@@ -413,7 +415,7 @@ export function InsertScreen({ route, navigation }) {
 
 
   const handleConfirm = () => {
-
+    
     HandleGuardar(dataGestion, summitDataTransfer); // Guardar los datos
     setModalVisibleOk(false); // Cerrar el modal
   };

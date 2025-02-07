@@ -2,6 +2,7 @@ const menuStack = {
     tab: "MenuTab",
     inicio: "Inicio",
     cuenta: "Cuenta",
+    notificaciones: "Notificaciones",
 }
 
 

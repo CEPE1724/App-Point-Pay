@@ -1,5 +1,4 @@
-
-  // Menu.Style.js
+// Menu.Style.js
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
@@ -73,6 +72,36 @@ export const styles = StyleSheet.create({
     top: 30,
     justifyContent: 'space-around',
     width: '100%',
-
+  },
+  notification: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+  },
+  notificationBadge: {
+    position: 'absolute',
+    top: -5,
+    right: -10,
+    backgroundColor: 'red',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  notificationBadgeText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  notificationCard: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  notificationText: {
+    fontSize: 14,
+    color: '#063970',
+    marginLeft: 10,
   },
 });

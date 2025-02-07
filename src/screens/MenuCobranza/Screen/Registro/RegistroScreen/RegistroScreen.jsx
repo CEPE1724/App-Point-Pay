@@ -55,26 +55,26 @@ export function RegistroScreen({ navigation }) {
   const fetchData = async (page = 1) => {
     // Verifica que los datos del usuario y el estado de carga sean correctos antes de hacer la solicitud
     if (!userInfoLoaded || loading || (page > 1 && data.length >= totalRecords)) return;
-
+  
     setLoading(true);
     try {
       // Obtén los datos desde la base de datos en lugar de hacer la solicitud a la API
-      const dataFromDb = await getallCbo_Gestorcobranza(db, filtro);  // Aquí usas tu función que obtiene los datos desde la base de datos
-
-
+      const dataFromDb = await getallCbo_Gestorcobranza(db, filtro, page);  // Aquí usas tu función con paginación
+  
       // Actualiza los datos con los datos obtenidos de la base de datos
       const total = dataFromDb.length;  // Puedes actualizar el total de registros según la cantidad de registros obtenidos de la base de datos
       setData((prevData) => (page === 1 ? dataFromDb : [...prevData, ...dataFromDb]));
       setTotalRecords(total);  // Actualiza el total de registros con el tamaño de los datos obtenidos
-
+  
       // Termina el proceso de carga
       setLoading(false);
       setLoadingMore(false);
-
+  
     } catch (error) {
       handleError(error); // Ahora solo maneja el error sin reintentos
     }
   };
+  
 
 
   // Handle Errors without retry logic

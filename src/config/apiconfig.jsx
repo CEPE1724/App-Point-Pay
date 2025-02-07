@@ -58,4 +58,8 @@ export const APIURL = {
     SaveTelefono : () => `${API_BASE_URL}Cre_GCTelefono/add`,
     listTablaPago: () => `${API_BASE_URL}Inventario/V1/ListaPagos`,
     validaComporbante : () => `${API_BASE_URL}Inventario/V1/ValidaComprobante`,
+    validaComporbanteRecojo : () => `${API_BASE_URL}recojo/allComprobante`,
+    seteoVerdion : () => `${API_BASE_URL}seteo/all`,
+    getNotificaciones : () => `${API_BASE_URL}NotificationUser/allID`,
+    getCountNotificaciones : () => `${API_BASE_URL}NotificationUser/count`,
 };

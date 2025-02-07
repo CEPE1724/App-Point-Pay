@@ -225,7 +225,16 @@ export const migrateDbIfNeeded = async (db) => {
         `);
 
         await db.execAsync('PRAGMA user_version = 3');
-      }
+        }
+
+      if (currentDbVersion === 3) 
+        {
+          await db.execAsync(`
+            ALTER TABLE Cbo_GestorDeCobranzas ADD COLUMN Laboral TEXT DEFAULT ''
+          `);
+  
+          await db.execAsync('PRAGMA user_version = 4');
+          }
   } catch (error) {
     console.error("Error durante la migración de la base de datos:", error);
   }

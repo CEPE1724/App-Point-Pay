@@ -4,10 +4,10 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { styles } from './CardItem.Style'; 
 import { Cell, CalendarToday, UserBlack } from "../../../Icons"; 
 import { useNetworkStatus } from "../../../utils/NetworkProvider";
-export function CardItem({ item, handleViewAmortizacion, handleViewCel, handleButtonPress, handleViewGestiones }) {
+export function CardItem({ item, handleViewAmortizacion, handleViewCel, handleButtonPress, handleViewGestiones, handleViewReferencias }) {
    const isConnected = useNetworkStatus(); // Estado de la conexión
   const formattedDate = new Date(item.Fecha_Factura).toISOString().split('T')[0];
-
+  console.log(item);
   const getColorForValue = (valorProyectado, valorCobrado) => {
     return valorCobrado >= valorProyectado ? 'green' : 'red'; 
   };
@@ -78,7 +78,7 @@ export function CardItem({ item, handleViewAmortizacion, handleViewCel, handleBu
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={handleViewGestiones} style={styles.buttonReferencias}>
+            <TouchableOpacity onPress={handleViewReferencias} style={styles.buttonReferencias}>
               <View style={styles.rowPro}>
                 <Icon name="file-text-o" size={20} color="#fff" />
                 <Text style={styles.valueProAmo}>Referencias</Text>

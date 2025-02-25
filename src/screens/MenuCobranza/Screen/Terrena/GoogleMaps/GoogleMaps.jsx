@@ -72,25 +72,26 @@ export function GoogleMaps({ route }) {
         // Función para observar la ubicación del dispositivo
         const startWatchingLocation = async () => {
             const locationSubscription = await Location.watchPositionAsync(
-                {
-                    accuracy: Location.Accuracy.Balanced,
-                    distanceInterval: 200,  // Cada 200 metros
-                    timeInterval: 5 * 60 * 1000,  // Cada 5 minutos
-                },
-                (newLocation) => {
-                    setOrigin({
-                        latitude: newLocation.coords.latitude,
-                        longitude: newLocation.coords.longitude,
-                    });
-                    setRegion({
-                        latitude: newLocation.coords.latitude,
-                        longitude: newLocation.coords.longitude,
-                        latitudeDelta: 0.0922,
-                        longitudeDelta: 0.0421,
-                    });
-                }
+              {
+                accuracy: Location.Accuracy.High,
+                distanceInterval: 500,  // Actualizar solo si hay un cambio de 500 metros
+                timeInterval: 10000,    // Actualizar cada 10 segundos
+              },
+              (newLocation) => {
+                setOrigin({
+                  latitude: newLocation.coords.latitude,
+                  longitude: newLocation.coords.longitude,
+                });
+                setRegion({
+                  latitude: newLocation.coords.latitude,
+                  longitude: newLocation.coords.longitude,
+                  latitudeDelta: 0.0922,
+                  longitudeDelta: 0.0421,
+                });
+              }
             );
-        };
+          };
+          
 
         startWatchingLocation();
 

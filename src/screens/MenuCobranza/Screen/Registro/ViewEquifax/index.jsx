@@ -1,0 +1,1 @@
+export * from './ViewEquifax'; // Importa el componente ViewEquifax

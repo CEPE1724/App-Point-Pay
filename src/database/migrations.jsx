@@ -234,7 +234,20 @@ export const migrateDbIfNeeded = async (db) => {
           `);
   
           await db.execAsync('PRAGMA user_version = 4');
-          }
+        }
+
+        if (currentDbVersion === 4) 
+        {
+          await db.execAsync(`
+            ALTER TABLE Cbo_GestorDeCobranzas ADD latitudEquifax FLOAT DEFAULT 0 
+          `);
+
+          await db.execAsync(`
+            ALTER TABLE Cbo_GestorDeCobranzas ADD longitudEquifax FLOAT DEFAULT 0 
+          `);
+
+          await db.execAsync('PRAGMA user_version = 5');
+        }
   } catch (error) {
     console.error("Error durante la migración de la base de datos:", error);
   }

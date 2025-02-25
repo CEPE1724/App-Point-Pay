@@ -1,3 +1,5 @@
+
+
 {
   "expo": {
     "name": "Point",
@@ -38,7 +40,12 @@
         "CAMERA",
         "READ_EXTERNAL_STORAGE"
       ],
-      "package": "com.cepe1724.AppPointPay"
+      "package": "com.cepe1724.AppPointPay",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDSFUJHYlz1cpaWs2EIkelXeMaUY0YqWag"
+        }
+      }
     },
     "web": {
       "favicon": "./assets/IconApp.png"

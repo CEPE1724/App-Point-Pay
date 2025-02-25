@@ -6,3 +6,5 @@ export * from './TextInputField';
 export * from './MapaCustomGoogle'; // Exporta el componente MapaCustomGoogle
 export * from './MapaCustomModal'; // Exporta el componente MapaCustomModal
 export * from './ConfirmDialog'; // Exporta el componente ConfirmDialog
+
+export * from './PhotoViewer'; // Exporta el componente PhotoViewer

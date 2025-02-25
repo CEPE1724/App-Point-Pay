@@ -225,3 +225,7 @@ export  const DoorEnter = (props) =>{
 export  const DoorExit = (props) =>{
   return <Ionicons name="enter-sharp" size={props.size} color={props.color} />
 }
+
+export  const Equifax = (props) =>{
+  return <MaterialIcons name="location-history" size={props.size} color={props.color} />
+}

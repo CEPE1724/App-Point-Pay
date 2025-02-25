@@ -26,6 +26,8 @@ const registroStack = {
     product: "Productos",
     viewGestiones: "ViewGestiones",
     TablaAmortizacion: "TablaAmortizacion",
+    viewReferencias: "ViewReferencias",
+    GpsEquifax : "GpsEquifax",
 
 }
 

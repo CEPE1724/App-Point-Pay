@@ -10,7 +10,7 @@ import { useDb } from '../../../../../database/db'; // Importa la base de datos
 import { getItemsAsyncUser } from '../../../../../database';
 
 export const ViewProductos = ({ route }) => {
-  const { item } = route.params;
+  const { item } = route.params; 
   const [productos, setProductos] = useState([]);
   const idCompra = item.idCompra;
   const [loading, setLoading] = useState(true);

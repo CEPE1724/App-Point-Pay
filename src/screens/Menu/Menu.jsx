@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { Location, Exit, Notification, User } from '../../Icons';
-import PushNotification from 'react-native-push-notification'; // Importar la librería
 import { useSocket } from '../../utils/SocketContext';
 import LogoCobranza from '../../../assets/PontyDollar.png';
 import LogoVentas from '../../../assets/PointVentas.png';
@@ -38,7 +37,7 @@ export function Menu({ navigation }) {
     socket.on('newNotification', (newNotification) => {
       console.log('Nueva notificación:', newNotification);
       setNotificationCount(prevCount => prevCount + 1); // Incrementa el contador cuando llegue una nueva notificación
-      createLocalNotification(newNotification); 
+     
     });
 
     // Limpiar el socket cuando el componente se desmonte
@@ -48,22 +47,7 @@ export function Menu({ navigation }) {
   }
 }, [socket, db]);
 
-const createLocalNotification = (notification) => {
-  PushNotification.localNotification({
-    /* Se puede personalizar este objeto según la necesidad */
-    title: 'Nueva Notificación', // Título de la notificación
-    message: notification.message, // Mensaje de la notificación
-    bigText: notification.message, // Mensaje extendido
-    subText: '¡No la ignores!', // Subtítulo (opcional)
-    soundName: 'default', // Sonido de la notificación
-    priority: 'high', // Prioridad alta
-    number: notificationCount + 1, // Número de notificación
-    playSound: true, // Reproducir sonido
-    actions: '["Ver", "Ignorar"]', // Botones de acción (opcional)
-    largeIcon: "ic_launcher", // Icono grande
-    smallIcon: "ic_notification", // Icono pequeño
-  });
-};
+
 
   // Obtener datos de menú y usuario
   const fetchData = async () => {

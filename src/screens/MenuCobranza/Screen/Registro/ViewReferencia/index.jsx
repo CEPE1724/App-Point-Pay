@@ -1,0 +1,1 @@
+export * from './ViewReferencias'; // Importa el componente ViewReferencias

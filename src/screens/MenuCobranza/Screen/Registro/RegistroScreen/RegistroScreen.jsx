@@ -127,6 +127,24 @@ export function RegistroScreen({ navigation }) {
     navigation.navigate(screen.registro.insertCall, { item, Tipo: 0 });
   };
 
+  const handleEquifax = async (lat, long) => {
+    // Creando un objeto con las coordenadas de origen y destino
+    console.log("handleEquifax", lat, long);
+    const coordinates = {
+      origin: {
+        lat: lat,
+        lng: long
+      },
+      destination: {
+        lat: lat,
+        lng: long
+      }
+    };
+   console.log("coordinates", lat, long);
+    // Navegando a la pantalla y pasando las coordenadas como parámetro
+    navigation.navigate(screen.registro.GpsEquifax, { coordinates });
+  };
+  
   const showToast = (title, message) => {
     ToastAndroid.showWithGravityAndOffset(
       `${title}: ${message}`,
@@ -179,6 +197,8 @@ export function RegistroScreen({ navigation }) {
               db={db}
               dataItem={dataItem}
               updateNotificationCount={updateNotificationCount}
+              onPressGpsEquifax={() => handleEquifax(item.latitudEquifax, item.longitudEquifax)} // Aquí pasamos lat y long como parámetros
+   
             />
           ))}
         </View>

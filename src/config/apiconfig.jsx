@@ -1,9 +1,9 @@
 
  
-const API_BASE_URL = "http://192.168.2.167:3025/cobranza/api/v1/point/";
-const SOCKET_BASE_URL = "http://192.168.2.167:3025"; 
-//const API_BASE_URL = "https://appservices.com.ec/cobranza/api/v1/point/";
-//const SOCKET_BASE_URL = "https://appservices.com.ec";
+//const API_BASE_URL = "http://192.168.2.167:3025/cobranza/api/v1/point/";
+//const SOCKET_BASE_URL = "http://192.168.2.167:3025"; 
+const API_BASE_URL = "https://appservices.com.ec/cobranza/api/v1/point/";
+const SOCKET_BASE_URL = "https://appservices.com.ec";
 export const APIURL = {
    
     senLogin: () => `${API_BASE_URL}login`,
@@ -62,4 +62,5 @@ export const APIURL = {
     seteoVerdion : () => `${API_BASE_URL}seteo/all`,
     getNotificaciones : () => `${API_BASE_URL}NotificationUser/allID`,
     getCountNotificaciones : () => `${API_BASE_URL}NotificationUser/count`,
+    getReferencias : () => `${API_BASE_URL}referencia/V1/all`,
 };

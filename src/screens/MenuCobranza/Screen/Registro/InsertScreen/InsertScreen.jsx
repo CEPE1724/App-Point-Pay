@@ -115,6 +115,10 @@ export function InsertScreen({ route, navigation }) {
     navigation.navigate(screen.registro.viewGestiones, { item });
   };
 
+  const handleViewReferencias = () => {
+    navigation.navigate(screen.registro.viewReferencias, { item });
+  };
+
   const handleViewAmortizacion = () => {
     navigation.navigate(screen.registro.TablaAmortizacion, { item });
   };
@@ -564,6 +568,7 @@ export function InsertScreen({ route, navigation }) {
         db={db}
         itemdata={itemdata}
         addItemAsyncACUbicCliente={addItemAsyncACUbicCliente}
+        handleViewReferencias={handleViewReferencias}
       />
 
       {/* Primer Picker para estados */}

@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { styles } from './Card.Style'; // Asegúrate de importar correctamente los estilos
-import { User, DriversLicenseO, FileText, Terrain, Bank, Cell, DoorEnter, DoorExit } from '../../../Icons';
+import { User, DriversLicenseO, FileText, Terrain, Bank, Cell, DoorEnter, DoorExit, Equifax } from '../../../Icons';
 import { getItemsAsyncUser, addItemAsyncACUbicCliente, getTopRegsitro, getALLPendientes } from '../../../database';
 import * as Location from 'expo-location';
 import Toast from 'react-native-toast-message';
 
-export function Card({ item, index, onPress, onPressIn, onPressOut, pressedCardIndex, db, dataItem, updateNotificationCount }) {
+export function Card({ item, index, onPress, onPressIn, onPressOut, pressedCardIndex, db, dataItem, updateNotificationCount, onPressGpsEquifax }) {
   const [isLoading, setIsLoading] = useState(false); // Estado para manejar el bloqueo de los botones
-
+  console.log("dataItem", item);
   const getColorForValue = (projected, collected) => {
     if (collected < projected && collected > 0) {
       return "#e28743"; // Color for collected > 0 and less than projected
@@ -24,7 +24,7 @@ export function Card({ item, index, onPress, onPressIn, onPressOut, pressedCardI
     console.log("Registro de", accion, "para el cliente", item);
     const topRegistro = await getTopRegsitro(db, item.idCompra);
     console.log("topRegistro", topRegistro);
-  
+
     // Si no hay registros previos, o si es una entrada y no hay registros, insertamos una entrada
     if (topRegistro.length === 0) {
       console.log("No se encontraron registros para este cliente.");
@@ -53,7 +53,7 @@ export function Card({ item, index, onPress, onPressIn, onPressOut, pressedCardI
       setIsLoading(false); // Desactivar el estado de carga
       return; // Salir de la función
     }
-  
+
     // Si hay registros previos, verificar si el tipo de acción es el esperado
     if (accion === "ENTRADA CLIENTE") {
       // Si ya se registró una entrada, mostrar un mensaje
@@ -72,7 +72,7 @@ export function Card({ item, index, onPress, onPressIn, onPressOut, pressedCardI
         // Si no está registrada una entrada, registrar una nueva entrada
         console.log("Registra nueva ENTRADA CLIENTE");
         await saveLocal("ENTRADA CLIENTE");
-  
+
         Toast.show({
           type: 'success',
           position: 'top',
@@ -83,14 +83,14 @@ export function Card({ item, index, onPress, onPressIn, onPressOut, pressedCardI
         });
       }
     }
-  
+
     // Si la acción es "SALIDA CLIENTE", verificar si ya hay un registro de entrada
     if (accion === "SALIDA CLIENTE") {
       // Verificamos si hay una entrada previa
       if (topRegistro[0].tipoAccion === "ENTRADA CLIENTE") {
         console.log("Registra nueva SALIDA CLIENTE");
         await saveLocal("SALIDA CLIENTE");
-  
+
         Toast.show({
           type: 'success',
           position: 'top',
@@ -112,48 +112,48 @@ export function Card({ item, index, onPress, onPressIn, onPressOut, pressedCardI
         });
       }
     }
-    
-     console.log("Ubicación guardada entdda o salida");
-        const pendingCount = await getALLPendientes(db);
-        updateNotificationCount(pendingCount);
+
+    console.log("Ubicación guardada entdda o salida");
+    const pendingCount = await getALLPendientes(db);
+    updateNotificationCount(pendingCount);
     setIsLoading(false); // Desactivar el estado de carga (habilitar botones)
   };
-  
+
   // Funciones individuales utilizando la función genérica
-  
+
   const presseEntrada = async (item, index) => {
     await handleRegistro(item, index, "ENTRADA CLIENTE");
   };
-  
+
   const presseSalida = async (item, index) => {
     await handleRegistro(item, index, "SALIDA CLIENTE");
   };
-  
-  
-  
+
+
+
 
   const saveLocal = async (Tipo) => {
     try {
-        // Solicitar permisos de ubicación
-    const { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') {
-      console.error("Permisos de ubicación no concedidos.");
-      return;
-    }
+      // Solicitar permisos de ubicación
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        console.error("Permisos de ubicación no concedidos.");
+        return;
+      }
 
-    // Intentar obtener la ubicación con un timeout
-    const location = await getLocationWithTimeout();
+      // Intentar obtener la ubicación con un timeout
+      const location = await getLocationWithTimeout();
 
-    if (!location) {
-      console.error("No se pudo obtener la ubicación.");
-      return;
-    }
+      if (!location) {
+        console.error("No se pudo obtener la ubicación.");
+        return;
+      }
 
-    const currentDate = new Date();
-    const timestamp = currentDate.toISOString().slice(0, 19).replace('T', ' ');  // Formato 'yyyy-mm-dd hh:mm:ss'
+      const currentDate = new Date();
+      const timestamp = currentDate.toISOString().slice(0, 19).replace('T', ' ');  // Formato 'yyyy-mm-dd hh:mm:ss'
 
-    const { latitude, longitude } = location.coords;
-    console.log("en entrad ec");
+      const { latitude, longitude } = location.coords;
+      console.log("en entrad ec");
       // Llamada a la función para guardar la ubicación
       await addItemAsyncACUbicCliente(
         db, Tipo,
@@ -176,7 +176,7 @@ export function Card({ item, index, onPress, onPressIn, onPressOut, pressedCardI
         ''
 
       );
-      
+
     } catch (error) {
       console.error("Error al agregar ubicación en la base de datos:", error);
     }
@@ -186,9 +186,9 @@ export function Card({ item, index, onPress, onPressIn, onPressOut, pressedCardI
   const getLocationWithTimeout = async () => {
     let attempts = 0;
     const maxAttempts = 3; // Máximo número de intentos
-  
+
     const timeout = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-  
+
     while (attempts < maxAttempts) {
       try {
         // Intentamos obtener la ubicación
@@ -197,14 +197,14 @@ export function Card({ item, index, onPress, onPressIn, onPressOut, pressedCardI
           timeInterval: 5000, // Intentar obtener la ubicación en menos de 5 segundos
           distanceInterval: 10, // Minimizar el movimiento para mayor precisión
         });
-  
+
         if (location && location.coords) {
           return location; // Si obtenemos la ubicación, la retornamos
         }
       } catch (error) {
         console.error("Error al obtener la ubicación en el intento " + (attempts + 1), error);
       }
-  
+
       // Esperamos 3 segundos antes de intentar de nuevo
       attempts++;
       if (attempts < maxAttempts) {
@@ -212,10 +212,12 @@ export function Card({ item, index, onPress, onPressIn, onPressOut, pressedCardI
         await timeout(3000); // Pausa de 3 segundos antes del siguiente intento
       }
     }
-  
+
     console.error("No se pudo obtener la ubicación después de múltiples intentos.");
     return null;
   };
+
+
 
 
   return (
@@ -238,6 +240,17 @@ export function Card({ item, index, onPress, onPressIn, onPressOut, pressedCardI
       <View style={styles.row}>
         <Bank size={18} color="black" style={styles.icon} />
         <Text style={styles.text}> {item.Banco}</Text>
+        {/*
+        {item.latitudEquifax && item.longitudEquifax && (
+           <TouchableOpacity
+           style={styles.buttonDoor}
+           onPress={() => onPressGpsEquifax(item.latitudEquifax, item.longitudEquifax)}
+         >
+           <Equifax size={25} color="#a81c34" style={styles.icon} />
+           <Text style={styles.textDoor}>Ver en Equifax</Text>
+         </TouchableOpacity>
+        )}
+      */}
       </View>
 
       <View style={styles.row}>

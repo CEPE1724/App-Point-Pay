@@ -1,0 +1,1 @@
+export * from './PhotoViewer'; // Exportamos el componente PhotoViewer

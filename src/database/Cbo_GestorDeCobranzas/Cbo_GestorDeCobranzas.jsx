@@ -23,9 +23,11 @@ export const addItemAsyncCbo_Gestorcobranza = async (db, data, isConnected) => {
                     Telefono,
                     Celular,
                     Fecha_Factura,
-                    Laboral
+                    Laboral,
+                    latitudEquifax,
+                    longitudEquifax
                 ) VALUES (
-                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
                 )`, [
                     data.idCbo_GestorDeCobranzas || null,
                     data.idcobrador || null,
@@ -44,7 +46,9 @@ export const addItemAsyncCbo_Gestorcobranza = async (db, data, isConnected) => {
                     data.Telefono || '',
                     data.Celular || '',
                     data.Fecha_Factura || new Date().toISOString(),
-                    data.Laboral || ''
+                    data.Laboral || '',
+                    data.latitudEquifax || '',
+                    data.longitudEquifax || ''
                 ]);
         } catch (error) {
             console.error("Error al insertar datos en Cbo_GestorDeCobranzas:", error);

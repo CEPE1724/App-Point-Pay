@@ -5,7 +5,7 @@ import { styles } from "./CardCliente.Style"; // Asegúrate de que la ruta de es
 import { GPS, ViewPhoto } from "../../../Icons";
 import { screen } from "../../../utils";
 import { useNavigation } from "@react-navigation/native";
-
+import { PhotoViewer } from '../PhotoViewer';
 export function CardCliente({
   item,
   index,
@@ -165,25 +165,14 @@ export function CardCliente({
       </View>
 
       {/* Modal para ver la imagen */}
-      <Modal
-        visible={showPhoto} 
-        transparent={true}
-        animationType="fade"
-        onRequestClose={closePhotoModal}  // Cerrar el modal al hacer click en el área fuera de la imagen
-      >
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContainer}>
-            <TouchableOpacity onPress={closePhotoModal} style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>Cerrar</Text>
-            </TouchableOpacity>
-            <Image
-              source={{ uri: item.UrlPhoto }} // URL de la imagen
-              style={styles.modalImage}
-              resizeMode="contain" // Ajusta la imagen dentro del modal
-            />
-          </View>
-        </View>
-      </Modal>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+
+        <PhotoViewer
+          item={item}
+          showPhoto={showPhoto}
+          closePhotoModal={closePhotoModal}
+        />
+      </View>
     </View>
   );
 }

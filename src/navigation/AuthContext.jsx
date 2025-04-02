@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { View, Text, ToastAndroid } from 'react-native';
 import { useDb } from '../database/db';
-import { getItemsAsyncUser, UpdateItemAsyncUSer, UpdateActivoItemAsyncUSer, getItemsAsync } from '../database';
+import { getItemsAsyncUser, UpdateItemAsyncUSer, UpdateActivoItemAsyncUSer, getItemsAsync, getdispositivosappNot } from '../database';
 import axios from 'axios';
 
 // Crear el contexto de autenticación
@@ -11,12 +11,13 @@ export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [token, setToken] = useState(null);
   const [userData, setUserData] = useState(null);
+  const [userNotification, setUserNotification] = useState(null);
   const [loading, setLoading] = useState(true);
   const [hasRegistered, setHasRegistered] = useState(false);  // Estado para manejo del registro
   const [notificationCount, setNotificationCount] = useState(0);
   const { db } = useDb();
 
-  
+ 
   // Verificación del token y el estado de registro
   useEffect(() => {
     const checkRegistrationStatus = async () => {
@@ -41,6 +42,7 @@ export const AuthProvider = ({ children }) => {
       if (hasRegistered) {  // Solo hacer las consultas si 'hasRegistered' es true
         try {
           const meDataUser = await getItemsAsyncUser(db);
+          const meDataNotificacion = await getdispositivosappNot(db);
           const bbToken = meDataUser[0]?.token || null;
           const usuarioActivo = meDataUser[0]?.UsuarioActivo || 0;
 
@@ -53,6 +55,7 @@ export const AuthProvider = ({ children }) => {
               setIsLoggedIn(true);
               setToken(bbToken);
               setUserData(meDataUser[0]);
+              setUserNotification(meDataNotificacion);
             }
           } else {
             logout();  // Si no está activo, cerramos sesión
@@ -136,7 +139,7 @@ export const AuthProvider = ({ children }) => {
     showToast('¡Sesión expirada!', 'Por favor, vuelve a iniciar sesión.');
     logout();
   };
-
+console.log('userNotification:', userNotification);
   // Función para controlar el estado de registro
   const setRegistrationStatus = (status) => setHasRegistered(status); // Actualiza el estado de registro
 
@@ -153,6 +156,7 @@ export const AuthProvider = ({ children }) => {
       setRegistrationStatus, // Función para actualizar el estado de registro
       notificationCount,
       updateNotificationCount,
+      userNotification,
     }}>
       {loading ? <View><Text>Loading...</Text></View> : children}
     </AuthContext.Provider>

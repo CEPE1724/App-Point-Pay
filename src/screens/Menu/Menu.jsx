@@ -16,7 +16,7 @@ import { useNetworkStatus } from "../../utils/NetworkProvider";
 
 
 export function Menu({ navigation }) {
-  const { logout, token } = useAuth(); // Usamos el contexto de autenticación
+  const { logout, token, userNotification } = useAuth(); // Usamos el contexto de autenticación
   const { db } = useDb();
   const isConnected = useNetworkStatus(); // Estado de la conexión
   const [permisosMenu, setPermisosMenu] = useState([]);
@@ -26,7 +26,7 @@ export function Menu({ navigation }) {
   const [usuarioapp, setUsuarioapp] = useState(''); // Usuario de la app
   const socket = useSocket(); // Usa el socket
 
-  const VersionActual = '2.4.5.5'; // Versión estática para pruebas
+  const VersionActual = '2.4.5.6'; // Versión estática para pruebas
 
   useEffect(() => {
   fetchData();
@@ -85,12 +85,13 @@ export function Menu({ navigation }) {
   // Obtener el conteo de notificaciones del usuario
   const FetchCountNotification = async (user) => {
     try {
-      const response = await axios.get(APIURL.getCountNotificaciones(), {
+      console.log("Usuario:", user); // Verifica el usuario que se está pasando
+      const response = await axios.get(APIURL.getCountNotificacionesNoti(), {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        params: { UsuarioAPP: user },
+        params: { UserID: userNotification[0].idNomina },
       });
 
            const count = response.data.count ;
@@ -116,6 +117,7 @@ export function Menu({ navigation }) {
         usuario: usuarioapp,
         version : version,
         versionActual: VersionActual,
+        UserID: userNotification[0].idNomina,
       },
     });
   };

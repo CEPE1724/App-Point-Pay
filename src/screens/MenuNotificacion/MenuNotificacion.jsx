@@ -22,14 +22,14 @@ const fetchNotificationver = async (linkVersion, versions) => {
 };
 
 // Función para obtener el conteo de notificaciones no leídas
-const FetchCountNotification = async (user, token) => {
+const FetchCountNotification = async (user, token, UserID) => {
     try {
-        const response = await axios.get(APIURL.getNotificaciones(), {
+        const response = await axios.get(APIURL.getNotificacionesNoti(), {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`,
             },
-            params: { UsuarioAPP: user },
+            params: { UserID: UserID },
         });
 
         const unreadNotifications = response.data.data.filter(notification => notification.Status === 'unread');
@@ -40,14 +40,14 @@ const FetchCountNotification = async (user, token) => {
 };
 
 // Función para obtener todas las notificaciones
-const fetchNotifications = async (user, token, linkVersion, versions, VersionActual) => {
+const fetchNotifications = async (user, token, linkVersion, versions, VersionActual, UserID) => {
     try {
-        const response = await axios.get(APIURL.getNotificaciones(), {
+        const response = await axios.get(APIURL.getNotificacionesNoti(), {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`,
             },
-            params: { UsuarioAPP: user },
+            params: { UserID: UserID },
         });
 
         const notificationsData = response.data.data;
@@ -66,7 +66,7 @@ const fetchNotifications = async (user, token, linkVersion, versions, VersionAct
         console.log('All Notificationsddd:', allNotifications);
         return allNotifications;
     } catch (error) {
-        console.error("Error fetching notifications:", error);
+        console.error("Error fetching notifications aqui udser id:", error);
         return [];
     }
 };
@@ -75,8 +75,8 @@ const fetchNotifications = async (user, token, linkVersion, versions, VersionAct
 export function MenuNotificacion({ route }) {
     
     const { logout, token } = useAuth();
-    const { notificationsVer, linkVersion, usuario , version, versionActual } = route.params;
-
+    const { notificationsVer, linkVersion, usuario , version, versionActual, UserID } = route.params;
+    console.log('notificationsVer:', UserID);
     const [notifications, setNotifications] = useState([]);
     const [notificationCount, setNotificationCount] = useState(0);
     const [versions, setVersion] = useState(version);
@@ -84,10 +84,10 @@ export function MenuNotificacion({ route }) {
     console.log('notificationsVer:', VersionActual);
     useEffect(() => {
         const loadNotifications = async () => {
-            const count = await FetchCountNotification(usuario, token);
+            const count = await FetchCountNotification(usuario, token, UserID);
             setNotificationCount(count);
 
-            const notificationsData = await fetchNotifications(usuario, token, linkVersion, versions, VersionActual);
+            const notificationsData = await fetchNotifications(usuario, token, linkVersion, versions, VersionActual, UserID);
             console.log('Notificationsbbb:', notificationsData);
             setNotifications(notificationsData);
         };

@@ -66,6 +66,12 @@ export const getItemsAsyncUser = async (db) => {
     return items;
 };
 
+export const getdispositivosappNot = async (db) => {
+    const query = 'SELECT * FROM DispositivosAPP';
+    const items = await db.getAllAsync(query);
+    return items;
+}
+
 export const UpdateItemAsyncUSer = async (db, token) => {
     try {
         

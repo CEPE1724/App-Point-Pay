@@ -7,6 +7,7 @@ import { SQLiteProvider } from 'expo-sqlite'; // Asegúrate de importar SQLitePr
 import DatabaseInitializer from './src/database/DatabaseInitializer'; // Asegúrate de importar DatabaseInitializer
 import Toast from 'react-native-toast-message';
 import { SocketProvider } from './src/utils/SocketContext'; // Importa el SocketProvider
+import Notificaciones from './src/screens/Notificaciones/Notificaciones';
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
         <NetworkProvider>
           <SocketProvider>
             <NavigationContainer>
+              <Notificaciones />
               <AppNavigator />
             </NavigationContainer>
           </SocketProvider>

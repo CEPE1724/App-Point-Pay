@@ -31,7 +31,10 @@ const FetchCountNotification = async (user, token, UserID) => {
             },
             params: { UserID: UserID },
         });
-
+        if (!response.data.success || !response.data.data) {
+            console.log('No notifications or failed request');
+            return 0; // Return 0 if no notifications are found or if the request failed
+        }
         const unreadNotifications = response.data.data.filter(notification => notification.Status === 'unread');
         return unreadNotifications.length;
     } catch (error) {
@@ -42,6 +45,7 @@ const FetchCountNotification = async (user, token, UserID) => {
 // Función para obtener todas las notificaciones
 const fetchNotifications = async (user, token, linkVersion, versions, VersionActual, UserID) => {
     try {
+        // Fetch notifications from the API
         const response = await axios.get(APIURL.getNotificacionesNoti(), {
             headers: {
                 'Content-Type': 'application/json',
@@ -49,27 +53,38 @@ const fetchNotifications = async (user, token, linkVersion, versions, VersionAct
             },
             params: { UserID: UserID },
         });
+        
+        // If the response is not successful or there's no data
+        if (!response.data.success || !response.data.data) {
+
+            return []; // Return an empty array if no notifications are found or if the request failed
+        }
 
         const notificationsData = response.data.data;
+        console.log('Notifications Data:', notificationsData);
 
-        // Obtener las notificaciones de la nueva versión solo si VersionActual es diferente de versions
+        // Obtain notifications for the new version if VersionActual is different from versions
         let notificationsVerData = [];
         console.log('VersionActual:', VersionActual);
         console.log('versions:', versions);
+
         if (VersionActual !== versions) {
             notificationsVerData = await fetchNotificationver(linkVersion, versions);
+            console.log('Fetched notifications for new version:', notificationsVerData);
         }
 
-        // Concatenar las notificaciones solo si notificationsVerData tiene contenido
+        // Concatenate notifications if there are any additional version-specific notifications
         const allNotifications = [...notificationsData, ...notificationsVerData];
+        console.log('All Notifications:', allNotifications);
 
-        console.log('All Notificationsddd:', allNotifications);
         return allNotifications;
+
     } catch (error) {
-        console.error("Error fetching notifications aqui udser id:", error);
-        return [];
+        console.error("Error fetching notifications for UserID:", UserID, error);
+        return []; // Return an empty array in case of an error
     }
 };
+
 
 
 export function MenuNotificacion({ route }) {

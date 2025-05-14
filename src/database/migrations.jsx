@@ -194,60 +194,68 @@ export const migrateDbIfNeeded = async (db) => {
       await db.execAsync('PRAGMA user_version = 2');
     }
 
-    if (currentDbVersion === 2) 
-      {
-        await db.execAsync(`
+    if (currentDbVersion === 2) {
+      await db.execAsync(`
           ALTER TABLE AccionesUbicaciones ADD COLUMN Notas TEXT DEFAULT ''
         `);
 
-        await db.execAsync(`
+      await db.execAsync(`
           ALTER TABLE AccionesUbicaciones ADD COLUMN Offline INTEGER DEFAULT 0
         `);
-        
-        await db.execAsync(`
+
+      await db.execAsync(`
           ALTER TABLE AccionesUbicaciones ADD COLUMN Valor FLOAT DEFAULT 0
         `);
 
-        await db.execAsync(`
+      await db.execAsync(`
           ALTER TABLE AccionesUbicaciones ADD COLUMN FechaPago DATETIME DEFAULT '2000-01-01 00:00:00'
         `);
 
-        await db.execAsync(`
+      await db.execAsync(`
           ALTER TABLE AccionesUbicaciones ADD COLUMN IdBanco INTEGER DEFAULT 0
         `);
 
-        await db.execAsync(`
+      await db.execAsync(`
           ALTER TABLE AccionesUbicaciones ADD COLUMN NumeroDeposito TEXT DEFAULT ''
         `);
 
-        await db.execAsync(`
+      await db.execAsync(`
           ALTER TABLE AccionesUbicaciones ADD COLUMN Url TEXT DEFAULT ''
         `);
 
-        await db.execAsync('PRAGMA user_version = 3');
-        }
+      await db.execAsync('PRAGMA user_version = 3');
+    }
 
-      if (currentDbVersion === 3) 
-        {
-          await db.execAsync(`
+    if (currentDbVersion === 3) {
+      await db.execAsync(`
             ALTER TABLE Cbo_GestorDeCobranzas ADD COLUMN Laboral TEXT DEFAULT ''
           `);
-  
-          await db.execAsync('PRAGMA user_version = 4');
-        }
 
-        if (currentDbVersion === 4) 
-        {
-          await db.execAsync(`
+      await db.execAsync('PRAGMA user_version = 4');
+    }
+
+    if (currentDbVersion === 4) {
+      await db.execAsync(`
             ALTER TABLE Cbo_GestorDeCobranzas ADD latitudEquifax FLOAT DEFAULT 0 
           `);
 
-          await db.execAsync(`
+      await db.execAsync(`
             ALTER TABLE Cbo_GestorDeCobranzas ADD longitudEquifax FLOAT DEFAULT 0 
           `);
 
-          await db.execAsync('PRAGMA user_version = 5');
-        }
+      await db.execAsync('PRAGMA user_version = 5');
+    }
+
+    if (currentDbVersion === 5) {
+
+      await db.execAsync(`
+            ALTER TABLE dispositivosapp ADD TokenPush TEXT DEFAULT ''
+          `);
+
+      // Update the database version
+      await db.execAsync('PRAGMA user_version = 6');
+    }
+
   } catch (error) {
     console.error("Error durante la migración de la base de datos:", error);
   }

@@ -52,3 +52,26 @@ export const updateItemAsync = async (db,  kEYdATA) => {
     }
 };
 
+export const updatePushToken = async (db, token) => {
+    if (!token || !db) return;
+  
+    try {
+      const current = await db.getFirstAsync(
+        'SELECT TokenPush FROM dispositivosapp'
+      );
+  
+      if (current?.TokenPush === token) {
+        console.log("ℹ️ Token ya está actualizado, no es necesario modificar.");
+        return;
+      }
+  
+      await db.runAsync(
+        'UPDATE dispositivosapp SET TokenPush = ? ',
+        [token]
+      );
+  
+      console.log("✅ TokenPush actualizado en base local.");
+    } catch (error) {
+      console.error("❌ Error al actualizar TokenPush:", error);
+    }
+  };

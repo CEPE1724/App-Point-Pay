@@ -1,5 +1,3 @@
-
-
 {
   "expo": {
     "name": "Point",
@@ -38,8 +36,15 @@
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",
         "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "INTERNET",
+        "WRITE_EXTERNAL_STORAGE",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "CAMERA",
         "READ_EXTERNAL_STORAGE"
       ],
+      "googleServicesFile": "./google-services.json",
       "package": "com.cepe1724.AppPointPay",
       "config": {
         "googleMaps": {
@@ -61,19 +66,19 @@
         }
       ],
       [
-        "expo-sqlite", 
+        "expo-sqlite",
         {
-          "enableFTS": true,  
-          "useSQLCipher": true,  
+          "enableFTS": true,
+          "useSQLCipher": true,
           "android": {
-            "enableFTS": false,  
-            "useSQLCipher": false  
+            "enableFTS": false,
+            "useSQLCipher": false
           },
           "ios": {
             "customBuildFlags": [
               "-DSQLITE_ENABLE_DBSTAT_VTAB=1",
               "-DSQLITE_ENABLE_SNAPSHOT=1"
-            ]  
+            ]
           }
         }
       ]
@@ -83,12 +88,11 @@
         "projectId": "03f083e6-b433-4a95-9834-4b598fe4fe9b"
       }
     },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "1.0.0", 
     "updates": {
       "enabled": false,
-      "fallbackToCacheTimeout": 0
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/03f083e6-b433-4a95-9834-4b598fe4fe9b"
     }
   }
 }

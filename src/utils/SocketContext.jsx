@@ -4,8 +4,8 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import io from 'socket.io-client';
 
 // Aquí colocamos la URL de tu servidor de socket (cambia la URL según tu configuración)
-//const SOCKET_URL = 'https://appservices.com.ec';
-const SOCKET_URL = 'http://192.168.2.167:3025';
+const SOCKET_URL = 'https://appservices.com.ec';
+//const SOCKET_URL = 'http://192.168.2.49:3055';
 const SocketContext = createContext();
 
 export const useSocket = () => {

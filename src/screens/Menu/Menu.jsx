@@ -17,41 +17,44 @@ import { usePushNotifications } from '../../../hooks/usePushNotifications';
 
 export function Menu({ navigation }) {
   const { expoPushToken } = usePushNotifications();
-
-  const { logout, token, userNotification } = useAuth(); // Usamos el contexto de autenticación
+  const { logout, token, userNotification } = useAuth();
   const { db } = useDb();
-  const isConnected = useNetworkStatus(); // Estado de la conexión
+  const isConnected = useNetworkStatus();
   const [permisosMenu, setPermisosMenu] = useState([]);
-  const [version, setVersion] = useState(''); // Iniciamos la versión como string vacío
-  const [notificationCount, setNotificationCount] = useState(0); // Ejemplo de número
-  const [linkVersion, setLinkVersion] = useState(''); // Enlace de la versión
-  const [usuarioapp, setUsuarioapp] = useState(''); // Usuario de la app
-  const [pushToken, setPushToken] = useState(''); // Token de notificaciones
-  const socket = useSocket(); // Usa el socket
+  const [version, setVersion] = useState('');
+  const [notificationCount, setNotificationCount] = useState(0);
+  const [linkVersion, setLinkVersion] = useState('');
+  const [usuarioapp, setUsuarioapp] = useState('');
+  const [pushToken, setPushToken] = useState('');
+  const socket = useSocket();
 
-  const VersionActual = '2.4.5.7'; // Versión estática para pruebas
+  const VersionActual = '2.4.5.8';
+
   useEffect(() => {
     if (expoPushToken) {
       console.log("📲 Token de notificaciones:", expoPushToken);
     }
   }, [expoPushToken]);
 
+  // ✅ Ejecutar cuando `db` y `expoPushToken` estén disponibles
+  useEffect(() => {
+    if (db && expoPushToken) {
+      handlePushToken();
+    }
+  }, [db, expoPushToken]);
+
   useEffect(() => {
     fetchData();
     fetchDataVersion();
-    handlePushToken(); // Llama a la función para actualizar el token de notificaciones
 
-    // Conectar a Socket.io
     if (socket) {
       socket.on('newNotification', (newNotification) => {
         console.log('Nueva notificación:', newNotification);
-        setNotificationCount(prevCount => prevCount + 1); // Incrementa el contador cuando llegue una nueva notificación
-
+        setNotificationCount(prev => prev + 1);
       });
 
-      // Limpiar el socket cuando el componente se desmonte
       return () => {
-        socket.off('newNotification'); // Desactiva el evento para evitar fugas de memoria
+        socket.off('newNotification');
       };
     }
   }, [socket, db]);
@@ -61,26 +64,20 @@ export function Menu({ navigation }) {
       console.warn("⚠️ Token de notificaciones o base de datos no disponible.");
       return;
     }
-  
+
     try {
       const data = await getItemsAsync(db);
       const savedToken = data[0]?.TokenPush || '';
       const KeyDispositivo = data[0]?.KeyDispositivo;
-  
-      // Solo continúa si el token ha cambiado o está vacío
+
       if (savedToken !== expoPushToken) {
         console.log("🔄 Token desactualizado. Guardado:", savedToken, "Nuevo:", expoPushToken);
-  
-        // 1. Actualizar en la API primero
+
         const apiUpdated = await updateData(KeyDispositivo, expoPushToken);
         if (apiUpdated) {
           console.log("✅ Token actualizado en backend");
-  
-          // 2. Solo si la API tuvo éxito, actualizar en SQLite
           await updatePushToken(db, expoPushToken);
           console.log("✅ Token actualizado en SQLite");
-  
-          // 3. Actualizar el estado
           setPushToken(expoPushToken);
         } else {
           console.warn("⚠️ No se pudo actualizar en backend. Se cancela actualización local.");
@@ -92,9 +89,8 @@ export function Menu({ navigation }) {
       console.error("❌ Error al validar/actualizar token push:", error);
     }
   };
-  
-  
 
+  // ✅ Corregida para retornar true/false
   const updateData = async (KeyDispositivo, TokenExpo) => {
     try {
       const response = await axios.patch(APIURL.updatePushToken(), {
@@ -103,73 +99,83 @@ export function Menu({ navigation }) {
       });
 
       console.log("✅ Datos actualizados correctamente:", response.data);
+      return true;
     } catch (error) {
       console.error("❌ Error al actualizar los datos:", error);
+      return false;
     }
   };
 
-  // Obtener datos de menú y usuario
   const fetchData = async () => {
     try {
-      setNotificationCount(0); // Reiniciar el contador de notificaciones
+      setNotificationCount(0);
       const items = await getItemsAsyncMenu(db);
       const datauser = await getItemsAsyncUser(db);
       const data = await getItemsAsync(db);
-      console.log("Items del menú:", data); // Verifica los permisos del menú
 
-      setPushToken(data[0]?.TokenPush); // Guarda el token de dispositivo
+      setPushToken(data[0]?.TokenPush);
       setUsuarioapp(datauser[0]?.Nombre);
       setPermisosMenu(items.map(item => item.Menu));
-      FetchCountNotification(datauser[0]?.Nombre); // Llamamos a la función de notificaciones después de obtener el usuario
+      FetchCountNotification(datauser[0]?.Nombre);
     } catch (error) {
       console.error('Error fetching data from database:', error);
     }
   };
 
-  // Obtener la versión de la app desde la API
   const fetchDataVersion = async () => {
     try {
-      const response = await axios.get(APIURL.seteoVerdion());  // Asegúrate de que la URL sea correcta
+      const response = await axios.get(APIURL.seteoVerdion());
       const { appVersion, linkVersion } = response.data;
 
-      setVersion(appVersion); // Guarda la versión en el estado
-      setLinkVersion(linkVersion); // Guarda el enlace en el estado
+      setVersion(appVersion);
+      setLinkVersion(linkVersion);
 
-      // Actualizar el contador de notificaciones si las versiones no coinciden
       if (appVersion !== VersionActual) {
-        setNotificationCount(prevCount => prevCount + 1); // Incrementa el contador de notificaciones
+        setNotificationCount(prev => prev + 1);
       }
     } catch (error) {
       console.error("Error fetching version:", error);
     }
   };
 
-  // Obtener el conteo de notificaciones del usuario
   const FetchCountNotification = async (user) => {
     try {
-      console.log("Usuario:", user); // Verifica el usuario que se está pasando
+      if (!userNotification || userNotification.length === 0) {
+        console.warn("userNotification está vacío o es null");
+        setNotificationCount(0);
+        return;
+      }
+  
+      const userId = userNotification[0].idNomina;
+  
       const response = await axios.get(APIURL.getCountNotificacionesNoti(), {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        params: { UserID: userNotification[0].idNomina },
+        params: { UserID: userId },
       });
-
-      const count = response.data.count;
-
-      setNotificationCount(prevCount => prevCount + count); // Se actualiza con el valor recibido
+  
+      const { success, count = 0 } = response.data;
+  
+      if (!success) {
+        console.log("No hay notificaciones pendientes.");
+        setNotificationCount(0);
+        return;
+      }
+  
+      setNotificationCount(count);
+  
     } catch (error) {
-      console.error("Error fetching notification count:", error);
+      console.error("Error fetching notification count EC:", error);
+      setNotificationCount(0); // opcional
     }
   };
+  
+  
 
-  // Función de cierre de sesión
-  const handleLogout = async () => {
-    logout();
-  };
+  const handleLogout = () => logout();
 
-  // Navegar a la pantalla de notificaciones
   const screenNotification = () => {
     navigation.navigate(screen.menu.tab, {
       screen: screen.menu.notificaciones,
@@ -184,7 +190,6 @@ export function Menu({ navigation }) {
     });
   };
 
-
   return (
     <View style={styles.container}>
       <Image source={logo} style={[styles.image, { width: 150, height: 60, marginBottom: 20 }]} resizeMode="contain" />
@@ -193,7 +198,7 @@ export function Menu({ navigation }) {
           <Notification size={30} color="#063970" />
           {notificationCount > 0 && (
             <View style={styles.notificationBadge}>
-              <Text style={styles.notificationBadgeText}>{notificationCount}</Text>
+             {/* <Text style={styles.notificationBadgeText}>{notificationCount}</Text>*/}
             </View>
           )}
         </TouchableOpacity>
@@ -223,13 +228,7 @@ export function Menu({ navigation }) {
 
       <Text style={styles.title}>Cuida tus credenciales, no las compartas con nadie.</Text>
       <Text style={styles.title}>Versión: {VersionActual}</Text>
-      <Text style={styles.title}>
-        Token Notification: {expoPushToken || 'No se ha generado aún'}
-      </Text>
-      <Text style={styles.title}>
-        Token Dispositivo: {pushToken || 'No se ha generado aún'}
-      </Text>
-
+     
       <View style={styles.cardContainerLoc}>
         <TouchableOpacity style={styles.cardLoc}>
           <Location size={40} color="#2066a4" />

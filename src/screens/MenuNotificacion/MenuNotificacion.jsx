@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Linking, Alert, ScrollView } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';  // Usando Material Icons
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { APIURL } from '../../config/apiconfig';
 import axios from 'axios';
 import { useAuth } from '../../navigation/AuthContext';
+import { Swipeable } from 'react-native-gesture-handler';
 
-// Función para obtener las notificaciones
+// Notificación por versión nueva
 const fetchNotificationver = async (linkVersion, versions) => {
     return [
         {
@@ -21,7 +22,7 @@ const fetchNotificationver = async (linkVersion, versions) => {
     ];
 };
 
-// Función para obtener el conteo de notificaciones no leídas
+// Conteo de notificaciones no leídas
 const FetchCountNotification = async (user, token, UserID) => {
     try {
         const response = await axios.get(APIURL.getNotificacionesNoti(), {
@@ -32,20 +33,19 @@ const FetchCountNotification = async (user, token, UserID) => {
             params: { UserID: UserID },
         });
         if (!response.data.success || !response.data.data) {
-            console.log('No notifications or failed request');
-            return 0; // Return 0 if no notifications are found or if the request failed
+            return 0;
         }
         const unreadNotifications = response.data.data.filter(notification => notification.Status === 'unread');
         return unreadNotifications.length;
     } catch (error) {
         console.error("Error fetching notification count:", error);
+        return 0;
     }
 };
 
-// Función para obtener todas las notificaciones
+// Obtener todas las notificaciones
 const fetchNotifications = async (user, token, linkVersion, versions, VersionActual, UserID) => {
     try {
-        // Fetch notifications from the API
         const response = await axios.get(APIURL.getNotificacionesNoti(), {
             headers: {
                 'Content-Type': 'application/json',
@@ -53,169 +53,187 @@ const fetchNotifications = async (user, token, linkVersion, versions, VersionAct
             },
             params: { UserID: UserID },
         });
-        
-        // If the response is not successful or there's no data
-        if (!response.data.success || !response.data.data) {
 
-            return []; // Return an empty array if no notifications are found or if the request failed
-        }
+        let notificationsData = response.data.success && response.data.data ? response.data.data : [];
+        let notificationsVerData = VersionActual !== versions ? await fetchNotificationver(linkVersion, versions) : [];
 
-        const notificationsData = response.data.data;
-        console.log('Notifications Data:', notificationsData);
-
-        // Obtain notifications for the new version if VersionActual is different from versions
-        let notificationsVerData = [];
-        console.log('VersionActual:', VersionActual);
-        console.log('versions:', versions);
-
-        if (VersionActual !== versions) {
-            notificationsVerData = await fetchNotificationver(linkVersion, versions);
-            console.log('Fetched notifications for new version:', notificationsVerData);
-        }
-
-        // Concatenate notifications if there are any additional version-specific notifications
-        const allNotifications = [...notificationsData, ...notificationsVerData];
-        console.log('All Notifications:', allNotifications);
-
-        return allNotifications;
+        return [...notificationsData, ...notificationsVerData];
 
     } catch (error) {
         console.error("Error fetching notifications for UserID:", UserID, error);
-        return []; // Return an empty array in case of an error
+        return [];
     }
 };
 
-
-
 export function MenuNotificacion({ route }) {
-    
     const { logout, token } = useAuth();
-    const { notificationsVer, linkVersion, usuario , version, versionActual, UserID } = route.params;
-    console.log('notificationsVer:', UserID);
+    const { notificationsVer, linkVersion, usuario, version, versionActual, UserID } = route.params;
+
     const [notifications, setNotifications] = useState([]);
     const [notificationCount, setNotificationCount] = useState(0);
-    const [versions, setVersion] = useState(version);
-    const [VersionActual, setVersionActual] = useState(versionActual);
-    console.log('notificationsVer:', VersionActual);
+
     useEffect(() => {
         const loadNotifications = async () => {
             const count = await FetchCountNotification(usuario, token, UserID);
             setNotificationCount(count);
-
-            const notificationsData = await fetchNotifications(usuario, token, linkVersion, versions, VersionActual, UserID);
-            console.log('Notificationsbbb:', notificationsData);
-            setNotifications(notificationsData);
+    
+            const notificationsData = await fetchNotifications(usuario, token, linkVersion, version, versionActual, UserID);
+    
+            // 🔽 FILTRAR SOLO UNREAD
+            const unreadOnly = notificationsData.filter(n => n.Status === 'unread');
+    
+            setNotifications(unreadOnly);
         };
-
+    
         loadNotifications();
     }, [notificationsVer]);
+    
 
     const openLink = (url) => {
         Linking.openURL(url).catch(err => console.error("Error opening URL: ", err));
     };
 
-    const markAsRead = (NotificationID) => {
-        Alert.alert("Notificación", "Marcada como leída.");
-        setNotifications(notifications.map(notification =>
-            notification.NotificationID === NotificationID ? { ...notification, Status: 'read' } : notification
-        ));
+    const markAsRead = (idNotifications) => {
+        fetchupdatereadnotification(idNotifications);
+        setNotificationCount(prev => prev - 1);
+    
+        // Eliminar del listado por ID
+        setNotifications(prev =>
+            prev.filter(notification => notification.idNotifications !== idNotifications)
+        );
     };
+    
+    
 
-    console.log('notifications edi:', notifications);
+    const fetchupdatereadnotification = async (idNotifications) => {
+        try {
+            const response = await axios.patch(APIURL.readNotificacion(), {
+                idNotifications: idNotifications
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                     
+                }
+            });
+            if (response.data.success) {
+                console.log("Notificación actualizada correctamente");
+            } else {
+                console.error("Error al actualizar la notificación");
+            }
+        } catch (error) {
+            console.error("Error al actualizar la notificación:", error);
+        }
+    };
+  
+
+
+
+    const renderRightActions = (notification) => (
+        <TouchableOpacity
+            style={styles.markAsRead}
+            onPress={() => markAsRead(notification.idNotifications)}
+        >
+            <Icon name="done" size={24} color="#fff" />
+            <Text style={styles.markAsReadText}>Leído</Text>
+        </TouchableOpacity>
+    );
+
     const renderNotification = (notification) => {
-        console.log('notification ec:', notification);
+        const containerStyles = [styles.item];
         switch (notification.Type) {
             case 'promotion':
-                return (
-                    <View style={[styles.item, styles.promotion]}>
-                        <Icon name="local-offer" size={30} color="#ff5722" style={styles.icon} />
-                        <View style={styles.textContainer}>
-                            <Text style={styles.itemText}>{notification.Title}</Text>
-                            <Text style={styles.itemMessage}>{notification.Message}</Text>
-                            <TouchableOpacity onPress={() => openLink(notification.URL)}>
-                                <Text style={styles.linkText}>Ver Oferta</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                );
+                containerStyles.push(styles.promotion);
+                break;
             case 'update':
-                return (
-                    <View style={[styles.item, styles.update]}>
-                        <Icon name="system-update" size={30} color="#2196f3" style={styles.icon} />
-                        <View style={styles.textContainer}>
-                            <Text style={styles.itemText}>{notification.Title}</Text>
-                            <Text style={styles.itemMessage}>{notification.Message}</Text>
-                            <TouchableOpacity onPress={() => openLink(notification.URL)}>
-                                <Text style={styles.linkText}>Ver Actualización</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                );
+                containerStyles.push(styles.update);
+                break;
             case 'info':
-                return (
-                    <View style={[styles.item, styles.info]}>
-                        <Icon name="info" size={30} color="#0288d1" style={styles.icon} />
-                        <View style={styles.textContainer}>
-                            <Text style={styles.itemText}>{notification.Title}</Text>
-                            <Text style={styles.itemMessage}>{notification.Message}</Text>
-                        </View>
-                    </View>
-                );
+                containerStyles.push(styles.info);
+                break;
             case 'warning':
-                return (
-                    <View style={[styles.item, styles.warning]}>
-                        <Icon name="warning" size={30} color="#ff9800" style={styles.icon} />
-                        <View style={styles.textContainer}>
-                            <Text style={styles.itemText}>{notification.Title}</Text>
-                            <Text style={styles.itemMessage}>{notification.Message}</Text>
-                        </View>
-                    </View>
-                );
+                containerStyles.push(styles.warning);
+                break;
+            case 'success':
+                containerStyles.push(styles.success);
+                break;
+            case 'event':
+                containerStyles.push(styles.event);
+                break;
             case 'alert':
-                return (
-                    <View style={[styles.item, styles.alert]}>
-                        <Icon name="error" size={30} color="#f44336" style={styles.icon} />
-                        <View style={styles.textContainer}>
-                            <Text style={styles.itemText}>{notification.Title}</Text>
-                            <Text style={styles.itemMessage}>{notification.Message}</Text>
-                        </View>
-                    </View>
-                );
+                containerStyles.push(styles.alert);
+                break;
             default:
-                return (
-                    <View style={[styles.item, styles.default]}>
-                        <Icon name="notifications" size={30} color="#9e9e9e" style={styles.icon} />
-                        <View style={styles.textContainer}>
-                            <Text style={styles.itemText}>{notification.Title}</Text>
-                            <Text style={styles.itemMessage}>{notification.Message}</Text>
-                        </View>
-                    </View>
-                );
+                containerStyles.push(styles.default);
+        }
+
+        return (
+            <View style={containerStyles}>
+                <Icon name={getIconName(notification.Type)} size={30} color={getIconColor(notification.Type)} style={styles.icon} />
+                <View style={styles.textContainer}>
+                    <Text style={styles.itemText}>{notification.Title}</Text>
+                    <Text style={styles.itemMessage}>{notification.Message}</Text>
+                    {notification.URL && (
+                        <TouchableOpacity onPress={() => openLink(notification.URL)}>
+                            <Text style={styles.linkText}>Ver más</Text>
+                        </TouchableOpacity>
+                    )}
+                </View>
+            </View>
+        );
+    };
+
+    const getIconName = (type) => {
+        switch (type) {
+            case 'promotion': return 'local-offer';
+            case 'update': return 'system-update';
+            case 'info': return 'info';
+            case 'warning': return 'warning';
+            case 'success': return 'check-circle';
+            case 'event': return 'event';
+            case 'alert': return 'error';
+            default: return 'notifications';
+        }
+    };
+
+    const getIconColor = (type) => {
+        switch (type) {
+            case 'promotion': return '#ff5722';
+            case 'update': return '#2196f3';
+            case 'info': return '#0288d1';
+            case 'warning': return '#ff9800';
+            case 'success': return '#4caf50';
+            case 'event': return '#673ab7';
+            case 'alert': return '#f44336';
+            default: return '#9e9e9e';
         }
     };
 
     return (
         <View style={styles.container}>
-            <ScrollView style={styles.body}>
-                {notifications.map((notification) => (
-                    <TouchableOpacity
-                        key={notification.idNotifications}
-                        style={styles.item}
-                        onPress={() => {
-                            if (notification.URL) {
-                                openLink(notification.URL);
-                            } else {
-                                markAsRead(notification.idNotifications);
-                            }
-                        }}
-                    >
-                        {renderNotification(notification)}
-                    </TouchableOpacity>
-                ))}
-            </ScrollView>
             <View style={styles.footer}>
                 <Text style={styles.notificationCount}>Notificaciones no leídas: {notificationCount}</Text>
             </View>
+            <ScrollView style={styles.body}>
+                {notifications.map((notification) => (
+                    <Swipeable
+                        key={notification.idNotifications}
+                        renderRightActions={() => renderRightActions(notification)}
+                    >
+                        <TouchableOpacity
+                            style={styles.swipeWrapper}
+                            onPress={() => {
+                                if (notification.URL) {
+                                    openLink(notification.URL);
+                                } else {
+                                    markAsRead(notification.NotificationID);
+                                }
+                            }}
+                        >
+                            {renderNotification(notification)}
+                        </TouchableOpacity>
+                    </Swipeable>
+                ))}
+            </ScrollView>
         </View>
     );
 }
@@ -229,36 +247,60 @@ const styles = {
     body: {
         flex: 1,
     },
+    swipeWrapper: {
+        marginBottom: 10,
+    },
     item: {
         flexDirection: 'row',
         alignItems: 'center',
         padding: 10,
         backgroundColor: '#fff',
         borderRadius: 10,
-        marginBottom: 10,
     },
     icon: {
         width: 30,
         height: 30,
         marginRight: 10,
     },
+    success: {
+        backgroundColor: '#e8f5e9',
+        borderLeftWidth: 5,
+        borderLeftColor: '#4caf50',
+    },
+    event: {
+        backgroundColor: '#ede7f6',
+        borderLeftWidth: 5,
+        borderLeftColor: '#673ab7',
+    },
     promotion: {
-        backgroundColor: '#ffeb3b',
+        backgroundColor: '#fffde7',
+        borderLeftWidth: 5,
+        borderLeftColor: '#ff9800',
     },
     update: {
-        backgroundColor: '#cce7ff',
+        backgroundColor: '#e3f2fd',
+        borderLeftWidth: 5,
+        borderLeftColor: '#2196f3',
     },
     info: {
-        backgroundColor: '#e3f2fd',
+        backgroundColor: '#f0f4c3',
+        borderLeftWidth: 5,
+        borderLeftColor: '#cddc39',
     },
     warning: {
         backgroundColor: '#fff3e0',
+        borderLeftWidth: 5,
+        borderLeftColor: '#fb8c00',
     },
     alert: {
-        backgroundColor: '#f44336',
+        backgroundColor: '#ffebee',
+        borderLeftWidth: 5,
+        borderLeftColor: '#f44336',
     },
     default: {
-        backgroundColor: '#f4f4f4',
+        backgroundColor: '#eeeeee',
+        borderLeftWidth: 5,
+        borderLeftColor: '#9e9e9e',
     },
     textContainer: {
         flex: 1,
@@ -275,16 +317,35 @@ const styles = {
     linkText: {
         color: '#1976d2',
         textDecorationLine: 'underline',
+        marginTop: 4,
     },
     footer: {
-        padding: 10,
+        padding: 5,
+        alignItems: 'center',
+        justifyContent: 'center',
         backgroundColor: '#fff',
+        borderTopWidth: 1,
+        borderTopColor: '#ccc',
         borderRadius: 10,
-        marginTop: 20,
+        marginBottom: 10,
     },
     notificationCount: {
         fontSize: 14,
         fontWeight: 'bold',
         color: '#333',
+    },
+    markAsRead: {
+        backgroundColor: '#4caf50',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: 80,
+        borderRadius: 10,
+        marginBottom: 10,
+    },
+    markAsReadText: {
+        color: '#fff',
+        fontSize: 12,
+        fontWeight: 'bold',
+        marginTop: 2,
     },
 };

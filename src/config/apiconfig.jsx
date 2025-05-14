@@ -1,9 +1,7 @@
 
  
-//const API_BASE_URL = "http://192.168.2.167:3025/cobranza/api/v1/point/";
-
-
-//const SOCKET_BASE_URL = "http://192.168.2.167:3025"; 
+//const API_BASE_URL = "http://192.168.2.49:3055/cobranza/api/v1/point/";
+//const SOCKET_BASE_URL = "http://192.168.2.49:3055"; 
 const API_BASE_URL = "https://appservices.com.ec/cobranza/api/v1/point/";
 const SOCKET_BASE_URL = "https://appservices.com.ec";
 export const APIURL = {
@@ -69,6 +67,8 @@ export const APIURL = {
     getNotificacionesNoti : () => `${API_BASE_URL}NotificationUser/allID/notificacion`,
     getCountNotificacionesNoti : () => `${API_BASE_URL}NotificationUser/count/notificacion`,
     updatePushToken: () => `${API_BASE_URL}DispositivosAPP/UpdateTokenExpo`,
+
+    readNotificacion: () => `${API_BASE_URL}NotificationUser/update/read`,
 
 
 };

@@ -26,9 +26,12 @@
     "drizzle-orm": "^0.38.4",
     "expo": "^53.0.0",
     "expo-build-properties": "~0.14.6",
+    "expo-constants": "~17.1.6",
+    "expo-device": "~7.1.4",
     "expo-drizzle-studio-plugin": "^0.1.1",
     "expo-image-picker": "~16.1.4",
     "expo-location": "~18.1.4",
+    "expo-notifications": "~0.31.1",
     "expo-sqlite": "~15.2.9",
     "expo-status-bar": "~2.2.3",
     "expo-updates": "~0.28.13",
@@ -52,19 +55,16 @@
     "react-native-sqlite-storage": "^6.0.1",
     "react-native-toast-message": "^2.2.1",
     "react-native-webview": "13.13.5",
-    "socket.io-client": "^4.8.1",
-    "expo-notifications": "~0.31.1",
-    "expo-device": "~7.1.4",
-    "expo-constants": "~17.1.6"
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.26.4",
     "@babel/core": "^7.25.2",
     "@babel/preset-env": "^7.26.0",
     "@babel/preset-react": "^7.26.3",
+    "@types/react": "~19.0.10",
     "drizzle-kit": "^0.30.2",
-    "typescript": "^5.3.3",
-    "@types/react": "~19.0.10"
+    "typescript": "^5.3.3"
   },
   "private": true
 }

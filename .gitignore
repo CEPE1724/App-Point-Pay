@@ -35,5 +35,5 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-google-services.json
+
 pointpush-232bb-firebase-adminsdk-fbsvc-c98aef9b07.json

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "928680774622",
+    "project_id": "pointpush-232bb",
+    "storage_bucket": "pointpush-232bb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:928680774622:android:0ad126dc155e59a23a6b4f",
+        "android_client_info": {
+          "package_name": "com.cepe1724.AppPointPay"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAGVegReSMT4mngUOjYC0N8BekkBEvYiaE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

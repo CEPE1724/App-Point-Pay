@@ -131,7 +131,7 @@ const DomicilioTab = ({ state, setState }) => {
         {renderInfoRow("users", "Vecino Entrevistado:", vecinoEntrevistado)}
         {renderInfoRow("users", "Calle Principal:", CallePrincipalDomicilio)}
         {renderInfoRow("users", "Calle Secundaria:", CalleSecundariaDomicilio)}
-        {renderInfoRow("users", "GPS:", refGPS)}
+        {renderInfoRow("users", "GPSS:", refGPS)}
         {renderInfoRow("map-marker", "Latitud:", callePrincipal)}
         {renderInfoRow("map-marker", "Longitud:", calleSecundaria)}
       </ScrollView>
@@ -219,7 +219,7 @@ const LaboralTab = ({ state, setState }) => {
       {renderInfoRow("user", "Persona Entrevistada:", personaEntrevistada)}
       {renderInfoRow("users", "Calle Principal:", CallePrincipalTrabajo)}
       {renderInfoRow("users", "Calle Secundaria:", CalleSecundariaTrabajo)}
-      {renderInfoRow("users", "GPS:", refGPSLab)}
+      {renderInfoRow("users", "GPSS:", refGPSLab)}
       {renderInfoRow("map-marker", "Latitud:", callePrincipalLaboral)}
       {renderInfoRow("map-marker", "Longitud:", calleSecundariaLaboral)}
     </ScrollView>

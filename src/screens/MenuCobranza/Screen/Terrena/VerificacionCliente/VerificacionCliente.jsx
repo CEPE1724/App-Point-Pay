@@ -72,6 +72,14 @@ const options = {
     { value: 2, label: "Independiente", icon: "briefcase" }, // Cambié a "briefcase" para representar mejor el trabajo independiente
     { value: 3, label: "Informal", icon: "user" }, // Cambié a "user" para dar un sentido más personal
   ],
+  direccionCoincideOptions: [
+    { value: 1, label: "Coincide", icon: "check" },
+    { value: 2, label: "No Coincide", icon: "times" },
+  ],
+  tipoVerificacionOptions: [
+    { value: 1, label: "Campo Malo", icon: "frown-o" },
+    { value: 2, label: "Aprobado", icon: "smile-o" },
+  ],
 };
 
 const DomicilioTab = ({ state, setState }) => {
@@ -130,6 +138,8 @@ const DomicilioTab = ({ state, setState }) => {
     refGPS,
     callePrincipalRef,
     calleSecundariaRef,
+    direccionCoincide,
+    tipoVerificacion,
 
   } = state;
   const renderRadioGroup = (label, value, onChange, options) => (
@@ -153,6 +163,13 @@ const DomicilioTab = ({ state, setState }) => {
           tipocliente,
           (value) => setState({ ...state, tipocliente: value }),
           options.tipoclienteOptions
+        )}
+        {/* Direccion coincide */}
+        {renderRadioGroup(
+          "Dirección coincide:",
+          direccionCoincide,
+          (value) => setState({ ...state, direccionCoincide: value }),
+          options.direccionCoincideOptions
         )}
         {/* tiempo en meses*/}
         <TextInputField
@@ -294,6 +311,12 @@ const DomicilioTab = ({ state, setState }) => {
             editable={false}
             pointerEvents="none"
           />
+          {renderRadioGroup(
+            "Resultado Verificación:",
+            tipoVerificacion,
+            (value) => setState({ ...state, tipoVerificacion: value }),
+            options.tipoVerificacionOptions
+          )}
         </View>
       </ScrollView>
     </View>
@@ -429,6 +452,8 @@ const LaboralTab = ({ state, setState }) => {
     personaEntrevistada,
     callePrincipalLaboralRef,
     calleSecundariaLaboralRef,
+    direccionCoincide,
+    tipoVerificacion,
   } = state;
   const renderRadioGroup = (label, value, onChange, options) => (
     <RadioGroup
@@ -450,6 +475,13 @@ const LaboralTab = ({ state, setState }) => {
         tipoTrabajo,
         (value) => setState({ ...state, tipoTrabajo: value }),
         options.tipoTrabajoOptions
+      )}
+
+      {renderRadioGroup(
+        "Dirección coincide:",
+        direccionCoincide,
+        (value) => setState({ ...state, direccionCoincide: value }),
+        options.direccionCoincideOptions
       )}
       <TextInputField
         label="Tiempo de Trabajo (Meses)"
@@ -552,6 +584,12 @@ const LaboralTab = ({ state, setState }) => {
           editable={false}
           pointerEvents="none"
         />
+        {renderRadioGroup(
+            "Resultado Verificación:",
+            tipoVerificacion,
+            (value) => setState({ ...state, tipoVerificacion: value }),
+            options.tipoVerificacionOptions
+          )}
       </View>
     </ScrollView>
   );
@@ -593,6 +631,8 @@ export function VerificacionCliente({ route, navigation }) {
     acceso: 1, // Valor por defecto agregado
     coberturaSeñal: 1, // Valor por defecto agregado
     tipoTrabajo: 1,
+    direccionCoincide: 1,
+    tipoVerificacion: 0,
     domicilioImages: [],
     laboralImages: [],
     callePrincipalRef: "",
@@ -614,6 +654,7 @@ export function VerificacionCliente({ route, navigation }) {
   };
 
   const validateFields = () => {
+    console.log("Guardando datos...ecc");
     const rules = {
       domicilio: {
         tiempoVivienda: { min: 1, max: 120, label: "Tiempo de Vivienda" },
@@ -625,9 +666,7 @@ export function VerificacionCliente({ route, navigation }) {
         calleSecundaria: { min: 1, max: 100, label: "Ubicación Domicilio" },
         refGPS: { min: 5, max: 100, label: "Ubicación Domicilio" },
         personaEntrevistadaDomicilio: {
-          min: 1,
-          max: 100,
-          label: "Persona Entrevistada",
+          min: 1, max: 100, label: "Persona Entrevistada",
         },
         observacion: { min: 1, max: 500, label: "Observación" },
       },
@@ -709,16 +748,22 @@ export function VerificacionCliente({ route, navigation }) {
       }
       if (state.propia === 2) {  // Verifica si la propiedad es arrendada (propia === 2)
         const valorArrendado = state.valorArrendado ? parseFloat(state.valorArrendado) : 0; // Aseguramos que sea un número
-      
+
         // Si el campo valorArrendado está vacío o tiene un valor menor o igual a 0, se marca como inválido
         if (valorArrendado <= 0 || isNaN(valorArrendado)) {
           invalidFields.domicilio.push("Ingresos el valor arrendado (debe ser mayor que 0)");
         }
       }
-      
+
       if (state.domicilioImages.length < 5) {
         invalidFields.domicilio.push(
           "Se requieren al menos 5 imágenes para Domicilio."
+        );
+      }
+
+      if (state.tipoVerificacion == 0) {
+        invalidFields.domicilio.push(
+          "Se requiere seleccionar un resultado de verificación."
         );
       }
     }
@@ -742,6 +787,11 @@ export function VerificacionCliente({ route, navigation }) {
       if (state.laboralImages.length < 5) {
         invalidFields.laboral.push(
           "Se requieren al menos 5 imágenes para Laboral."
+        );
+      }
+      if (state.tipoVerificacion == 0) {
+        invalidFields.domicilio.push(
+          "Se requiere seleccionar un resultado de verificación."
         );
       }
     }
@@ -871,7 +921,9 @@ export function VerificacionCliente({ route, navigation }) {
   };
 
   const handleSave = () => {
+
     let valid = validateFields();
+    console.log("Guardando datos...ec");
     if (valid) {
       let newData = {};
       if (tipo === 1) {
@@ -897,8 +949,12 @@ export function VerificacionCliente({ route, navigation }) {
           CallePrincipal: state.callePrincipalRef || "",
           CalleSecundaria: state.calleSecundariaRef || "",
           ValorArrendado: parseInt(state.propia, 10) === 2 ? state.valorArrendado : 0,
+          direccionCoincide: state.direccionCoincide || 1,
+          tipoVerificacion: state.tipoVerificacion || 1,
+
         };
       } else {
+
         newData = {
           idTerrenaGestionTrabajo: 0,
           idClienteVerificacion: item.idClienteVerificacion,
@@ -916,9 +972,12 @@ export function VerificacionCliente({ route, navigation }) {
           trabajoImages: state.laboralImages || [],
           CallePrincipal: state.callePrincipalLaboralRef || "",
           CalleSecundaria: state.calleSecundariaLaboralRef || "",
+          direccionCoincide: state.direccionCoincide || 1,
+          tipoVerificacion: state.tipoVerificacion || 1,
         };
       }
-
+      console.log("Guardando datos...eec", newData);
+      //return;
       setData(newData); // Guardar los datos para pasarlos al modal
       setModalVisible(true); // Mostrar el modal de confirmación
     }

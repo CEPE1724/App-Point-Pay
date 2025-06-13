@@ -28,7 +28,7 @@ export function Menu({ navigation }) {
   const [pushToken, setPushToken] = useState('');
   const socket = useSocket();
 
-  const VersionActual = '2.4.5.8';
+  const VersionActual = '2.4.6.0';
 
   useEffect(() => {
     if (expoPushToken) {

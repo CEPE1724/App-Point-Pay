@@ -263,7 +263,7 @@ export default function LoginScreen({ navigation }) {
           <Text style={styles.buttonTextBack}>Regresar</Text>
         </TouchableOpacity>
 
-        <Text style={styles.version}>Versión: 2.4.5.8</Text>
+        <Text style={styles.version}>Versión: 2.4.6.0</Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );

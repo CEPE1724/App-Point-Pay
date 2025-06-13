@@ -23,7 +23,6 @@ export const usePushNotifications = () => {
       const token = await registerForPushNotificationsAsync();
       if (token) {
         setExpoPushToken(token);
-        console.log("✅ Expo push token registrado:", token);
       } else {
         console.warn("⚠️ No se obtuvo el token push.");
       }
@@ -31,7 +30,6 @@ export const usePushNotifications = () => {
 
     // Escuchar notificaciones mientras la app está abierta
     notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-      console.log("📩 Notificación recibida:", notification);
       setNotification(notification);
     });
 

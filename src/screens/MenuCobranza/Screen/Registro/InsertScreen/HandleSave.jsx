@@ -24,7 +24,7 @@ export const HandleSave = async ({
   longitude,
   Offline
 }) => {
-  console.log("Guardando datos...", summitDataTransfer);
+
 
   setLoading(true);
   const urlGoogle = APIURL.putGoogle();
@@ -32,10 +32,10 @@ export const HandleSave = async ({
 
   try {
     // Guardar Gestiones de Cobranzas
-    console.log("Guardando gestiones de cobranzas...", data);
+ 
     data.Tipo = Tipo;
     IdCbo_GestionesDeCobranzas = await saveGestionesDeCobranzas(data, token);
-    console.log("Gestiones de cobranzas guardadas correctamente", summitDataTransfer);
+   
     //if(IdCbo_GestionesDeCobranzas > 0){
     await InsertaddItemAsyncACUbic(data, db, selectedTipoPago, updateNotificationCount, latitude, longitude, summitDataTransfer, Offline);
 
@@ -146,7 +146,7 @@ const InsertaddItemAsyncACUbic = async (data, db, selectedTipoPago, updateNotifi
     const currentDate = new Date();
     const timestamp = currentDate.toISOString().slice(0, 19).replace('T', ' ');  // Formato 'yyyy-mm-dd hh:mm:ss'
 
-    console.log("bernabe ");
+
     const Item = await getItemsAsyncUser(db);
     if (!Item || !Item[0]?.ICidIngresoCobrador || !Item[0]?.Empresa) {
 
@@ -173,7 +173,7 @@ const InsertaddItemAsyncACUbic = async (data, db, selectedTipoPago, updateNotifi
       timestamp,
       data.Notas
     );
-    console.log("Ubicación guardada correctamente");
+   
     const pendingCount = await getALLPendientes(db);
     updateNotificationCount(pendingCount);
   } catch (error) {

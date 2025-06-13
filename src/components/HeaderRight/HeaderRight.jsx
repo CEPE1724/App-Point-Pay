@@ -24,7 +24,6 @@ export function HeaderRight({ db }) {
 
       // Obtener los pendientes desde la base de datos
       const items = await getALLPendientes(db);
-      console.log('Pendientes:', items); // Verifica que los pendientes cambien
     };
 
     fetchPendientes(); // Llamar a la función para obtener los pendientes
@@ -44,7 +43,7 @@ export function HeaderRight({ db }) {
 
     try {
       const itemsPendientes = await getALLDataACC(db); // Obtener los pendientes desde la base de datos
-      console.log('Pendientes sincronizados:', itemsPendientes);
+
 
       // Guardamos cada uno de los elementos pendientes
       for (let i = 0; i < itemsPendientes.length; i++) {
@@ -54,7 +53,7 @@ export function HeaderRight({ db }) {
 
       // Luego de guardar, obtener la lista actualizada de pendientes y actualizar el contador
       const updatedItems = await getALLPendientes(db);
-      console.log('Pendientes actualizados:', updatedItems);
+
 
       // Actualizamos el contador de notificaciones basado en los pendientes restantes
       updateNotificationCount(updatedItems || 0); // Suponiendo que el contador se actualiza según la cantidad de pendientes
@@ -69,7 +68,7 @@ export function HeaderRight({ db }) {
 
   const uploadImages = async (images, urlGoogle, idCompra,  token) => {
     let uploadedImageUrls = "";
-    console.log("Subiendo imágenes:", images);
+
    
       const formData = new FormData();
       formData.append("file", {
@@ -114,7 +113,7 @@ export function HeaderRight({ db }) {
     try {
       // Verificar si el idAccion ya fue enviado
       if (sentIds.current.has(data.idAccion)) {
-        console.log("Este idAccion ya fue enviado:", data.timestamp);
+
         return; // Si ya fue enviado, no hacemos nada
       }
   
@@ -136,8 +135,7 @@ export function HeaderRight({ db }) {
             data.idCompra,
             token
           );
-          console.log("Imagen subida correctamente:", Imagen);  // Confirmación de la subida de imagen
-          
+
           // Si la imagen no se subió correctamente, no continuamos
           if (!Imagen) {
             console.error("La imagen no se subió correctamente.");
@@ -186,8 +184,7 @@ export function HeaderRight({ db }) {
       const fetchedData = response.data;
   
       if (fetchedData.message === 'success') {
-        console.log("Datos subidos correctamente");
-  
+
         // Si se guardó correctamente, actualizamos el estado de enviado en la base de datos
         await getALlUodateId(db, data.idAccion); // Marca el idAccion como "enviado"
       }

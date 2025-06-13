@@ -26,6 +26,13 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 5,
   },
+  rowDomicilio: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 8,
+    backgroundColor: "#FFFFFF",
+  },
   rowProyect: {
     flexDirection: "row",
     alignItems: "center",
@@ -132,7 +139,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     height: 40,
     fontSize: 16,
-    paddingLeft: 40, // Espacio para el ícono
+    // Espacio para el ícono
   },
   iconsearch: {
     position: "absolute",
@@ -167,7 +174,28 @@ export const styles = StyleSheet.create({
     marginLeft: 5,
   },
 
-  
+  iconContainerReasignar: {
+    backgroundColor: "#FFB300", // Un color naranja para resaltar la reasignación
+    padding: 6,
+    borderRadius: 8,
+    marginLeft: 5,
+    borderWidth: 1,
+    borderColor: "#FFA000", // Borde más oscuro para contraste
+    shadowColor: "#FFA000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 3,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  iconReasignar: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+
   modalText: {
     fontSize: 18,
     marginBottom: 20,
@@ -184,22 +212,22 @@ export const styles = StyleSheet.create({
     borderRadius: 10, // Bordes redondeados para el mapa
     elevation: 5, // Agregar sombra para darle un efecto de elevación
   },
- 
- 
+
+
   closeIcon: {
     position: "absolute",
     top: 10,
     right: 10,
   },
-  
- 
+
+
   modalBackground: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-},
-modalContainer: {
+  },
+  modalContainer: {
     width: '90%',
     height: '80%',
     backgroundColor: 'white',
@@ -207,41 +235,78 @@ modalContainer: {
     padding: 20,
     justifyContent: 'center',
     alignItems: 'center',
-},
-closeButton: {
+  },
+  closeButton: {
     position: 'absolute',
     top: 10,
     right: 10,
     backgroundColor: 'red',
     padding: 10,
     borderRadius: 50,
-},
-closeButtonText: {
+  },
+  closeButtonText: {
     color: 'white',
     fontWeight: 'bold',
-},
-imageContainer: {
+  },
+  imageContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-},
-modalImage: {
+  },
+  modalImage: {
     width: '100%',
     height: '100%',
-},
-navigationButtons: {
+  },
+  navigationButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
     marginTop: 10,
-},
-navigationButton: {
+  },
+  navigationButton: {
     padding: 10,
     backgroundColor: '#007bff',
     borderRadius: 5,
-},
-navigationButtonText: {
+  },
+  navigationButtonText: {
     color: 'white',
     fontSize: 18,
-},
+  },
+  sectionTitle: {
+    fontWeight: 'bold',
+    textAlign: 'left',
+    fontSize: 13,
+    color: '#37474F',
+    marginTop: 8,
+    marginBottom: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+    paddingBottom: 3,
+  },
+
+  sectionContainer: {
+    marginVertical: 5,
+    paddingHorizontal: 4,
+    paddingVertical: 6,
+    backgroundColor: "#FAFAFA",
+    borderRadius: 5,
+  },
+
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 3,
+  },
+
+  infoText: {
+    flex: 1,
+    fontSize: 13,
+    color: "#333",
+  },
+
+  iconLabel: {
+    marginRight: 8,
+    color: "#616161",
+  },
+
 });

@@ -81,7 +81,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
   const updateNotificationCount = (count) => {
-    console.log('updateNotificationCount:', count);
+
     setNotificationCount(count);
   };
 
@@ -139,7 +139,7 @@ export const AuthProvider = ({ children }) => {
     showToast('¡Sesión expirada!', 'Por favor, vuelve a iniciar sesión.');
     logout();
   };
-console.log('userNotification:', userNotification);
+
   // Función para controlar el estado de registro
   const setRegistrationStatus = (status) => setHasRegistered(status); // Actualiza el estado de registro
 

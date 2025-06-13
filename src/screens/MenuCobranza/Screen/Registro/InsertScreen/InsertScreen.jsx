@@ -25,7 +25,7 @@ import { ConfirmationModal } from "../../../../../components";
 import { LoadingIndicator } from "../../../../../components";
 import { CardItem } from "../../../../../components";
 import { HandleSave } from "./HandleSave"; // Asegúrate de importar la función handleGuardar
-import {HandleSaveNotConnect} from "./HandleSaveNotConnect";
+import { HandleSaveNotConnect } from "./HandleSaveNotConnect";
 
 import { useAuth } from '../../../../../navigation/AuthContext';
 import { handleError } from '../../../../../utils/errorHandler';
@@ -280,13 +280,13 @@ export function InsertScreen({ route, navigation }) {
     const banco = selectedTipoPago === 2 ? selectedBanco : 0;
 
     // Validar el comprobante
-    if(isConnected){
-    const mensaje = await ValidaComprobante(comprobante, banco, tipoComprobante);
-    if (mensaje.length > 0) {
-      alert(mensaje);
-      return;
+    if (isConnected) {
+      const mensaje = await ValidaComprobante(comprobante, banco, tipoComprobante);
+      if (mensaje.length > 0) {
+        alert(mensaje);
+        return;
+      }
     }
-  }
 
     // Preparar los datos para el envío
     const newData = {
@@ -394,7 +394,7 @@ export function InsertScreen({ route, navigation }) {
       showAlert("La descripción debe tener entre 10 y 500 caracteres.");
       return;
     }
-  
+
 
     const data = {
       idCbo_GestorDeCobranzas: parseInt(item.idCbo_GestorDeCobranzas, 10),
@@ -410,7 +410,7 @@ export function InsertScreen({ route, navigation }) {
       FechaPago: selectedResultado === 54 ? selectedDate.toISOString() : "2000-01-01",
       Usuario: userInfo.Usuario,
     };
-   
+
 
     setDataGestion(data);
     setModalVisibleOk(true); // Mostrar el modal de confirmación
@@ -419,7 +419,7 @@ export function InsertScreen({ route, navigation }) {
 
 
   const handleConfirm = () => {
-    
+
     HandleGuardar(dataGestion, summitDataTransfer); // Guardar los datos
     setModalVisibleOk(false); // Cerrar el modal
   };
@@ -454,24 +454,24 @@ export function InsertScreen({ route, navigation }) {
   const HandleGuardar = async (data, summitDataTransfer) => {
 
 
-     const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-          console.error("Permisos de ubicación no concedidos.");
-          return;
-        }
-    
-        // Intentar obtener la ubicación con un timeout
-        const location = await getLocationWithTimeout();
-    
-        if (!location) {
-          console.error("No se pudo obtener la ubicación.");
-          return;
-        }
-    
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      console.error("Permisos de ubicación no concedidos.");
+      return;
+    }
+
+    // Intentar obtener la ubicación con un timeout
+    const location = await getLocationWithTimeout();
+
+    if (!location) {
+      console.error("No se pudo obtener la ubicación.");
+      return;
+    }
+
     const { latitude, longitude } = location.coords;
-    console.log("edison");
+
     if (!isConnected) {
-      await HandleSaveNotConnect ({
+      await HandleSaveNotConnect({
         data,
         summitDataTransfer,
         selectedResultado,
@@ -493,26 +493,26 @@ export function InsertScreen({ route, navigation }) {
     }
     else {
 
-    await HandleSave({
-      data,
-      summitDataTransfer,
-      selectedResultado,
-      selectedTipoPago,
-      item,
-      navigation,
-      userInfo,
-      submittedDataRecojo,
-      setLoading, // Pasar setLoading como argumento
-      token,
-      expireToken,
-      Tipo: Tipo,
-      db,
-      updateNotificationCount,
-      latitude,
-      longitude,
-      Offline: 0
-    });
-  }
+      await HandleSave({
+        data,
+        summitDataTransfer,
+        selectedResultado,
+        selectedTipoPago,
+        item,
+        navigation,
+        userInfo,
+        submittedDataRecojo,
+        setLoading, // Pasar setLoading como argumento
+        token,
+        expireToken,
+        Tipo: Tipo,
+        db,
+        updateNotificationCount,
+        latitude,
+        longitude,
+        Offline: 0
+      });
+    }
   };
 
   const handleTipoPagoChange = (itemValue) => {
@@ -521,38 +521,38 @@ export function InsertScreen({ route, navigation }) {
   };
 
   const getLocationWithTimeout = async () => {
-      let attempts = 0;
-      const maxAttempts = 3; // Máximo número de intentos
-    
-      const timeout = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-    
-      while (attempts < maxAttempts) {
-        try {
-          // Intentamos obtener la ubicación
-          const location = await Location.getCurrentPositionAsync({
-            accuracy: Location.Accuracy.High, // Usar alta precisión
-            timeInterval: 5000, // Intentar obtener la ubicación en menos de 5 segundos
-            distanceInterval: 10, // Minimizar el movimiento para mayor precisión
-          });
-    
-          if (location && location.coords) {
-            return location; // Si obtenemos la ubicación, la retornamos
-          }
-        } catch (error) {
-          console.error("Error al obtener la ubicación en el intento " + (attempts + 1), error);
+    let attempts = 0;
+    const maxAttempts = 3; // Máximo número de intentos
+
+    const timeout = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    while (attempts < maxAttempts) {
+      try {
+        // Intentamos obtener la ubicación
+        const location = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.High, // Usar alta precisión
+          timeInterval: 5000, // Intentar obtener la ubicación en menos de 5 segundos
+          distanceInterval: 10, // Minimizar el movimiento para mayor precisión
+        });
+
+        if (location && location.coords) {
+          return location; // Si obtenemos la ubicación, la retornamos
         }
-    
-        // Esperamos 3 segundos antes de intentar de nuevo
-        attempts++;
-        if (attempts < maxAttempts) {
-          console.log(`Reintentando obtener la ubicación... (Intento ${attempts + 1}/${maxAttempts})`);
-          await timeout(3000); // Pausa de 3 segundos antes del siguiente intento
-        }
+      } catch (error) {
+        console.error("Error al obtener la ubicación en el intento " + (attempts + 1), error);
       }
-    
-      console.error("No se pudo obtener la ubicación después de múltiples intentos.");
-      return null;
-    };
+
+      // Esperamos 3 segundos antes de intentar de nuevo
+      attempts++;
+      if (attempts < maxAttempts) {
+
+        await timeout(3000); // Pausa de 3 segundos antes del siguiente intento
+      }
+    }
+
+    console.error("No se pudo obtener la ubicación después de múltiples intentos.");
+    return null;
+  };
 
   return (
     <ScrollView

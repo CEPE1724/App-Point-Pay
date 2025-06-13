@@ -129,7 +129,7 @@ export function RegistroScreen({ navigation }) {
 
   const handleEquifax = async (lat, long) => {
     // Creando un objeto con las coordenadas de origen y destino
-    console.log("handleEquifax", lat, long);
+
     const coordinates = {
       origin: {
         lat: lat,
@@ -140,7 +140,7 @@ export function RegistroScreen({ navigation }) {
         lng: long
       }
     };
-   console.log("coordinates", lat, long);
+
     // Navegando a la pantalla y pasando las coordenadas como parámetro
     navigation.navigate(screen.registro.GpsEquifax, { coordinates });
   };

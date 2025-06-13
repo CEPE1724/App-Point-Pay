@@ -49,7 +49,7 @@ export function Menu({ navigation }) {
 
     if (socket) {
       socket.on('newNotification', (newNotification) => {
-        console.log('Nueva notificación:', newNotification);
+
         setNotificationCount(prev => prev + 1);
       });
 

@@ -12,7 +12,7 @@ export function ViewEquifax({ route }) {
 
     // Accediendo a los parámetros pasados por navegación
     const { coordinates } = route.params || {};
-    console.log("COORDENADAS", coordinates);
+
 
     // Usamos las coordenadas pasadas como destino, sino usamos las predeterminadas
     const [destination, setDestination] = useState({

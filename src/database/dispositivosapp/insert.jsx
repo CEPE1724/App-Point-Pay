@@ -61,7 +61,6 @@ export const updatePushToken = async (db, token) => {
       );
   
       if (current?.TokenPush === token) {
-        console.log("ℹ️ Token ya está actualizado, no es necesario modificar.");
         return;
       }
   
@@ -70,7 +69,6 @@ export const updatePushToken = async (db, token) => {
         [token]
       );
   
-      console.log("✅ TokenPush actualizado en base local.");
     } catch (error) {
       console.error("❌ Error al actualizar TokenPush:", error);
     }

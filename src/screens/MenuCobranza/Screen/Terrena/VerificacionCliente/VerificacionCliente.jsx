@@ -28,27 +28,27 @@ import NetInfo from "@react-native-community/netinfo";
 const Tab = createMaterialTopTabNavigator();
 const options = {
   tipoclienteOptions: [
-    { value: 1, label: "Cliente", icon: "home" },
-    { value: 2, label: "Garante", icon: "building" },
+    { value: 1, label: "Cliente", icon: "user" },
+    { value: 2, label: "Garante", icon: "user-secret" },
   ],
 
   tipoViviendaOptions: [
     { value: 1, label: "Casa", icon: "home" },
     { value: 3, label: "Villa", icon: "tree" },
-    { value: 4, label: "Mixta", icon: "building" },
+    { value: 4, label: "Mixta", icon: "building-o" },
     { value: 2, label: "Departamento", icon: "building" },
-    { value: 5, label: "MediaAgua", icon: "leaf" },
+    { value: 5, label: "MediaAgua", icon: "cube" },
   ],
 
   estadoOptions: [
-    { value: 2, label: "Muy Bueno", icon: "smile-o" },
-    { value: 1, label: "Bueno", icon: "meh-o" },
-    { value: 3, label: "Malo", icon: "frown-o" },
+    { value: 2, label: "Muy Bueno", icon: "star" },
+    { value: 1, label: "Bueno", icon: "thumbs-up" },
+    { value: 3, label: "Malo", icon: "thumbs-down" },
   ],
 
   zonaOptions: [
     { value: 1, label: "Urbano", icon: "building" },
-    { value: 2, label: "Rural", icon: "tree" },
+    { value: 2, label: "Rural", icon: "leaf" },
   ],
 
   propiedadOptions: [
@@ -58,27 +58,32 @@ const options = {
   ],
 
   accesoOptions: [
-    { value: 1, label: "Facil", icon: "key" },
-    { value: 2, label: "Dificil", icon: "users" },
+    { value: 1, label: "Facil", icon: "road" },
+    { value: 2, label: "Dificil", icon: "exclamation-triangle" },
   ],
 
   coberturaSeñalOptions: [
-    { value: 1, label: "Llamada Movil", icon: "phone" }, // Cambié a "phone" para más claridad
-    { value: 2, label: "Whatsapp", icon: "comments" }, // Cambié a "comments" para representar mejor la app
+    { value: 1, label: "Llamada Movil", icon: "phone" },
+    { value: 2, label: "Whatsapp", icon: "whatsapp" },
   ],
 
   tipoTrabajoOptions: [
-    { value: 1, label: "Dependiente", icon: "building" },
-    { value: 2, label: "Independiente", icon: "briefcase" }, // Cambié a "briefcase" para representar mejor el trabajo independiente
-    { value: 3, label: "Informal", icon: "user" }, // Cambié a "user" para dar un sentido más personal
+    { value: 1, label: "Dependiente", icon: "id-badge" },
+    { value: 2, label: "Independiente", icon: "briefcase" },
+    { value: 3, label: "Informal", icon: "user-o" },
   ],
   direccionCoincideOptions: [
-    { value: 1, label: "Coincide", icon: "check" },
-    { value: 2, label: "No Coincide", icon: "times" },
+    { value: 1, label: "Coincide", icon: "check-circle" },
+    { value: 2, label: "No Coincide", icon: "times-circle" },
   ],
   tipoVerificacionOptions: [
-    { value: 1, label: "Campo Malo", icon: "frown-o" },
-    { value: 2, label: "Aprobado", icon: "smile-o" },
+    { value: 2, label: "Aprobado", icon: "check-circle" },
+    { value: 1, label: "Dirección incorrecta", icon: "map-marker" },
+    { value: 3, label: "Malas referencias", icon: "thumbs-down" },
+    { value: 4, label: "No vive ahí", icon: "question-circle" },
+    { value: 5, label: "Datos falsos", icon: "exclamation-circle" },
+    { value: 6, label: "Zona Vetada", icon: "ban" },
+    { value: 7, label: "No sustenta ingresos", icon: "money" },
   ],
 };
 
@@ -585,11 +590,11 @@ const LaboralTab = ({ state, setState }) => {
           pointerEvents="none"
         />
         {renderRadioGroup(
-            "Resultado Verificación:",
-            tipoVerificacion,
-            (value) => setState({ ...state, tipoVerificacion: value }),
-            options.tipoVerificacionOptions
-          )}
+          "Resultado Verificación:",
+          tipoVerificacion,
+          (value) => setState({ ...state, tipoVerificacion: value }),
+          options.tipoVerificacionOptions
+        )}
       </View>
     </ScrollView>
   );
@@ -654,7 +659,7 @@ export function VerificacionCliente({ route, navigation }) {
   };
 
   const validateFields = () => {
-    console.log("Guardando datos...ecc");
+  
     const rules = {
       domicilio: {
         tiempoVivienda: { min: 1, max: 120, label: "Tiempo de Vivienda" },
@@ -923,7 +928,7 @@ export function VerificacionCliente({ route, navigation }) {
   const handleSave = () => {
 
     let valid = validateFields();
-    console.log("Guardando datos...ec");
+   
     if (valid) {
       let newData = {};
       if (tipo === 1) {
@@ -976,7 +981,7 @@ export function VerificacionCliente({ route, navigation }) {
           tipoVerificacion: state.tipoVerificacion || 1,
         };
       }
-      console.log("Guardando datos...eec", newData);
+   
       //return;
       setData(newData); // Guardar los datos para pasarlos al modal
       setModalVisible(true); // Mostrar el modal de confirmación
@@ -1007,7 +1012,7 @@ export function VerificacionCliente({ route, navigation }) {
           style={[styles.tabButton, activeButton === 'detalles' && styles.activeTab]}
           onPress={() => {
             setShowImages(false);
-            setActiveButton('detalles'); // Cambiar el botón activo
+            setActiveButton('detalles');
           }}
         >
           <Text style={[styles.buttonText, activeButton === 'detalles' && styles.activeButtonText]}>Detalles</Text>
@@ -1016,7 +1021,7 @@ export function VerificacionCliente({ route, navigation }) {
           style={[styles.tabButton, activeButton === 'imagenes' && styles.activeTab]}
           onPress={() => {
             setShowImages(true);
-            setActiveButton('imagenes'); // Cambiar el botón activo
+            setActiveButton('imagenes');
           }}
         >
           <Text style={[styles.buttonText, activeButton === 'imagenes' && styles.activeButtonText]}>Imágenes</Text>

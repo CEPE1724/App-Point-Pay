@@ -45,8 +45,6 @@ export const addItemAsyncACUbic = async (db, tipoAccion, latitude, longitude, IC
 
 export const addItemAsyncACUbicCliente = async (db, tipoAccion, latitude, longitude, ICidIngresoCobrador, Empresa, idCompra, idCombo1, idCombo2, idCombo3, TipoPago, FechaPago,Valor , IdBanco, NumeroDeposito, Url,Offline, timestamp, Notas ) => {
     try { 
-        console.log("addItemAsyncACUbicCliente", tipoAccion, latitude, longitude, ICidIngresoCobrador, Empresa, idCompra, idCombo1, idCombo2, idCombo3, TipoPago, FechaPago,Valor , IdBanco, NumeroDeposito, Url, Offline, timestamp, Notas);
-        console.log("addItemAsyncACUbicCliente",  getLocalDateTime());
        
         // Inserción de la ubicación en la base de datos interna
         await db.runAsync(`
@@ -92,7 +90,7 @@ export const addItemAsyncACUbicCliente = async (db, tipoAccion, latitude, longit
                 '${Notas}'
             );
         `);
-        console.log("addItemAsyncACUbicCliente", tipoAccion, latitude, longitude, ICidIngresoCobrador, Empresa, idCompra, idCombo1, idCombo2, idCombo3, TipoPago, timestamp);
+    
     } catch (error) {
         console.log("Error al agregar ubicación en la base de datos:", error);
     }
@@ -159,7 +157,7 @@ export const getTipoAccioncount = async (db, tipoAccion, idCompra) => {
 
         // Ejecutar la consulta
         const result = await db.getAllAsync(query);
-        console.log("getTipoAccioncount", result);
+
         // Retornar el conteo
         return result.length > 0 ? result[0].total : 0;
     } catch (error) {
@@ -170,7 +168,7 @@ export const getTipoAccioncount = async (db, tipoAccion, idCompra) => {
 
 export const getTopRegsitro = async (db, idCompra) => {
     try {
-        console.log("getTopRegsitro", idCompra);
+
         const currentDate = new Date();
         currentDate.setHours(currentDate.getHours() - 5);  // Restar 5 horas para Ecuador
         // Convertir a formato YYYY-MM-DD
@@ -184,7 +182,6 @@ export const getTopRegsitro = async (db, idCompra) => {
         LIMIT 1
       `;
         const tipoAccion = await db.getAllAsync(query);
-        console.log("getTopRegsitro", tipoAccion);
         return tipoAccion;
     }
     catch (error) {

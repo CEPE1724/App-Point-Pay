@@ -1,6 +1,6 @@
 export const getALLPendientes = async (db) => {
     try {
-        console.log("getALLPendientes");
+   
         // Construir la consulta para obtener todos los registros donde enviado = 0
         let query = `
             SELECT COUNT(*) FROM AccionesUbicaciones

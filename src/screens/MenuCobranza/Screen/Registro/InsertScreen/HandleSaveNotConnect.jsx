@@ -24,7 +24,7 @@ export const HandleSaveNotConnect = async ({
   longitude,
   Offline
 }) => {
-  console.log("Guardando datos...", summitDataTransfer);
+
 
   setLoading(true);
 
@@ -81,7 +81,7 @@ const InsertaddItemAsyncACUbic = async (data, db, selectedTipoPago, updateNotifi
       timestamp,
         data.Notas || ''
     );
-    console.log("Ubicación guardada correctamente");
+
     const pendingCount = await getALLPendientes(db);
     updateNotificationCount(pendingCount);
   } catch (error) {

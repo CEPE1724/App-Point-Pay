@@ -207,7 +207,7 @@ export function DashBoard(props) {
 
         return;
       }
-      console.log("InsertaddItemAsyncACUbic", tipoAccion);
+     
       const location = await Location.getCurrentPositionAsync({});
       const { latitude, longitude } = location.coords;
       const Item = await getItemsAsyncUser(db);
@@ -241,7 +241,7 @@ export function DashBoard(props) {
 
   const handleTipoAccion = async (tipoAccion) => {
     const Stipo = await getTipoAccion(db, tipoAccion);
-    console.log("Stipo", Stipo);
+  
     if (Stipo && Stipo.length > 0) {
       return;
     }

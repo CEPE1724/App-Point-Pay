@@ -192,7 +192,7 @@ export function Recojo({ route, setModalVisibleRecojo, setSubmittedDataRecojo, s
       const response = await axios.get(url, {
         params: { Comprobante: comprobante },
       });
-      console.log("response", response.data.count);
+
       return response.data.count; // Retornar el mensaje para mostrarlo en la UI
     } catch (error) {
       console.error("Error al validar el comprobante:", error);

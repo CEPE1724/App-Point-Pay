@@ -8,7 +8,7 @@ import Toast from 'react-native-toast-message';
 
 export function Card({ item, index, onPress, onPressIn, onPressOut, pressedCardIndex, db, dataItem, updateNotificationCount, onPressGpsEquifax }) {
   const [isLoading, setIsLoading] = useState(false); // Estado para manejar el bloqueo de los botones
-  console.log("dataItem", item);
+
   const getColorForValue = (projected, collected) => {
     if (collected < projected && collected > 0) {
       return "#e28743"; // Color for collected > 0 and less than projected
@@ -21,13 +21,13 @@ export function Card({ item, index, onPress, onPressIn, onPressOut, pressedCardI
 
   const handleRegistro = async (item, index, accion) => {
     setIsLoading(true); // Activar el estado de carga (bloquear botones)
-    console.log("Registro de", accion, "para el cliente", item);
+
     const topRegistro = await getTopRegsitro(db, item.idCompra);
-    console.log("topRegistro", topRegistro);
+
 
     // Si no hay registros previos, o si es una entrada y no hay registros, insertamos una entrada
     if (topRegistro.length === 0) {
-      console.log("No se encontraron registros para este cliente.");
+
       // Si es "ENTRADA CLIENTE", insertamos directamente, si es "SALIDA CLIENTE", no hacemos nada
       if (accion === "ENTRADA CLIENTE") {
         await saveLocal(accion);
@@ -58,7 +58,7 @@ export function Card({ item, index, onPress, onPressIn, onPressOut, pressedCardI
     if (accion === "ENTRADA CLIENTE") {
       // Si ya se registró una entrada, mostrar un mensaje
       if (topRegistro[0].tipoAccion === "ENTRADA CLIENTE") {
-        console.log("ENTRADA CLIENTE ya registrada para este cliente");
+ 
         Toast.show({
           type: 'info',
           position: 'top',
@@ -70,7 +70,7 @@ export function Card({ item, index, onPress, onPressIn, onPressOut, pressedCardI
         });
       } else {
         // Si no está registrada una entrada, registrar una nueva entrada
-        console.log("Registra nueva ENTRADA CLIENTE");
+
         await saveLocal("ENTRADA CLIENTE");
 
         Toast.show({
@@ -88,7 +88,7 @@ export function Card({ item, index, onPress, onPressIn, onPressOut, pressedCardI
     if (accion === "SALIDA CLIENTE") {
       // Verificamos si hay una entrada previa
       if (topRegistro[0].tipoAccion === "ENTRADA CLIENTE") {
-        console.log("Registra nueva SALIDA CLIENTE");
+ 
         await saveLocal("SALIDA CLIENTE");
 
         Toast.show({
@@ -101,7 +101,7 @@ export function Card({ item, index, onPress, onPressIn, onPressOut, pressedCardI
         });
       } else {
         // Si no se encuentra una entrada, no podemos registrar la salida
-        console.log("No se puede registrar la SALIDA sin una ENTRADA previa");
+    
         Toast.show({
           type: 'error',
           position: 'top',
@@ -113,7 +113,7 @@ export function Card({ item, index, onPress, onPressIn, onPressOut, pressedCardI
       }
     }
 
-    console.log("Ubicación guardada entdda o salida");
+
     const pendingCount = await getALLPendientes(db);
     updateNotificationCount(pendingCount);
     setIsLoading(false); // Desactivar el estado de carga (habilitar botones)
@@ -153,7 +153,7 @@ export function Card({ item, index, onPress, onPressIn, onPressOut, pressedCardI
       const timestamp = currentDate.toISOString().slice(0, 19).replace('T', ' ');  // Formato 'yyyy-mm-dd hh:mm:ss'
 
       const { latitude, longitude } = location.coords;
-      console.log("en entrad ec");
+
       // Llamada a la función para guardar la ubicación
       await addItemAsyncACUbicCliente(
         db, Tipo,
@@ -208,7 +208,6 @@ export function Card({ item, index, onPress, onPressIn, onPressOut, pressedCardI
       // Esperamos 3 segundos antes de intentar de nuevo
       attempts++;
       if (attempts < maxAttempts) {
-        console.log(`Reintentando obtener la ubicación... (Intento ${attempts + 1}/${maxAttempts})`);
         await timeout(3000); // Pausa de 3 segundos antes del siguiente intento
       }
     }

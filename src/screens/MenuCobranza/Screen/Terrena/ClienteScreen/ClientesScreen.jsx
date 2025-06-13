@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import { styles } from "./ClientesScreen.style";
 import { useNavigation } from "@react-navigation/native";
 import { screen } from "../../../../../utils/screenName";
 import { APIURL } from "../../../../../config/apiconfig";
-import { CardCliente } from "../../../../../components";
+import { CardCliente, ReasignarModal } from "../../../../../components";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useAuth } from "../../../../../navigation/AuthContext";
 import { handleError } from '../../../../../utils/errorHandler';
@@ -21,6 +21,7 @@ import { getItemsAsyncUser } from '../../../../../database';
 export function ClientesScreen(props) {
   const { navigation } = props;
   const [data, setData] = useState([]);
+  const [ clienteReasignacion , setClienteReasignacion ] = useState(null);
   const [totalRecords, setTotalRecords] = useState(0);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -30,6 +31,7 @@ export function ClientesScreen(props) {
   const [countData, setCountData] = useState([]);
   const [token, setToken] = useState(null);
   const { expireToken } = useAuth();
+  const [modalreasignar, setModalReasignar] = useState(false);
   const { db } = useDb();
   // Fetch user info and token from 
   useEffect(() => {
@@ -57,7 +59,7 @@ export function ClientesScreen(props) {
       fetchData();
       fetchCountData();
     }
-  }, [userInfoLoaded, token]);
+  }, [userInfoLoaded, token, modalreasignar]);
 
   // Fetch data for client verification status
   const fetchCountData = async () => {
@@ -135,7 +137,12 @@ export function ClientesScreen(props) {
     navigation.navigate(targetScreen, { item, tipo });
   };
 
+  const handleReasignar = (vista, item) => {
+ 
+    setClienteReasignacion(item);
+    setModalReasignar(vista);
 
+  }
   // Calculate totals for client status
   const totalPendiente =
     countData.find((item) => item.eSTADO === "PENDIENTE")?.Count || 0;
@@ -161,7 +168,7 @@ export function ClientesScreen(props) {
             let borderColor;
             switch (item.eSTADO) {
               case "PENDIENTE":
-                borderColor = "yellow";
+                borderColor = "#FFA500";
                 break;
               case "ENVIADO":
                 borderColor = "green";
@@ -192,6 +199,7 @@ export function ClientesScreen(props) {
               key={item.idClienteVerificacion}
               item={item}
               handleIconPress={handleIconPress}
+              onPress={() => handleReasignar(true, item)} 
             />
           ))}
         </View>
@@ -217,6 +225,20 @@ export function ClientesScreen(props) {
       >
         <Icon name="refresh" size={20} color="#fff" />
       </TouchableOpacity>
+      {modalreasignar && (
+        <ReasignarModal
+          visible={modalreasignar}
+          onClose={() => setModalReasignar(false)}
+          data={clienteReasignacion}
+          onConfirm={() => {
+            // Aquí puedes poner tu lógica de confirmación
+            setModalReasignar(false);
+          }}
+        />
+      )}
     </View>
   );
 }
+
+
+

@@ -6,6 +6,7 @@ import { GPS, ViewPhoto } from "../../../Icons";
 import { screen } from "../../../utils";
 import { useNavigation } from "@react-navigation/native";
 import { PhotoViewer } from '../PhotoViewer';
+
 export function CardCliente({
   item,
   index,
@@ -13,6 +14,7 @@ export function CardCliente({
   pressedCardIndex,
   handleIconPress,
 }) {
+
   const navigation = useNavigation(); // Usamos useNavigation aquí
   const [showMap, setShowMap] = useState(false);
   const [showPhoto, setShowPhoto] = useState(false); // Estado para mostrar el modal de imagen
@@ -48,6 +50,10 @@ export function CardCliente({
     setShowPhoto(false); // Cerrar el modal
   };
 
+
+
+
+
   // Opciones para formatear la fecha y hora
   const options = {
     year: "numeric",
@@ -61,13 +67,36 @@ export function CardCliente({
 
   // Mapeo de estados a colores
   const estadoStyles = {
-    0: { text: "Pendiente", color: "#28A745" }, // Verde
-    1: { text: "Enviado", color: "#FFA500" }, // Naranja
+    0: { text: "Pendiente", color: "#FFA500" }, // amarillo
+    1: { text: "Enviado", color: "#28A745" }, // Verde
     2: { text: "Aprobado", color: "#007BFF" }, // Azul
     3: { text: "Anulado", color: "#DC3545" }, // Rojo
   };
 
-  // Obtener estado y color
+  const cre_tiempo = {
+    0: { text: "SIN REGISTRO", color: "#6C757D" }, // Gris
+    1: { text: "0-3 MESES", color: "#28A745" }, // Verde
+    2: { text: "3-6 MESES", color: "#FFA500" }, // Naranja
+    3: { text: "6-12 MESES", color: "#007BFF" }, // Azul
+    4: { text: "MÁS DE UN AÑO", color: "#DC3545" }, // Rojo
+    5: { text: "1-5 AÑOS", color: "#6F42C1" }, // Morado
+    6: { text: "5-10 AÑOS", color: "#17A2B8" }, // Cian
+    7: { text: "MAS DE 10 AÑOS", color: "#343A40" }, // Gris oscuro
+  };
+
+
+
+  const cre_tipovivienda = {
+    0: { text: "SIN REGISTRO", color: "#6C757D" }, // Gris
+    1: { text: "ARRENDADA", color: "#28A745" }, // Verde
+    2: { text: "VIVE CON FAMILIARES", color: "#FFA500" }, // Naranja
+    3: { text: "PROPIA NO HIPOTECADA", color: "#007BFF" }, // Azul
+    4: { text: "PROPIA HIPOTECADA", color: "#DC3545" }, // Rojo
+    5: { text: "PRESTADA", color: "#6F42C1" }, // Morado
+    6: { text: "ANTICRESIS", color: "#17A2B8" }, // Cian
+  };
+
+
   const estado = estadoStyles[item.iEstado] || {
     text: "Estado desconocido",
     color: "#000",
@@ -82,18 +111,34 @@ export function CardCliente({
           borderColor: pressedCardIndex === index ? "#ccc" : "#ddd",
         },
       ]}
-      onPress={() => onPress(item, index)} // Llama a la función de navegación
+    // Llama a la función de navegación
     >
       <View style={styles.row}>
         <Icon name="user" size={20} color="black" style={styles.icon} />
         <Text style={styles.text}>{item.Nombres}</Text>
+        {(item.iEstado !== null && item.iEstado == 0 ) && (
+        <TouchableOpacity
+          style={styles.iconContainerReasignar}
+          onPress={() => onPress && onPress(true)}
+          activeOpacity={0.7}
+        >
+          <Icon
+            name="refresh"
+            size={20}
+            color="#fff"
+            style={[styles.icon, { marginLeft: 8 }]}
+          />
+        </TouchableOpacity>
+        )}
       </View>
+
       <View style={styles.row}>
         <Icon name="phone" size={20} color="black" style={styles.icon} />
         <Text style={styles.text}>{item.Celular}</Text>
         <Icon name="phone" size={20} color="black" style={styles.icon} />
         <Text style={styles.text}>{item.Numero}</Text>
       </View>
+
       <View style={styles.row}>
         <Icon name="id-card" size={20} color="black" style={styles.icon} />
         <Text style={styles.text}>{item.Ruc}</Text>
@@ -119,7 +164,70 @@ export function CardCliente({
         >
           <ViewPhoto size={20} color="white" style={styles.icon} />
         </TouchableOpacity>
+
       </View>
+
+      {(item.JefeInmediato || item.idCre_Tiempo) && (
+        <Text style={[styles.text, { fontWeight: 'bold', textAlign: 'center', flex: 1 }]}>
+          Laboral
+        </Text>
+      )}
+
+      <View >
+        {item.JefeInmediato && (
+          <View style={styles.row} >
+            <Icon name="user-secret" size={20} color="black" style={styles.icon} />
+            <Text style={styles.text}>{item.JefeInmediato}</Text>
+          </View>
+        )}
+        {item.CelularInmediato && (
+          <View style={styles.row}>
+            <Icon name="mobile" size={20} color="black" style={styles.icon} />
+            <Text style={styles.text}>{item.CelularInmediato}</Text>
+          </View>
+        )}
+      </View>
+
+      <View >
+        {item.idCre_Tiempo && (
+          <View style={styles.row}>
+            <Icon name="clock-o" size={20} color="black" style={styles.icon} />
+            <Text style={styles.text}> {cre_tiempo[item.idCre_Tiempo]?.text}</Text>
+          </View>
+        )}
+      </View>
+      <View >
+        {item.Afiliado != null && (
+          <View style={styles.row}>
+            <Icon name="shield" size={20} color="black" style={styles.icon} />
+            <Text style={styles.text}>Afiliado</Text>
+          </View>
+        )}
+
+      </View>
+
+      {item.idTipoVivienda != null && (
+        <Text style={[styles.text, { fontWeight: 'bold', textAlign: 'center', flex: 1 }]}>
+          Domicilio
+        </Text>
+      )}
+      <View >
+        {item.idTipoVivienda != null && (
+          <View style={styles.row}>
+            <Icon name="home" size={20} color="black" style={styles.icon} />
+            <Text style={styles.text}> {cre_tipovivienda[item.idTipoVivienda]?.text}</Text>
+          </View>
+        )}
+        {item.idCre_TiempoVivienda != null && (
+          <View style={styles.row}>
+            <Icon name="clock-o" size={20} color="black" style={styles.icon} />
+            <Text style={styles.text}> {cre_tiempo[item.idCre_TiempoVivienda]?.text}</Text>
+          </View>
+        )}
+
+      </View>
+
+
 
       {item.DireccionDomicilio && (
         <View style={styles.rowProyect}>
@@ -164,7 +272,7 @@ export function CardCliente({
         )}
       </View>
 
-      {/* Modal para ver la imagen */}
+
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
 
         <PhotoViewer

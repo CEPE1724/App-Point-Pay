@@ -11,6 +11,7 @@ export function CardCliente({
   item,
   index,
   onPress,
+  onPressRapida,
   pressedCardIndex,
   handleIconPress,
 }) {
@@ -129,6 +130,21 @@ export function CardCliente({
             style={[styles.icon, { marginLeft: 8 }]}
           />
         </TouchableOpacity>
+        
+        )}
+        {(item.iEstado !== null && item.iEstado == 0 ) && (
+        <TouchableOpacity
+          style={styles.iconContainerRespuestaRapida}
+          onPress={() => onPressRapida && onPressRapida(true)}
+          activeOpacity={0.7}
+        >
+          <Icon
+            name="reply"
+            size={20}
+            color="#fff"
+            style={[styles.icon, { marginLeft: 8 }]}
+          />
+        </TouchableOpacity>
         )}
       </View>
 
@@ -150,6 +166,7 @@ export function CardCliente({
           <GPS size={20} color="white" style={styles.icon} />
         </TouchableOpacity>
       </View>
+      
       <View style={styles.row}>
         <Icon name="calendar" size={20} color="black" style={styles.icon} />
         <Text style={styles.text}>

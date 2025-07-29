@@ -8,3 +8,4 @@ export * from './MapaCustomModal'; // Exporta el componente MapaCustomModal
 export * from './ConfirmDialog'; // Exporta el componente ConfirmDialog
 export * from './Reasignar'; // Exporta el componente Reasignar
 export * from './PhotoViewer'; // Exporta el componente PhotoViewer
+export * from './RespuestaRapida'; // Exporta el componente RespuestaRapida

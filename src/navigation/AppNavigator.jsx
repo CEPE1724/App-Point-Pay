@@ -7,6 +7,7 @@ import Login from "../screens/Login/Login";
 import { MenuTabNavigator } from "../../src/navigation/MenuTabNavigator";
 import { CobranzaTabs } from "../screens/MenuCobranza/CobranzaTabs/CobranzaTabs";
 import { VentasTabs } from "../screens/MenuVentas/VentasTabs/VentasTabs";
+import { CreditoTabs } from "../screens/MenuCredito/CreditoTabs/CreditoTabs";
 import { LocationTracker } from "../components/Location/Location";
 import ResgistroDispositivo from "../screens/ResgistroDispositivo/ResgistroDispositivo";
 import PinConfigurado from "../screens/PinConfigurado/PinConfigurado";
@@ -21,6 +22,7 @@ const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function TabNavigator() {
+  console.log("TabNavigator rendered");
   return (
     <>
       <LocationSender />
@@ -39,6 +41,12 @@ function TabNavigator() {
         <Tab.Screen
           name="Ventas"
           component={VentasTabs}
+          options={{ tabBarStyle: { display: "none" } }}
+        />
+
+        <Tab.Screen
+          name="CrediPoint"
+          component={CreditoTabs}
           options={{ tabBarStyle: { display: "none" } }}
         />
       </Tab.Navigator>

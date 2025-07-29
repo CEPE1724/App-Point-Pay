@@ -4,6 +4,7 @@ import { Location, Exit, Notification, User } from '../../Icons';
 import { useSocket } from '../../utils/SocketContext';
 import LogoCobranza from '../../../assets/PontyDollar.png';
 import LogoVentas from '../../../assets/PointVentas.png';
+import Credito from '../../../assets/Credito.png';
 import logo from '../../../assets/Point.png';
 import { useAuth } from '../../navigation/AuthContext';
 import { useDb } from '../../database/db';
@@ -27,8 +28,8 @@ export function Menu({ navigation }) {
   const [usuarioapp, setUsuarioapp] = useState('');
   const [pushToken, setPushToken] = useState('');
   const socket = useSocket();
-
-  const VersionActual = '2.4.6.0';
+  const [idNomina, setIdNomina] = useState(null);
+  const VersionActual = '2.5.0.0';
 
   useEffect(() => {
     if (expoPushToken) {
@@ -112,7 +113,10 @@ export function Menu({ navigation }) {
       const items = await getItemsAsyncMenu(db);
       const datauser = await getItemsAsyncUser(db);
       const data = await getItemsAsync(db);
-
+      setIdNomina(data[0]?.idNomina || 0);
+      console.log("🔍 Datos del menú:", items);
+      console.log("🔍 Datos del usuario:", datauser);
+      console.log("🔍 Datos de configuración:", data);
       setPushToken(data[0]?.TokenPush);
       setUsuarioapp(datauser[0]?.Nombre);
       setPermisosMenu(items.map(item => item.Menu));
@@ -146,7 +150,7 @@ export function Menu({ navigation }) {
         return;
       }
   
-      const userId = userNotification[0].idNomina;
+      const userId = userNotification[0].idNomina || idNomina;
   
       const response = await axios.get(APIURL.getCountNotificacionesNoti(), {
         headers: {
@@ -177,6 +181,14 @@ export function Menu({ navigation }) {
   const handleLogout = () => logout();
 
   const screenNotification = () => {
+    console.log("🔔 Navegando a notificaciones con ec:",   {
+      notificationsVer: notificationCount,
+      linkVersion: linkVersion,
+      usuario: usuarioapp,
+      version: version,
+      versionActual: VersionActual,
+      UserID: idNomina 
+    });
     navigation.navigate(screen.menu.tab, {
       screen: screen.menu.notificaciones,
       params: {
@@ -185,7 +197,7 @@ export function Menu({ navigation }) {
         usuario: usuarioapp,
         version: version,
         versionActual: VersionActual,
-        UserID: userNotification[0].idNomina,
+        UserID: idNomina ||userNotification[0].idNomina 
       },
     });
   };
@@ -217,7 +229,14 @@ export function Menu({ navigation }) {
             <Text style={styles.cardTitle}>Ventas</Text>
           </TouchableOpacity>
         )}
-        {(!permisosMenu.includes(1) && !permisosMenu.includes(2)) && (
+        {permisosMenu.includes(3) && (
+          <TouchableOpacity style={styles.card} onPress={() => 
+           navigation.navigate('CrediPoint')}>
+            <Image source={Credito} style={{ width: 50, height: 50 }} />
+            <Text style={styles.cardTitle}>CrediPoint</Text>
+          </TouchableOpacity>
+        )}
+        {(!permisosMenu.includes(1) && !permisosMenu.includes(2)) && !permisosMenu.includes(3)  && (
           <View style={styles.errorContainer}>
             <User size={50} color="#fff" />
             <Text style={styles.errorMessage}>No tienes permisos para acceder a ninguna sección.</Text>

@@ -52,6 +52,12 @@ const menuVentasStack = {
     detallecombos : "DetalleCombos",
     salir: "Salir",
 }
+
+const menuCreditoStack = {
+    tab: "MenuCreditoTab",
+    inicio: "MenuCredito",
+    salir: "Salir",
+}
 export const screen = {
         drive: driveStack,
         home: homeStack,
@@ -60,6 +66,7 @@ export const screen = {
         gestionDiaria: gestionDiariaStack,
         menu: menuStack,
         menuVentas: menuVentasStack,
+        menuCredito: menuCreditoStack,
 
     };
 //navigation.navigate(screen.drive.insert);   para viajar en las mismas pantallas o stack

@@ -189,6 +189,22 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  
+  iconContainerRespuestaRapida: {
+    backgroundColor: "#d92327", // Un color naranja para resaltar la reasignación
+    padding: 6,
+    borderRadius: 8,
+    marginLeft: 5,
+    borderWidth: 1,
+    borderColor: "#FFA000", // Borde más oscuro para contraste
+    shadowColor: "#FFA000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 3,
+    alignItems: "center",
+    justifyContent: "center",
+  },
 
   iconReasignar: {
     color: "#fff",

@@ -11,7 +11,7 @@ import { styles } from "./ClientesScreen.style";
 import { useNavigation } from "@react-navigation/native";
 import { screen } from "../../../../../utils/screenName";
 import { APIURL } from "../../../../../config/apiconfig";
-import { CardCliente, ReasignarModal } from "../../../../../components";
+import { CardCliente, ReasignarModal, RespuestaRapida } from "../../../../../components";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useAuth } from "../../../../../navigation/AuthContext";
 import { handleError } from '../../../../../utils/errorHandler';
@@ -21,7 +21,7 @@ import { getItemsAsyncUser } from '../../../../../database';
 export function ClientesScreen(props) {
   const { navigation } = props;
   const [data, setData] = useState([]);
-  const [ clienteReasignacion , setClienteReasignacion ] = useState(null);
+  const [clienteReasignacion, setClienteReasignacion] = useState(null);
   const [totalRecords, setTotalRecords] = useState(0);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -32,6 +32,7 @@ export function ClientesScreen(props) {
   const [token, setToken] = useState(null);
   const { expireToken } = useAuth();
   const [modalreasignar, setModalReasignar] = useState(false);
+  const [modalRespuestaRapida, setModalRespuestaRapida] = useState(false);
   const { db } = useDb();
   // Fetch user info and token from 
   useEffect(() => {
@@ -59,7 +60,7 @@ export function ClientesScreen(props) {
       fetchData();
       fetchCountData();
     }
-  }, [userInfoLoaded, token, modalreasignar]);
+  }, [userInfoLoaded, token, modalreasignar, modalRespuestaRapida]);
 
   // Fetch data for client verification status
   const fetchCountData = async () => {
@@ -138,10 +139,15 @@ export function ClientesScreen(props) {
   };
 
   const handleReasignar = (vista, item) => {
- 
+
     setClienteReasignacion(item);
     setModalReasignar(vista);
 
+  }
+
+  const handleRespuestaRapida = (vista, item) => {
+    setClienteReasignacion(item);
+    setModalRespuestaRapida(vista);
   }
   // Calculate totals for client status
   const totalPendiente =
@@ -199,7 +205,8 @@ export function ClientesScreen(props) {
               key={item.idClienteVerificacion}
               item={item}
               handleIconPress={handleIconPress}
-              onPress={() => handleReasignar(true, item)} 
+              onPress={() => handleReasignar(true, item)}
+              onPressRapida={() => handleRespuestaRapida(true, item)}
             />
           ))}
         </View>
@@ -233,6 +240,17 @@ export function ClientesScreen(props) {
           onConfirm={() => {
             // Aquí puedes poner tu lógica de confirmación
             setModalReasignar(false);
+          }}
+        />
+      )}
+      {modalRespuestaRapida && (
+        <RespuestaRapida
+          visible={modalRespuestaRapida}
+          onClose={() => setModalRespuestaRapida(false)}
+          data={clienteReasignacion}
+          onConfirm={() => {
+            // Aquí puedes poner tu lógica de confirmación
+            setModalRespuestaRapida(false);
           }}
         />
       )}

@@ -1,0 +1,1 @@
+export * from './RespuestaRapida'; // Exporta el componente RespuestaRapida

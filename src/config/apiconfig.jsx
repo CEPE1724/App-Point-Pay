@@ -74,5 +74,12 @@ export const APIURL = {
     getVerificarSupervisor: () => `${API_BASE_URL}AsignacionCobradores/VerificarSupervisor`,
     getVerificarSupervisorCobradores: () => `${API_BASE_URL}AsignacionCobradores/CobradoresIdSupervisor`,
     updatecobrador: () => `${API_BASE_URL}AsignacionCobradores/UpdateCobrador`,
+    getTipoConsulta: (id) => `${API_BASE_URL}CompraEncuesta/${id}`,
+    getSituacionLaboral: (id) => `${API_BASE_URL}Cre_SituacionLaboral/${id}`,
+    Cre_ActividadEconomicaByEntidad: (id) => `${API_BASE_URL}Cre_ActividadEconomica/${id}`,
+    getUserClave: () => `${API_BASE_URL}v1/APPUSER/app`,
+    Cre_Tiempo: (id) => `${API_BASE_URL}Cre_Tiempo/${id}`,
+    getCre_ProductoSolicitud: () => `${API_BASE_URL}Cre_ProductoSolicitud`,
+    getnominaidPersonal: (id) => `${API_BASE_URL}Nomina/${id}`,
 
 };

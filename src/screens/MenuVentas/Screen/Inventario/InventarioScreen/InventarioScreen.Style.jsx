@@ -23,6 +23,8 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     borderRadius: 8,
     shadowColor: '#000',
+    backgroundColor: '#fff',
+    color: '#111827',
   },
   pickerItem: {
     fontSize: 12,
@@ -112,13 +114,13 @@ export const styles = StyleSheet.create({
     color: '#777',
   },
 
-  
 
 
- 
-  
- 
-  
+
+
+
+
+
   imageThumbnail: {
     width: 50,
     height: 50,
@@ -127,7 +129,7 @@ export const styles = StyleSheet.create({
   },
 
 
- 
+
   recordsFoundText: {
     fontSize: 12,
     color: 'black',

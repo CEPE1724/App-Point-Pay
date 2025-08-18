@@ -23,7 +23,11 @@ export const styles = StyleSheet.create({
     marginTop: 5, // Espacio entre el ícono y el título
   },
   image: {
-    marginBottom: 20,
+    width: 100,
+    height: 70,
+    marginBottom: 10,
+    alignSelf: 'flex-start',
+
   },
   cardContainer: {
     flexDirection: 'row',
@@ -69,7 +73,7 @@ export const styles = StyleSheet.create({
   cardContainerLoc: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    top: 30,
+    top: 10,
     justifyContent: 'space-around',
     width: '100%',
   },
@@ -103,5 +107,47 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     color: '#063970',
     marginLeft: 10,
+  },
+  carousel: {
+    marginTop: 10,
+    maxHeight: 140, // Limita la altura del carrusel
+    width: '100%',
+    paddingVertical: 10, // Añade algo de espacio vertical
+     backgroundColor: '#063970', // Color de fondo para distinguir el carrusel
+     borderRadius: 10, // Bordes redondeados para el carrusel
+     paddingHorizontal: 10, // Espacio horizontal dentro del carrusel
+     paddingVertical: 20, // Espacio vertical dentro del carrusel
+     shadowColor: '#000',
+     shadowOffset: { width: 0, height: 2 },
+     shadowOpacity: 0.1,
+     shadowRadius: 4,
+
+   
+  },
+  carouselItem: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 10, // Reducido a la mitad
+    marginHorizontal: 5,
+    marginRight: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
+    height: 100, // Agrega esto para controlar la altura (ajústalo según tu diseño)
+    width: 180, // Ancho fijo para cada item del carrusel
+  },
+
+
+  carouselItemText: {
+    fontSize: 14,
+    color: '#333',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
   },
 });

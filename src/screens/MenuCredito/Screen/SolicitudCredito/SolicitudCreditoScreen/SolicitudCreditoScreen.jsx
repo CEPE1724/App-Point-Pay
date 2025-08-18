@@ -761,7 +761,7 @@ export const SolicitudCreditoScreen = () => {
                             visible={modalVisible}
                             datos={datosSolicitud}
                             token ={userToken}
-                            idNomina={idNomina}
+                            idNomina={idPersonal}
                             onClose={codigo => {
                                 if (codigo === "timeout") {
                                     Toast.show({ type: "error", text1: "Tiempo agotado", text2: "Debe reintentar" });

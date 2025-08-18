@@ -155,6 +155,7 @@ export function CombosBaratazos(props) {
                         setIsBodegaSelected(true); // Cambiar a true cuando se seleccione una opción
                     }}
                     style={styles.picker}
+                    dropdownIconColor="#000"
                 >
                     {Bodegas.map((bodega) => (
                         <Picker.Item

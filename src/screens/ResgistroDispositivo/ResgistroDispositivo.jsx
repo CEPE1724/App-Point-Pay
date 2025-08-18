@@ -157,7 +157,7 @@ export default function FormularioRegistro({ navigation }) {
         {!showForm ? (
           <>
             <Text style={styles.formTitle}>Formulario de Registro</Text>
-            <Text style={styles.formSubTitle}> Versión: 2.5.0.0 </Text>
+            <Text style={styles.formSubTitle}> Versión: 2.5.1.0 </Text>
             <Text style={styles.formSubTitle}>
               Para el registro y acceso a la aplicación, ingresa tu número de identificación y luego selecciona "Validar".
             </Text>

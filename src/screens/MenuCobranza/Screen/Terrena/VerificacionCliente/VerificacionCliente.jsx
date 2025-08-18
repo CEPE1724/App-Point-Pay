@@ -82,8 +82,9 @@ const options = {
     { value: 3, label: "Malas referencias", icon: "thumbs-down" },
     { value: 4, label: "No vive ahí", icon: "question-circle" },
     { value: 5, label: "Datos falsos", icon: "exclamation-circle" },
-    { value: 6, label: "Zona Vetada", icon: "ban" },
+   // { value: 6, label: "Zona Vetada", icon: "ban" },
     { value: 7, label: "No sustenta ingresos", icon: "money" },
+    { value: 10, label: "Crédito a Terceros", icon: "users" },
   ],
 };
 
@@ -459,6 +460,7 @@ const LaboralTab = ({ state, setState }) => {
     calleSecundariaLaboralRef,
     direccionCoincide,
     tipoVerificacion,
+    observacionLaboral,
   } = state;
   const renderRadioGroup = (label, value, onChange, options) => (
     <RadioGroup
@@ -548,6 +550,12 @@ const LaboralTab = ({ state, setState }) => {
         value={calleSecundariaLaboralRef}
         onChange={(text) => setState({ ...state, calleSecundariaLaboralRef: text })}
       />
+      <TextInputField
+        label="Observación"
+        placeholder="Ingrese Observación"
+        value={observacionLaboral}
+        onChange={(text) => setState({ ...state, observacionLaboral: text })}
+      />
       <ScrollView contentContainerStyle={styles.containerMaps}>
         <View style={styles.overlay}>
           <Icon name="map-marker" size={50} onPress={toggleModal} />
@@ -571,7 +579,7 @@ const LaboralTab = ({ state, setState }) => {
         />
         <TextInputField
           label="Latitud"
-          placeholder="Ingrese calle principal"
+          placeholder="Ingrese Latitud "
           value={callePrincipalLaboral}
           onChange={(text) =>
             setState({ ...state, callePrincipalLaboral: text })
@@ -581,7 +589,7 @@ const LaboralTab = ({ state, setState }) => {
         />
         <TextInputField
           label="Longitud"
-          placeholder="Ingrese calle secundaria"
+          placeholder="Ingrese Longitud"
           value={calleSecundariaLaboral}
           onChange={(text) =>
             setState({ ...state, calleSecundariaLaboral: text })
@@ -644,6 +652,7 @@ export function VerificacionCliente({ route, navigation }) {
     calleSecundariaRef: "",
     callePrincipalLaboralRef: "",
     calleSecundariaLaboralRef: "",
+    observacionLaboral: "",
   });
 
   const [showTabContent, setShowTabContent] = useState({
@@ -719,6 +728,7 @@ export function VerificacionCliente({ route, navigation }) {
           max: 250,
           label: "Calle Secundaria Laboral",
         },
+        observacionLaboral: { min: 10, max: 500, label: "Observación" },
         callePrincipalLaboral: { min: 1, max: 100, label: "Ubicación Trabajo" },
         calleSecundariaLaboral: {
           min: 1,
@@ -979,6 +989,7 @@ export function VerificacionCliente({ route, navigation }) {
           CalleSecundaria: state.calleSecundariaLaboralRef || "",
           direccionCoincide: state.direccionCoincide || 1,
           tipoVerificacion: state.tipoVerificacion || 1,
+          Observaciones: state.observacionLaboral || "",
         };
       }
    

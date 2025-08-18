@@ -52,7 +52,7 @@
     export const getItemsAsyncBodegaALL = async (db) => {
 
         try {
-            const query = 'SELECT * FROM Bodegas';
+            const query = 'SELECT * FROM Bodegas where Activo = 1 and Factura = 1 and Inventario = 1 ORDER BY Nombre ASC';
             const items = await db.getAllAsync(query);
             return items;
 

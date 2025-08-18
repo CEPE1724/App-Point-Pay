@@ -45,16 +45,16 @@ export function RespuestaRapida({ visible, onClose, onConfirm, data }) {
                 idTerrenaPropiedad: 99,
                 idTerrenaAcceso: 99,
                 idTerrenaCobertura: 99,
-                PuntoReferencia: "Sin punto de referencia",
-                PersonaEntrevistada: "No se entrevistó a nadie",
-                Observaciones: nota.trim(),
-                VecinoEntreVisto: "No",
-                DireccionesVisitada: "No se pudo visitar la dirección",
+                PuntoReferencia: "SIN PUNTO DE REFERENCIA",
+                PersonaEntrevistada: "NO SE ENTREVISTÓ A NADIE",
+                Observaciones: nota.trim().toUpperCase(),
+                VecinoEntreVisto: "NO",
+                DireccionesVisitada: "NO SE PUDO VISITAR LA DIRECCIÓN",
                 Latitud: -0.1807, // Quito, como centro de Ecuador
                 Longitud: -78.4678,
                 domicilioImages: "https://example.com/fake-image.jpg",
-                CallePrincipal: "No registrada",
-                CalleSecundaria: "No registrada",
+                CallePrincipal: "NO REGISTRADA",
+                CalleSecundaria: "NO REGISTRADA",
                 ValorArrendado: 0,
                 direccionCoincide: 1,
                 tipoVerificacion,
@@ -67,18 +67,19 @@ export function RespuestaRapida({ visible, onClose, onConfirm, data }) {
                 iTiempoTrabajo: 1,
                 iTiempoTrabajoYear: 1,
                 dIngresoTrabajo: 10,
-                ActividadTrabajo: "No se verificó actividad laboral",
+                ActividadTrabajo: "NO SE VERIFICÓ ACTIVIDAD LABORAL",
                 TelefonoTrabajo: "022222222",
-                PuntoReferencia: "Sin punto de referencia laboral",
-                PersonaEntrevistada: "No se entrevistó a nadie",
-                DireccionesVisitada: "Dirección laboral no visitada",
+                PuntoReferencia: "SIN PUNTO DE REFERENCIA LABORAL",
+                PersonaEntrevistada: "NO SE ENTREVISTÓ A NADIE",
+                DireccionesVisitada: "DIRECCIÓN LABORAL NO VISITADA",
                 Latitud: -0.1807, // Quito, como centro de Ecuador
                 Longitud: -78.4678,
                 trabajoImages: "https://example.com/fake-image.jpg",
-                CallePrincipal: "No registrada",
-                CalleSecundaria: "No registrada",
+                CallePrincipal: "NO REGISTRADA",
+                CalleSecundaria: "NO REGISTRADA",
                 direccionCoincide: 1,
                 tipoVerificacion,
+                Observacion: nota.trim().toUpperCase(),
             };
         }
 
@@ -92,7 +93,7 @@ export function RespuestaRapida({ visible, onClose, onConfirm, data }) {
     };
 
     useEffect(() => {
-        const isValid = selectedMotivoId && nota.trim().length >= 10;
+        const isValid = selectedMotivoId && nota.trim().length >= 10 && nota.trim().length <= 200;
         setIsFormValid(isValid);
     }, [selectedMotivoId, nota]);
 
@@ -126,7 +127,7 @@ export function RespuestaRapida({ visible, onClose, onConfirm, data }) {
                     type: 'success',
                     text1: 'Verificación cancelada',
                     text2: 'La verificación ha sido cancelada exitosamente.',
-                     
+
                 });
                 onConfirm({
                     motivoId: selectedMotivoId,
@@ -153,7 +154,8 @@ export function RespuestaRapida({ visible, onClose, onConfirm, data }) {
                     <Picker
                         selectedValue={selectedMotivoId}
                         onValueChange={(itemValue) => setSelectedMotivoId(itemValue)}
-                        style={{ height: 50, width: '100%', marginBottom: 20 }}
+                        style={styles.picker}
+                        dropdownIconColor="#000"
                     >
                         <Picker.Item label="Seleccione un motivo" value={null} />
                         {motivos.map((motivo) => (
@@ -161,7 +163,8 @@ export function RespuestaRapida({ visible, onClose, onConfirm, data }) {
                         ))}
                     </Picker>
 
-                    <Text style={styles.label}>Escribe una nota (mínimo 10 caracteres):</Text>
+                    <Text style={styles.label}>Escribe una nota (mínimo 10 caracteres)</Text>
+                    <Text style={styles.label}>y máximo 200 caracteres</Text>
                     <TextInput
                         style={styles.input}
                         multiline
@@ -267,4 +270,11 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         fontSize: 16,
     },
+    picker: {
+        height: 50,
+        width: '100%',
+        backgroundColor: '#fff',
+        color: '#111827',
+    },
+
 });

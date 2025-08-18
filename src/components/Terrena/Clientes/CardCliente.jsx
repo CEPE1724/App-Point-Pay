@@ -70,8 +70,8 @@ export function CardCliente({
   const estadoStyles = {
     0: { text: "Pendiente", color: "#FFA500" }, // amarillo
     1: { text: "Enviado", color: "#28A745" }, // Verde
-    2: { text: "Aprobado", color: "#007BFF" }, // Azul
-    3: { text: "Anulado", color: "#DC3545" }, // Rojo
+    3: { text: "Aprobado", color: "#007BFF" }, // Azul
+    2: { text: "Anulado", color: "#DC3545" }, // Rojo
   };
 
   const cre_tiempo = {

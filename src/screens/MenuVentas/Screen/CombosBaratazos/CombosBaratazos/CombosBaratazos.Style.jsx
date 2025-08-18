@@ -10,7 +10,7 @@ export const styles = StyleSheet.create({
         marginVertical: 0, // Eliminamos el margen vertical para evitar espacio extra
         paddingHorizontal: 5, // Reducido de 10 a 5
         borderRadius: 8,
-        backgroundColor: "#ffffff",
+        
     },
     pickerContainer: {
         marginBottom: 5,
@@ -27,7 +27,11 @@ export const styles = StyleSheet.create({
         height: 50,
         width: '100%',
         borderRadius: 8,
+        borderRadius: 8,
         shadowColor: '#000',
+        backgroundColor: '#fff',
+        color: '#111827',
+
     },
     pickerItem: {
         fontSize: 12,

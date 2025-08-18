@@ -37,10 +37,10 @@ export function InventarioScreen(props) {
       try {
         const iBodega = await getItemsAsyncBodegaALL(db);
         if (iBodega) {
-         // fetchBodegas(parsedUserInfo);
+          // fetchBodegas(parsedUserInfo);
           setBodegas(iBodega);
           setSelectedBodega(iBodega[0]?.Bodega || null); // Asignamos el valor de la bodega seleccionada directamente aquí.
-        } 
+        }
       } catch (error) {
         console.error("Error fetching data from:", error);
       }
@@ -106,10 +106,15 @@ export function InventarioScreen(props) {
 
   // Llamada a la API cuando cambia el filtro de búsqueda
   useEffect(() => {
-    setCurrentPage(1);
-    setData([]); // Limpiar los datos cuando cambie el filtro
-    fetchData(1); // Llamada a la API con el nuevo filtro
+    const delayDebounce = setTimeout(() => {
+      setCurrentPage(1);
+      setData([]); // Limpiar los datos cuando cambie el filtro
+      fetchData(1);
+    }, 500); // Espera 500ms después de dejar de escribir
+
+    return () => clearTimeout(delayDebounce); // Cancela si escribe algo nuevo
   }, [filtro]);
+
 
   // Función para manejar la carga de más productos
   const handleLoadMore = () => {
@@ -155,6 +160,7 @@ export function InventarioScreen(props) {
           selectedValue={selectedBodega}
           onValueChange={(itemValue) => setSelectedBodega(itemValue)}
           style={styles.picker}
+          dropdownIconColor="#000"
         >
           {Bodegas.map((bodega) => (
             <Picker.Item

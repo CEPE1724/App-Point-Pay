@@ -1,10 +1,10 @@
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
  
-const API_BASE_URL = "http://192.168.2.49:3055/cobranza/api/v1/point/";
-const SOCKET_BASE_URL = "http://192.168.2.49:3055"; 
-//const API_BASE_URL = "https://appservices.com.ec/cobranza/api/v1/point/";
-//const SOCKET_BASE_URL = "https://appservices.com.ec";
+//const API_BASE_URL = "http://192.168.2.49:3055/cobranza/api/v1/point/";
+//const SOCKET_BASE_URL = "http://192.168.2.49:3055"; 
+const API_BASE_URL = "https://appservices.com.ec/cobranza/api/v1/point/";
+const SOCKET_BASE_URL = "https://appservices.com.ec";
 export const APIURL = {
    
     senLogin: () => `${API_BASE_URL}login`,

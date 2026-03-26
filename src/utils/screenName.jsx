@@ -31,6 +31,12 @@ const registroStack = {
 
 }
 
+const servicioTecnicoStack = {
+    tab: "ServicioTecnicoTab",
+    inicio: "ServicioTecnico",
+    insert: "ServicioTecnicoInsert",
+}
+
 const terrenoStack = {
     tab: "TerrenoTab",
     inicio: "Terreno",
@@ -67,6 +73,7 @@ export const screen = {
         menu: menuStack,
         menuVentas: menuVentasStack,
         menuCredito: menuCreditoStack,
+        menuServicioTecnico: servicioTecnicoStack,
 
     };
 //navigation.navigate(screen.drive.insert);   para viajar en las mismas pantallas o stack

@@ -12,6 +12,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import Entypo from '@expo/vector-icons/Entypo';
 //https://icons.expo.fyi/Index
 import Octicons from '@expo/vector-icons/Octicons';
+
 export const CircleInfoIcon = (props) => {
   return <FontAwesome5 name="info-circle" size={props.size} color={props.color} />;
 };
@@ -78,6 +79,10 @@ export const People = (props) => {
 export const Upload = (props) => {
   return <FontAwesome6 name="upload" size={props.size} color={props.color} />
 };
+
+export const screwdriver = (props) => {
+  return <FontAwesome6 name="screwdriver" size={props.size} color={props.color} />
+}
 
 export const ViewPhoto = (props) => {
   return <FontAwesome6 name="users-viewfinder" size={props.size} color={props.color} />

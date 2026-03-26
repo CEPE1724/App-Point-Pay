@@ -571,64 +571,76 @@ export function InsertScreen({ route, navigation }) {
         handleViewReferencias={handleViewReferencias}
       />
 
-      {/* Primer Picker para estados */}
-      <View style={styles.pickerContainer}>
-        <Picker
-          selectedValue={selectedValue}
-          onValueChange={handleValueChange}
-          style={styles.picker}
-        >
-          <Picker.Item label="Seleccione...1" value="" />
-          {items.map((item) => (
-            <Picker.Item
-              key={item.idEstadoGestion}
-              label={item.Estado}
-              value={item.idEstadoGestion}
-            />
-          ))}
-        </Picker>
-      </View>
+      <View style={styles.formSection}>
+        <Text style={styles.formSectionTitle}>Gestion de cobranza</Text>
+        <Text style={styles.formSectionSubtitle}>
+          Complete el flujo de gestion seleccionando estado, tipo de contacto y resultado.
+        </Text>
 
-      {/* Segundo Picker para tipos de contacto */}
-      {selectedValue ? (
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={selectedContactType}
-            onValueChange={handleContactTypeChange}
-            style={styles.picker}
-          >
-            <Picker.Item label="Seleccione...2" value="" />
-            {contactTypes.map((type) => (
-              <Picker.Item
-                key={type.idCbo_EstadosTipocontacto}
-                label={type.Estado}
-                value={type.idCbo_EstadosTipocontacto}
-              />
-            ))}
-          </Picker>
-        </View>
-      ) : null}
-
-      {/* Tercer Picker para resultados de gestión */}
-      {/* Tercer Picker para resultados de gestión */}
-      {selectedContactType ? (
-        <View>
+        <View style={styles.fieldGroup}>
+          <Text style={styles.pickerLabel}>Estado de gestion</Text>
           <View style={styles.pickerContainer}>
             <Picker
-              selectedValue={selectedResultado}
-              onValueChange={handleResultadoChange}
+              selectedValue={selectedValue}
+              onValueChange={handleValueChange}
               style={styles.picker}
             >
-              <Picker.Item label="Seleccione...3" value="" />
-              {resultadoGestion.map((result) => (
+              <Picker.Item label="Seleccione un estado" value="" />
+              {items.map((item) => (
                 <Picker.Item
-                  key={result.idCbo_ResultadoGestion}
-                  label={result.Resultado}
-                  value={result.idCbo_ResultadoGestion}
+                  key={item.idEstadoGestion}
+                  label={item.Estado}
+                  value={item.idEstadoGestion}
                 />
               ))}
             </Picker>
           </View>
+          <Text style={styles.pickerHelper}>Este campo activa los siguientes pasos del formulario.</Text>
+        </View>
+
+        {selectedValue ? (
+          <View style={styles.fieldGroup}>
+            <Text style={styles.pickerLabel}>Tipo de contacto</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={selectedContactType}
+                onValueChange={handleContactTypeChange}
+                style={styles.picker}
+              >
+                <Picker.Item label="Seleccione un tipo de contacto" value="" />
+                {contactTypes.map((type) => (
+                  <Picker.Item
+                    key={type.idCbo_EstadosTipocontacto}
+                    label={type.Estado}
+                    value={type.idCbo_EstadosTipocontacto}
+                  />
+                ))}
+              </Picker>
+            </View>
+          </View>
+        ) : null}
+
+        {selectedContactType ? (
+          <View>
+            <View style={styles.fieldGroup}>
+              <Text style={styles.pickerLabel}>Resultado de gestion</Text>
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={selectedResultado}
+                  onValueChange={handleResultadoChange}
+                  style={styles.picker}
+                >
+                  <Picker.Item label="Seleccione un resultado" value="" />
+                  {resultadoGestion.map((result) => (
+                    <Picker.Item
+                      key={result.idCbo_ResultadoGestion}
+                      label={result.Resultado}
+                      value={result.idCbo_ResultadoGestion}
+                    />
+                  ))}
+                </Picker>
+              </View>
+            </View>
 
           {/* Mostrar campo de texto y calendario si el resultado seleccionado es 54 */}
           {selectedResultado === 54 && (
@@ -674,21 +686,24 @@ export function InsertScreen({ route, navigation }) {
           )}
 
           {selectedResultado === 61 && (
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={selectedTipoPago}
-                onValueChange={handleTipoPagoChange}
-                style={styles.picker}
-              >
-                <Picker.Item label="Seleccione..." value="" />
-                {TipoPago.map((type) => (
-                  <Picker.Item
-                    key={type.id}
-                    label={type.name}
-                    value={type.id}
-                  />
-                ))}
-              </Picker>
+            <View style={styles.fieldGroup}>
+              <Text style={styles.pickerLabel}>Tipo de pago</Text>
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={selectedTipoPago}
+                  onValueChange={handleTipoPagoChange}
+                  style={styles.picker}
+                >
+                  <Picker.Item label="Seleccione un tipo de pago" value="" />
+                  {TipoPago.map((type) => (
+                    <Picker.Item
+                      key={type.id}
+                      label={type.name}
+                      value={type.id}
+                    />
+                  ))}
+                </Picker>
+              </View>
             </View>
           )}
 
@@ -733,6 +748,7 @@ export function InsertScreen({ route, navigation }) {
           </View>
         </View>
       ) : null}
+      </View>
 
 
       {isConnected && (
@@ -758,7 +774,8 @@ export function InsertScreen({ route, navigation }) {
           />
 
           <TouchableOpacity style={styles.button} onPress={handleSave}>
-            <Text style={styles.buttonText}>Guardar</Text>
+            <Icon name="check-circle" size={18} color="#FFFFFF" style={styles.buttonIcon} />
+            <Text style={styles.buttonText}>Guardar gestion</Text>
           </TouchableOpacity>
           <LoadingIndicator visible={loading} />
           <ConfirmationModal

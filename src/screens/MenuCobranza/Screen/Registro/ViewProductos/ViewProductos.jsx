@@ -8,6 +8,7 @@ import { useAuth } from '../../../../../navigation/AuthContext'; // Importamos e
 import { handleError } from '../../../../../utils/errorHandler';
 import { useDb } from '../../../../../database/db'; // Importa la base de datos
 import { getItemsAsyncUser } from '../../../../../database';
+import Icon from "react-native-vector-icons/FontAwesome";
 
 export const ViewProductos = ({ route }) => {
   const { item } = route.params; 
@@ -82,15 +83,59 @@ export const ViewProductos = ({ route }) => {
     fetchData();
   }, [idCompra]);
 
+  const renderHeader = () => (
+    <View style={styles.headerCard}>
+      <Text style={styles.headerTitle}>Productos de la compra</Text>
+      <Text style={styles.headerSubtitle}>
+        Revise el detalle del articulo, serial y precio unitario antes de continuar.
+      </Text>
+      <View style={styles.countBadge}>
+        <Text style={styles.countText}>{productos.length} productos</Text>
+      </View>
+    </View>
+  );
+
+  const renderEmpty = () => (
+    <View style={styles.emptyWrap}>
+      <Text style={styles.emptyTitle}>Sin productos disponibles</Text>
+      <Text style={styles.emptySubtitle}>
+        No se encontraron productos para esta compra en este momento.
+      </Text>
+    </View>
+  );
+
   const renderItem = ({ item }) => (
     <View style={styles.card}>
-      <Text style={styles.productCode}>Código: {item.Codigo}</Text>
+      <View style={styles.codeRow}>
+        <Text style={styles.productCode}>Codigo: {item.Codigo}</Text>
+        {item.Serial ? (
+          <View style={styles.serialPill}>
+            <Text style={styles.serialPillText}>Serial: {item.Serial}</Text>
+          </View>
+        ) : null}
+      </View>
+
       <Text style={styles.productTitle}>{item.Articulo}</Text>
-      {item.Serial && <Text style={styles.productSerial}>Serial: {item.Serial}</Text>}
-      <Text style={styles.productPrice}>Precio: ${item.Precio.toFixed(2)}</Text>
+
+      <View style={styles.priceContainer}>
+        <Text style={styles.priceLabel}>Precio unitario</Text>
+        <Text style={styles.productPrice}>${item.Precio.toFixed(2)}</Text>
+      </View>
+ {/*
       <TouchableOpacity style={styles.selectButton} onPress={() => Alert.alert("Producto seleccionado", item.Articulo)}>
-        <Text style={styles.buttonText}>Seleccionar</Text>
+        <Icon name="shopping-cart" size={15} color="#ffffff" style={{ marginRight: 8 }} />
+        <Text style={styles.buttonText}>Seleccionar producto</Text>
       </TouchableOpacity>
+    */}
+ {/*
+      <TouchableOpacity
+        style={styles.selectButton}
+        onPress={() => Alert.alert("Servicio tecnico", item.Articulo)}
+      >
+        <Icon name="wrench" size={15} color="#ffffff" style={{ marginRight: 8 }} />
+        <Text style={styles.buttonText}>Servicio tecnico</Text>
+      </TouchableOpacity>
+      */}
     </View>
   );
 
@@ -104,6 +149,8 @@ export const ViewProductos = ({ route }) => {
       renderItem={renderItem}
       keyExtractor={(item) => item.idDetCompra.toString()}
       contentContainerStyle={styles.container}
+      ListHeaderComponent={renderHeader}
+      ListEmptyComponent={renderEmpty}
     />
   );
 };

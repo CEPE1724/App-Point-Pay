@@ -6,8 +6,9 @@ import { RegistroStack } from '../RegistroStack';
 import { ExitCobranzaStack } from '../ExitCobranzaStack';
 import { TerrenaStack } from "../TerrenaStack";
 import {DiariaStack} from "../DiariaStack";
+import { ServicioTecnicoStack } from "../ServicioTecnicoStack";
 import { screen } from "../../../utils";
-import { CircleInfoIcon, Home, Book, Terrain, CalendarToday, AccountCircle} from "../../../Icons"; // Verifica que este icono esté importado correctamente
+import { CircleInfoIcon, Home, Book, Terrain, CalendarToday, AccountCircle, screwdriver} from "../../../Icons"; // Verifica que este icono esté importado correctamente
 
 const Tab = createBottomTabNavigator();
 
@@ -63,6 +64,11 @@ export function CobranzaTabs() {
                 component={DiariaStack}
                 options={{ title: "Gestión Diaria" }}
             />
+             <Tab.Screen
+                name={screen.menuServicioTecnico.tab}
+                component={ServicioTecnicoStack}
+                options={{ title: "Servicio Técnico" }}
+            />
             <Tab.Screen
                 name={screen.terreno.tab}
                 component={TerrenaStack}
@@ -97,6 +103,9 @@ function renderIcon(route, color, size, focused) {
     if(route.name === screen.gestionDiaria.tab) {
         IconComponent = CalendarToday ;
     }
+    if(route.name === screen.menuServicioTecnico.tab) {
+        IconComponent = screwdriver ;
+    }
 
     return (
         <View
@@ -126,6 +135,8 @@ function renderLabel(route) {
             return "Terreno";
         case screen.gestionDiaria.tab:
             return "Diaria";
+        case screen.menuServicioTecnico.tab:
+            return "DT";
         default:
             return "";
     }
